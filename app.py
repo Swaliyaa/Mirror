@@ -1,4 +1,5 @@
 import psycopg2
+
 from psycopg2.extras import RealDictCursor
 from psycopg2 import IntegrityError
 import json
@@ -23,6 +24,8 @@ def get_db_connection():
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        
+        
         if "user_id" not in session:
             if request.path.startswith('/api/'):
                 return jsonify({"error": "Unauthorized"}), 401
@@ -216,16 +219,20 @@ def dashboard():
 # PAGE ROUTES
 # ----------------------------
 @app.route("/todo")
+@app.route("/todo/")
 @login_required
 def todo_page():
+    
     return render_template("todo.html")
 
 @app.route("/habit")
+@app.route("/habit/")
 @login_required
 def habit_page():
     return render_template("habit.html")
 
 @app.route("/mood")
+@app.route("/mood/")
 @login_required
 def mood_page():
     return render_template("mood.html")
@@ -293,7 +300,6 @@ def clear_completed():
     "DELETE FROM todo WHERE completed=TRUE AND user_id=%s",
     (session["user_id"],)
 )
-
     conn.commit()
     cursor.close()
     conn.close()
@@ -352,4 +358,3 @@ def api_moods():
     cursor.close()
     conn.close()
     return jsonify(rows)
-
