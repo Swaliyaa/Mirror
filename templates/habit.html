@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Mirror - Habit Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Homemade+Apple&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    .handwritten {
+      font-family: 'Homemade Apple', cursive;
+    }
+    
+    .body-text {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+    }
+    
+    .paper-texture {
+      background-color: #faf9f7;
+      background-image: 
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0,0,0,0.01) 2px,
+          rgba(0,0,0,0.01) 4px
+        );
+    }
+    
+    .habit-checkbox {
+      width: 28px;
+      height: 28px;
+      border: 2px solid #3a3a3a;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .habit-checkbox.completed {
+      background-color: #3a3a3a;
+      position: relative;
+    }
+    
+    .habit-checkbox.completed::after {
+      content: '✓';
+      color: #faf9f7;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 16px;
+    }
+    
+    .habit-row {
+      transition: opacity 0.2s ease;
+    }
+    
+    .habit-row.completed {
+      opacity: 0.5;
+    }
+    
+    .habit-row.completed .habit-name {
+      text-decoration: line-through;
+    }
+    
+    .delete-btn {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    .habit-row:hover .delete-btn {
+      opacity: 1;
+    }
+    
+    .progress-bar {
+      height: 4px;
+      background-color: #e5e5e5;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background-color: #3a3a3a;
+      transition: width 0.3s ease;
+    }
+    
+    .circular-progress {
+      width: 80px;
+      height: 80px;
+      position: relative;
+    }
+    
+    .circular-progress svg {
+      transform: rotate(-90deg);
+    }
+    
+    .circular-progress-ring {
+      fill: none;
+      stroke: #e5e5e5;
+      stroke-width: 6;
+    }
+    
+    .circular-progress-fill {
+      fill: none;
+      stroke: #3a3a3a;
+      stroke-width: 6;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.3s ease;
+    }
+    
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.3);
+      z-index: 50;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background-color: #faf9f7;
+      border: 1px solid #d5d5d5;
+      border-radius: 12px;
+      max-width: 420px;
+      width: 90%;
+      padding: 32px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #d5d5d5;
+      border-radius: 8px;
+      background-color: #faf9f7;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 15px;
+      color: #3a3a3a;
+      transition: border-color 0.2s ease;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #3a3a3a;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    
+    .btn-primary {
+      background-color: #3a3a3a;
+      color: #faf9f7;
+    }
+    
+    .btn-primary:hover {
+      background-color: #2a2a2a;
+    }
+    
+    .btn-secondary {
+      background-color: transparent;
+      color: #6a6a6a;
+      border: 1px solid #d5d5d5;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .icon-select {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+    
+    .icon-option {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #d5d5d5;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 20px;
+      transition: all 0.2s ease;
+    }
+    
+    .icon-option:hover {
+      border-color: #3a3a3a;
+    }
+    
+    .icon-option.selected {
+      border-color: #3a3a3a;
+      background-color: #f0f0f0;
+    }
+    
+    .loading-spinner {
+      border: 2px solid #e5e5e5;
+      border-top-color: #3a3a3a;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 0.6s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+<div id="habit-chatbot" class="fixed bottom-5 right-5 z-50">
+  <button id="chat-toggle" class="w-14 h-14 rounded-full bg-[#3d3a37] text-white text-xl shadow-lg">
+    💬
+  </button>
+
+  <div id="chat-window"
+    class="hidden w-72 h-96 bg-[#faf8f5] border border-gray-700 rounded-xl shadow-xl flex flex-col overflow-hidden">
+    
+    <div class="p-3 border-b border-gray-700 text-sm font-semibold">
+      Mirror Companion
+    </div>
+
+    <div id="chat-messages" class="flex-1 p-3 space-y-2 text-sm overflow-y-auto"></div>
+
+    <div class="p-2 border-t border-gray-700">
+      <input id="chat-input" type="text" placeholder="Type here..."
+        class="w-full px-2 py-1 border border-gray-700 rounded text-sm focus:outline-none">
+    </div>
+  </div>
+</div>
+
+
+ <body class="h-full body-text overflow-auto">
+  <div class="paper-texture min-h-full w-full">
+   <div class="w-full px-4 sm:px-6 py-8"><!-- Header -->
+    <div class="mb-8">
+     <div class="flex items-center gap-3 mb-2">
+      <svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="#3a3a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor: pointer;"><path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+      <h1 id="page-title" class="handwritten text-4xl text-gray-900">Habits</h1>
+     </div>
+     <p id="page-subtitle" class="text-gray-600 text-sm ml-9">showing up, one day at a time</p>
+     <p id="date-display" class="text-gray-500 text-xs ml-9 mt-1"></p>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8"><!-- Main Column -->
+     <div class="lg:col-span-2 space-y-8"><!-- Today's Progress -->
+      <div id="progress-section">
+       <h2 id="progress-title" class="text-lg font-normal text-gray-900 mb-3">Today's Progress</h2>
+       <div class="flex items-center gap-4"><span id="progress-emoji" class="text-3xl">🌱</span>
+        <div class="flex-1">
+         <div class="flex justify-between items-center mb-2"><span id="progress-text" class="text-sm text-gray-600">0 of 0 habits</span>
+         </div>
+         <div class="progress-bar">
+          <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+         </div>
+        </div>
+       </div>
+      </div><!-- Today's Habits -->
+      <div>
+       <h2 id="today-section-title" class="text-lg font-normal text-gray-900 mb-4">Today's Habits</h2>
+       <div id="habits-container" class="space-y-3"><!-- Habits will be rendered here -->
+       </div><!-- Add Habit Button --> <button id="add-habit-btn" class="mt-4 w-full py-3 border border-dashed border-gray-400 rounded-lg text-gray-600 text-sm hover:border-gray-600 hover:text-gray-900 transition-colors"> + Add New Habit </button>
+      </div>
+     </div><!-- Sidebar -->
+     <div class="space-y-8"><!-- Weekly Overview -->
+      <div>
+       <h3 id="weekly-title" class="text-base font-normal text-gray-900 mb-3">Weekly Overview</h3>
+       <div class="flex items-center gap-4">
+        <div class="circular-progress">
+         <svg viewbox="0 0 100 100"><circle class="circular-progress-ring" cx="50" cy="50" r="44" /> <circle id="weekly-progress-fill" class="circular-progress-fill" cx="50" cy="50" r="44" stroke-dasharray="276.46" stroke-dashoffset="276.46" />
+         </svg>
+         <div class="absolute inset-0 flex items-center justify-center"><span id="weekly-percentage" class="text-xl font-normal text-gray-900">0%</span>
+         </div>
+        </div>
+        <div>
+         <p id="weekly-comparison" class="text-sm text-gray-600">Just getting started</p>
+        </div>
+       </div>
+      </div><!-- Current Streaks -->
+      <div>
+       <h3 id="streaks-title" class="text-base font-normal text-gray-900 mb-3">Current Streaks</h3>
+       <div id="streaks-container" class="space-y-2">
+        <p class="text-sm text-gray-500 italic">No streaks yet</p>
+       </div>
+      </div><!-- Insights -->
+      <div>
+       <h3 id="insights-title" class="text-base font-normal text-gray-900 mb-3">Insights</h3>
+       <div id="insights-container" class="space-y-3 text-sm text-gray-600">
+        <p class="italic">Start tracking habits to see insights</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div><!-- Add Habit Modal -->
+  <div id="modal-overlay" class="modal-overlay items-center justify-center">
+   <div class="modal-content">
+    <h2 class="handwritten text-2xl text-gray-900 mb-6">New Habit</h2>
+    <form id="habit-form" class="space-y-5">
+     <div><label class="block text-sm text-gray-700 mb-2">Habit Name</label> <input type="text" id="habit-name" class="form-input" placeholder="e.g. Morning meditation" required>
+     </div>
+     <div><label class="block text-sm text-gray-700 mb-2">Icon</label>
+      <div class="icon-select" id="icon-select">
+       <div class="icon-option" data-icon="🧘">
+        🧘
+       </div>
+       <div class="icon-option" data-icon="📚">
+        📚
+       </div>
+       <div class="icon-option" data-icon="🏃">
+        🏃
+       </div>
+       <div class="icon-option" data-icon="💧">
+        💧
+       </div>
+       <div class="icon-option" data-icon="✍️">
+        ✍️
+       </div>
+       <div class="icon-option" data-icon="🎨">
+        🎨
+       </div>
+       <div class="icon-option" data-icon="🎵">
+        🎵
+       </div>
+       <div class="icon-option" data-icon="🌱">
+        🌱
+       </div>
+       <div class="icon-option" data-icon="☕">
+        ☕
+       </div>
+       <div class="icon-option" data-icon="🛏️">
+        🛏️
+       </div>
+       <div class="icon-option" data-icon="🍎">
+        🍎
+       </div>
+       <div class="icon-option" data-icon="💪">
+        💪
+       </div>
+      </div>
+     </div>
+     <div><label class="block text-sm text-gray-700 mb-2">Category</label> <input type="text" id="habit-category" class="form-input" placeholder="e.g. Wellness" required>
+     </div>
+     <div><label class="block text-sm text-gray-700 mb-2">Frequency</label> <select id="habit-frequency" class="form-input" required> <option value="Daily">Daily</option> <option value="Weekdays">Weekdays</option> <option value="Weekends">Weekends</option> <option value="Weekly">Weekly</option> </select>
+     </div>
+     <div class="flex gap-3 pt-2"><button type="submit" class="btn btn-primary flex-1 flex items-center justify-center gap-2"> <span id="submit-text">Add Habit</span>
+       <div id="submit-spinner" class="loading-spinner hidden"></div></button> <button type="button" id="cancel-btn" class="btn btn-secondary">Cancel</button>
+     </div>
+    </form>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      page_title: 'Habits',
+      page_subtitle: 'showing up, one day at a time',
+      today_section_title: "Today's Habits",
+      progress_title: "Today's Progress",
+      weekly_title: 'Weekly Overview',
+      streaks_title: 'Current Streaks',
+      insights_title: 'Insights'
+    };
+
+    let habits = [];
+    let selectedIcon = '🌱';
+
+    // Helper: Get today's date string (YYYY-MM-DD)
+    function getTodayString() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    // Helper: Parse completion history from JSON string
+    function parseCompletionHistory(history) {
+  if (!history) return {};
+
+  if (typeof history === 'object') return history;  // ✅ Fixed: semicolon after return
+
+  try {
+    const parsed = JSON.parse(history);
+    return typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+
+
+    // Helper: Check if habit is completed today
+    function isCompletedToday(habit) {
+      const history = parseCompletionHistory(habit.completion_history);
+      return history[getTodayString()] === true;
+    }
+
+    // Helper: Calculate streak from completion history
+    function calculateStreak(habit) {
+      const history = parseCompletionHistory(habit.completion_history);
+      const dates = Object.keys(history).filter(date => history[date]).sort().reverse();
+      
+      if (dates.length === 0) return 0;
+
+      const today = getTodayString();
+      let streak = 0;
+      let currentDate = new Date();
+
+      // Start from today or most recent completion
+      if (history[today]) {
+        streak = 1;
+        currentDate.setDate(currentDate.getDate() - 1);
+      } else {
+        // If not completed today, check if most recent is yesterday
+        const mostRecent = dates[0];
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayString = yesterday.toISOString().split('T')[0];
+        
+        if (mostRecent !== yesterdayString) {
+          return 0; // Streak broken
+        }
+        
+        streak = 1;
+        currentDate = yesterday;
+        currentDate.setDate(currentDate.getDate() - 1);
+      }
+
+      // Count consecutive days backwards
+      while (true) {
+        const dateString = currentDate.toISOString().split('T')[0];
+        if (history[dateString]) {
+          streak++;
+          currentDate.setDate(currentDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+
+      return streak;
+    }
+
+    // Helper: Get last 7 days as array of date strings
+    function getLast7Days() {
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        days.push(date.toISOString().split('T')[0]);
+      }
+      return days;
+    }
+
+    // Helper: Calculate weekly completion rate
+    function calculateWeeklyRate(habits) {
+      if (habits.length === 0) return 0;
+
+      const last7Days = getLast7Days();
+      let totalPossible = 0;
+      let totalCompleted = 0;
+
+      habits.forEach(habit => {
+        const history = parseCompletionHistory(habit.completion_history);
+        last7Days.forEach(day => {
+          totalPossible++;
+          if (history[day]) {
+            totalCompleted++;
+          }
+        });
+      });
+
+      return totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
+    }
+
+    // Helper: Calculate completion rate for a habit
+    function calculateCompletionRate(habit) {
+      const history = parseCompletionHistory(habit.completion_history);
+      const dates = Object.keys(history);
+      if (dates.length === 0) return 0;
+      
+      const completedDays = dates.filter(date => history[date]).length;
+      return Math.round((completedDays / dates.length) * 100);
+    }
+
+    // Initialize SDKs
+    async function initializeApp() {
+      const dataHandler = {
+        onDataChanged(data) {
+          habits = data;
+          renderHabits();
+          updateProgress();
+          updateWeeklyOverview();
+          updateStreaks();
+          updateInsights();
+        }
+      };
+
+      const dataResult = await window.dataSdk.init(dataHandler);
+      if (!dataResult.isOk) {
+        console.error('Failed to initialize data SDK');
+      }
+
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (config) => {
+            document.getElementById('page-title').textContent = config.page_title || defaultConfig.page_title;
+            document.getElementById('page-subtitle').textContent = config.page_subtitle || defaultConfig.page_subtitle;
+            document.getElementById('today-section-title').textContent = config.today_section_title || defaultConfig.today_section_title;
+            document.getElementById('progress-title').textContent = config.progress_title || defaultConfig.progress_title;
+            document.getElementById('weekly-title').textContent = config.weekly_title || defaultConfig.weekly_title;
+            document.getElementById('streaks-title').textContent = config.streaks_title || defaultConfig.streaks_title;
+            document.getElementById('insights-title').textContent = config.insights_title || defaultConfig.insights_title;
+          },
+          mapToCapabilities: (config) => ({
+            recolorables: [],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ['page_title', config.page_title || defaultConfig.page_title],
+            ['page_subtitle', config.page_subtitle || defaultConfig.page_subtitle],
+            ['today_section_title', config.today_section_title || defaultConfig.today_section_title],
+            ['progress_title', config.progress_title || defaultConfig.progress_title],
+            ['weekly_title', config.weekly_title || defaultConfig.weekly_title],
+            ['streaks_title', config.streaks_title || defaultConfig.streaks_title],
+            ['insights_title', config.insights_title || defaultConfig.insights_title]
+          ])
+        });
+      }
+    }
+
+    // Update date display
+    function updateDateDisplay() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('date-display').textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    // Render habits
+    function renderHabits() {
+      const container = document.getElementById('habits-container');
+      
+      if (habits.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-500 italic text-center py-8">No habits yet. Add your first one below.</p>';
+        return;
+      }
+
+      // Build a map of existing elements
+      const existingElements = new Map();
+      container.querySelectorAll('.habit-row').forEach(el => {
+        existingElements.set(el.dataset.id, el);
+      });
+
+      // Update or create elements
+      habits.forEach(habit => {
+        const completedToday = isCompletedToday(habit);
+        const streak = calculateStreak(habit);
+        const completionRate = calculateCompletionRate(habit);
+        
+        const existingEl = existingElements.get(habit.id);
+        
+        if (existingEl) {
+          // Update existing element
+          const checkbox = existingEl.querySelector('.habit-checkbox');
+          const row = existingEl;
+          const streakText = existingEl.querySelector('.text-xs');
+          
+          if (completedToday) {
+            checkbox.classList.add('completed');
+            row.classList.add('completed');
+          } else {
+            checkbox.classList.remove('completed');
+            row.classList.remove('completed');
+          }
+          
+          streakText.textContent = `${streak > 0 ? `${streak}-day streak` : 'No streak yet'} · ${completionRate}% completion`;
+          
+          existingElements.delete(habit.id);
+        } else {
+          // Create new element
+          const habitEl = document.createElement('div');
+          habitEl.className = `habit-row ${completedToday ? 'completed' : ''} flex items-center gap-4 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors`;
+          habitEl.dataset.id = habit.id;
+          habitEl.innerHTML = `
+            <div class="habit-checkbox ${completedToday ? 'completed' : ''}" onclick="toggleHabit('${habit.id}')"></div>
+            <span class="text-2xl flex-shrink-0">${habit.icon}</span>
+            <div class="flex-1 min-w-0">
+              <p class="habit-name text-base text-gray-900">${habit.name}</p>
+              <p class="text-xs text-gray-500 mt-1">
+                ${streak > 0 ? `${streak}-day streak` : 'No streak yet'} · ${completionRate}% completion
+              </p>
+            </div>
+            <button class="delete-btn text-gray-400 hover:text-gray-700 transition-colors" onclick="deleteHabit('${habit.id}')" aria-label="Delete habit">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+              </svg>
+            </button>
+          `;
+          container.appendChild(habitEl);
+        }
+      });
+
+      // Remove deleted habits
+      existingElements.forEach(el => el.remove());
+    }
+
+    // Toggle habit completion
+    async function toggleHabit(id) {
+      const habit = habits.find(h => h.id === id);
+      if (!habit) return;
+
+      const today = getTodayString();
+      const history = parseCompletionHistory(habit.completion_history);
+      const wasCompletedToday = history[today] === true;
+      
+      // Optimistic UI update
+      const habitRow = document.querySelector(`[data-id="${id}"]`);
+      const checkbox = habitRow.querySelector('.habit-checkbox');
+      
+      if (wasCompletedToday) {
+        checkbox.classList.remove('completed');
+        habitRow.classList.remove('completed');
+      } else {
+        checkbox.classList.add('completed');
+        habitRow.classList.add('completed');
+      }
+      
+      // Update completion history
+      history[today] = !wasCompletedToday;
+      habit.completion_history = history;
+      
+      // Recalculate streak
+      habit.streak = calculateStreak(habit);
+      triggerHabitResponse({
+  habit,
+  wasCompletedToday,
+  currentStreak: habit.streak
+});
+
+
+      // Update analytics immediately
+      updateProgress();
+      updateWeeklyOverview();
+      updateStreaks();
+      updateInsights();
+
+      // Persist to backend
+      const result = await window.dataSdk.update(habit);
+      if (!result.isOk) {
+        console.error('Failed to update habit');
+        // Revert optimistic update on error
+        if (wasCompletedToday) {
+          checkbox.classList.add('completed');
+          habitRow.classList.add('completed');
+        } else {
+          checkbox.classList.remove('completed');
+          habitRow.classList.remove('completed');
+        }
+      }
+    }
+
+    // Delete habit
+    async function deleteHabit(id) {
+      const habitRow = document.querySelector(`[data-id="${id}"]`);
+      const deleteBtn = habitRow.querySelector('.delete-btn');
+      
+      // Two-step delete confirmation
+      if (!deleteBtn.classList.contains('confirm-delete')) {
+        deleteBtn.innerHTML = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        `;
+        deleteBtn.classList.add('confirm-delete', 'text-red-500', 'hover:text-red-700');
+        
+        setTimeout(() => {
+          deleteBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+            </svg>
+          `;
+          deleteBtn.classList.remove('confirm-delete', 'text-red-500', 'hover:text-red-700');
+        }, 3000);
+        return;
+      }
+
+      const habit = habits.find(h => h.id === id);
+      if (!habit) return;
+
+      const result = await window.dataSdk.delete(habit);
+      if (!result.isOk) {
+        console.error('Failed to delete habit');
+      }
+    }
+
+    // Update progress
+    function updateProgress() {
+      const completed = habits.filter(h => isCompletedToday(h)).length;
+      const total = habits.length;
+      const percentage = total > 0 ? (completed / total) * 100 : 0;
+
+      document.getElementById('progress-text').textContent = `${completed} of ${total} habits`;
+      document.getElementById('progress-fill').style.width = `${percentage}%`;
+
+      // Update emoji based on progress
+      const emoji = percentage === 100 ? '🌟' : percentage >= 75 ? '🌻' : percentage >= 50 ? '🌿' : percentage >= 25 ? '🌱' : '🌾';
+      document.getElementById('progress-emoji').textContent = emoji;
+    }
+
+    // Update weekly overview
+    function updateWeeklyOverview() {
+      const weeklyRate = calculateWeeklyRate(habits);
+
+      document.getElementById('weekly-percentage').textContent = `${weeklyRate}%`;
+
+      // Update circular progress
+      const circumference = 276.46;
+      const offset = circumference - (weeklyRate / 100) * circumference;
+      document.getElementById('weekly-progress-fill').style.strokeDashoffset = offset;
+
+      // Update comparison text
+      const comparisonText = weeklyRate >= 80 ? 'Excellent consistency' : 
+                            weeklyRate >= 60 ? 'Building momentum' :
+                            weeklyRate >= 40 ? 'Making progress' :
+                            weeklyRate > 0 ? 'Just getting started' : 'Start your journey';
+      document.getElementById('weekly-comparison').textContent = comparisonText;
+    }
+
+    // Update streaks
+    function updateStreaks() {
+      const container = document.getElementById('streaks-container');
+      
+      // Calculate current streaks
+      const habitsWithStreaks = habits.map(h => ({
+        ...h,
+        currentStreak: calculateStreak(h)
+      })).filter(h => h.currentStreak > 0)
+        .sort((a, b) => b.currentStreak - a.currentStreak)
+        .slice(0, 3);
+
+      if (habitsWithStreaks.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-500 italic">No streaks yet</p>';
+        return;
+      }
+
+      container.innerHTML = habitsWithStreaks.map(habit => `
+        <div class="flex items-center gap-2 text-sm">
+          <span class="text-base">${habit.icon}</span>
+          <span class="text-gray-700">${habit.name}</span>
+          <span class="text-gray-500 ml-auto">${habit.currentStreak} days 🔥</span>
+        </div>
+      `).join('');
+    }
+
+    // Update insights
+    function updateInsights() {
+      const container = document.getElementById('insights-container');
+
+      if (habits.length === 0) {
+        container.innerHTML = '<p class="italic">Start tracking habits to see insights</p>';
+        return;
+      }
+
+      const habitsWithRates = habits.map(h => ({
+        ...h,
+        rate: calculateCompletionRate(h)
+      }));
+
+      const bestHabit = habitsWithRates.reduce((best, h) => h.rate > best.rate ? h : best, habitsWithRates[0]);
+      const needsAttention = habitsWithRates.reduce((worst, h) => h.rate < worst.rate ? h : worst, habitsWithRates[0]);
+
+      const tips = [
+        'Consistency beats perfection. Small steps add up.',
+        'Your habits shape your identity. Choose wisely.',
+        'Progress is progress, no matter how small.',
+        'Every day is a new opportunity to show up.',
+        'The secret is to never miss twice in a row.'
+      ];
+      const randomTip = tips[Math.floor(Math.random() * tips.length)];
+
+      container.innerHTML = `
+        <p><span class="text-gray-900">Best performing:</span> ${bestHabit.icon} ${bestHabit.name}</p>
+        <p><span class="text-gray-900">Needs attention:</span> ${needsAttention.icon} ${needsAttention.name}</p>
+        <p class="italic text-gray-500">"${randomTip}"</p>
+      `;
+    }
+
+    // Modal handling
+    document.getElementById('add-habit-btn').addEventListener('click', () => {
+      if (habits.length >= 999) {
+        const container = document.getElementById('habits-container');
+        const warning = document.createElement('div');
+        warning.className = 'text-sm text-red-600 text-center py-2';
+        warning.textContent = 'Maximum limit of 999 habits reached. Please delete some habits first.';
+        container.parentNode.insertBefore(warning, container.nextSibling);
+        setTimeout(() => warning.remove(), 5000);
+        return;
+      }
+      document.getElementById('modal-overlay').classList.add('active');
+      document.getElementById('habit-name').focus();
+    });
+
+    document.getElementById('cancel-btn').addEventListener('click', () => {
+      document.getElementById('modal-overlay').classList.remove('active');
+      document.getElementById('habit-form').reset();
+      selectedIcon = '🌱';
+      document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+    });
+
+    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        document.getElementById('modal-overlay').classList.remove('active');
+        document.getElementById('habit-form').reset();
+        selectedIcon = '🌱';
+        document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+      }
+    });
+
+    // Icon selection
+    document.querySelectorAll('.icon-option').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        selectedIcon = option.dataset.icon;
+      });
+    });
+
+    // Form submission
+    document.getElementById('habit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (habits.length >= 999) {
+        const errorMsg = document.createElement('p');
+        errorMsg.className = 'text-sm text-red-600 mt-2';
+        errorMsg.textContent = 'Maximum limit of 999 habits reached. Please delete some habits first.';
+        document.getElementById('habit-form').appendChild(errorMsg);
+        setTimeout(() => errorMsg.remove(), 5000);
+        return;
+      }
+
+      const submitBtn = document.querySelector('button[type="submit"]');
+      const submitText = document.getElementById('submit-text');
+      const submitSpinner = document.getElementById('submit-spinner');
+
+      submitBtn.disabled = true;
+      submitSpinner.classList.remove('hidden');
+      submitText.textContent = 'Adding...';
+
+      const name = document.getElementById('habit-name').value;
+      const category = document.getElementById('habit-category').value;
+      const frequency = document.getElementById('habit-frequency').value;
+
+      const newHabit = {
+        id: Date.now().toString(),
+        name,
+        category,
+        frequency,
+        icon: selectedIcon,
+        streak: 0,
+        completion_history: JSON.stringify({}),
+        created_at: new Date().toISOString()
+      };
+
+      const result = await window.dataSdk.create(newHabit);
+
+      submitBtn.disabled = false;
+      submitSpinner.classList.add('hidden');
+      submitText.textContent = 'Add Habit';
+
+      if (result.isOk) {
+        document.getElementById('modal-overlay').classList.remove('active');
+        document.getElementById('habit-form').reset();
+        selectedIcon = '🌱';
+        document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+      } else {
+        const errorMsg = document.createElement('p');
+        errorMsg.className = 'text-sm text-red-600 mt-2';
+        errorMsg.textContent = 'Failed to add habit. Please try again.';
+        document.getElementById('habit-form').appendChild(errorMsg);
+        setTimeout(() => errorMsg.remove(), 3000);
+      }
+    });
+
+    // Initialize
+    updateDateDisplay();
+    initializeApp();
+
+    const chatToggle = document.getElementById('chat-toggle');
+const chatWindow = document.getElementById('chat-window');
+const chatMessages = document.getElementById('chat-messages');
+
+chatToggle.addEventListener('click', () => {
+  chatWindow.classList.toggle('hidden');
+});
+
+function openChatbot() {
+  chatWindow.classList.remove('hidden');
+}
+
+function addChatMessage(text, sender = 'bot') {
+  const msg = document.createElement('div');
+  msg.className = sender === 'bot'
+    ? 'bg-gray-200 p-2 rounded'
+    : 'bg-[#3d3a37] text-white p-2 rounded self-end';
+
+  msg.textContent = text;
+  chatMessages.appendChild(msg);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function triggerHabitResponse({ habit, wasCompletedToday, currentStreak }) {
+  let responses = [];
+
+  if (!wasCompletedToday) {
+    // Habit just completed
+    responses = [
+      "You showed up today. That matters more than perfection.",
+      "Small consistency beats big motivation.",
+      "Allah loves deeds that are consistent, even if small.",
+      "This is how habits become identity."
+    ];
+
+    if (currentStreak === 3) {
+      responses = [
+        "3 days straight — this is officially a streak 🔥",
+        "You’re building istiqamah. Keep going.",
+        "Three days of consistency? That’s real discipline."
+      ];
+    }
+
+    if (currentStreak >= 7) {
+      responses.push(
+        "This is no longer accidental. This is who you are becoming."
+      );
+    }
+  } else {
+    // Habit unchecked
+    responses = [
+      "One checkbox doesn’t erase your intention.",
+      "You can return. Progress isn’t cancelled.",
+      "Missing once is human. Missing twice is a choice — and you caught it early."
+    ];
+  }
+
+  const reply = responses[Math.floor(Math.random() * responses.length)];
+  openChatbot();
+
+  setTimeout(() => {
+    addChatMessage(reply, 'bot');
+  }, 400);
+}
+
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c890324c457b2b3',t:'MTc3MDE5NTk5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
