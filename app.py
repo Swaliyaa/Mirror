@@ -193,15 +193,21 @@ def dashboard():
 
     cursor.execute("SELECT * FROM habit WHERE user_id=%s", (user_id,))
     today = datetime.now().strftime("%Y-%m-%d")
-    for h in cursor.fetchall():
+     for h in cursor.fetchall():
+     try:
         history = json.loads(h["completion_history"] or "{}")
-        habits_list.append({
-            "id": h["id"],
-            "type": "habit",
-            "content": h["name"],
-            "streak": 0,
-            "completed": history.get(today, False)
-        })
+        if not isinstance(history, dict):
+            history = {}
+     except (json.JSONDecodeError, TypeError):
+        history = {}
+
+    habits_list.append({
+        "id": h["id"],
+        "type": "habit",
+        "content": h["name"],
+        "streak": 0,
+        "completed": history.get(today, False)
+    })
 
     cursor.execute("SELECT * FROM mood WHERE user_id=%s ORDER BY id DESC LIMIT 3", (user_id,))
     for m in cursor.fetchall():
@@ -358,3 +364,4 @@ def api_moods():
     cursor.close()
     conn.close()
     return jsonify(rows)
+
