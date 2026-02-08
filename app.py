@@ -289,7 +289,11 @@ def api_todo_item(id):
 def clear_completed():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM todo WHERE completed=TRUE")
+    cursor.execute(
+    "DELETE FROM todo WHERE completed=TRUE AND user_id=%s",
+    (session["user_id"],)
+)
+
     conn.commit()
     cursor.close()
     conn.close()
@@ -348,3 +352,4 @@ def api_moods():
     cursor.close()
     conn.close()
     return jsonify(rows)
+
