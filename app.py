@@ -4,7 +4,7 @@ from psycopg2.extras import RealDictCursor
 from psycopg2 import IntegrityError
 import json
 from flask import Flask, request, session, redirect, render_template, jsonify, send_from_directory
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -445,3 +445,141 @@ def api_moods():
     cursor.close()
     conn.close()
     return jsonify(rows)
+
+# ----------------------------
+# API: SUMMARY ENDPOINTS
+# ----------------------------
+
+@app.route("/api/summary/today-todos", methods=["GET"])
+@login_required
+def summary_today_todos():
+    user_id = session["user_id"]
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    # "Today" based on due_date if present, otherwise created_at date
+    cursor.execute("""
+        SELECT id, text, completed,
+               COALESCE(due_date::date, created_at::date) AS effective_date
+        FROM todo
+        WHERE user_id = %s
+          AND COALESCE(due_date::date, created_at::date) = CURRENT_DATE
+        ORDER BY created_at DESC
+    """, (user_id,))
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    total = len(rows)
+    completed = sum(1 for r in rows if r["completed"])
+    pending = total - completed
+
+    return jsonify({
+        "isOk": True,
+        "total": total,
+        "completed": completed,
+        "pending": pending,
+        "items": rows
+    })
+
+
+@app.route("/api/summary/recent-habits", methods=["GET"])
+@login_required
+def summary_recent_habits():
+    """
+    Summarise habit completion over the last N days (default 3).
+    Uses completion_history JSON (date -> bool).
+    """
+    user_id = session["user_id"]
+    days = int(request.args.get("days", 3))
+    today = datetime.now().date()
+    start_date = today - timedelta(days=days - 1)
+
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    cursor.execute("""
+        SELECT id, name, completion_history
+        FROM habit
+        WHERE user_id = %s
+    """, (user_id,))
+    habits = cursor.fetchall()
+
+    summaries = []
+    for h in habits:
+        try:
+            history = json.loads(h["completion_history"] or "{}")
+            if not isinstance(history, dict):
+                history = {}
+        except (json.JSONDecodeError, TypeError):
+            history = {}
+
+        streak_count = 0
+        days_logged = 0
+
+        for i in range(days):
+            d = (start_date + timedelta(days=i)).strftime("%Y-%m-%d")
+            if d in history:
+                days_logged += 1
+                if history.get(d):
+                    streak_count += 1
+
+        summaries.append({
+            "id": h["id"],
+            "name": h["name"],
+            "days_window": days,
+            "days_logged": days_logged,
+            "completed_days": streak_count
+        })
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({
+        "isOk": True,
+        "start_date": start_date.isoformat(),
+        "end_date": today.isoformat(),
+        "habits": summaries
+    })
+
+
+@app.route("/api/summary/recent-moods", methods=["GET"])
+@login_required
+def summary_recent_moods():
+    """
+    Get mood entries over the last N days (default 7) and basic counts.
+    """
+    user_id = session["user_id"]
+    days = int(request.args.get("days", 7))
+    today = datetime.now().date()
+    start_date = today - timedelta(days=days - 1)
+
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    cursor.execute("""
+        SELECT id, mood_name, mood_emoji, reflection, date, timestamp
+        FROM mood
+        WHERE user_id = %s
+          AND date >= %s
+        ORDER BY date DESC, timestamp DESC
+    """, (user_id, start_date))
+    rows = cursor.fetchall()
+
+    # Aggregate counts by mood_name
+    mood_counts = {}
+    for r in rows:
+        name = r["mood_name"]
+        mood_counts[name] = mood_counts.get(name, 0) + 1
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({
+        "isOk": True,
+        "start_date": start_date.isoformat(),
+        "end_date": today.isoformat(),
+        "entries": rows,
+        "counts": mood_counts
+    })
