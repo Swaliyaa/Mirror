@@ -467,10 +467,12 @@
             }
           });
 
+          const label = moodLabels[moodRecord.content] || moodRecord.content;
+
           moodDisplay.innerHTML = `
       <div>
         <p class="text-sm sm:text-base mb-1 sm:mb-2">
-          Feeling <strong>${moodLabels[moodRecord.content]}</strong>
+          Feeling <strong>${label}</strong>
         </p>
         <p class="text-[11px] sm:text-xs text-[#9b9b9b]">
           Recently checked in.
