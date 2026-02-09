@@ -538,70 +538,255 @@
       const chatInput = document.getElementById('chat-input');
       const sendBtn = document.getElementById('send-btn');
 
+      // Core emotional response bank (expanded)
       const emotionResponses = {
         happy: [
           "That happiness sounds genuine 🌱 What do you think sparked it?",
           "I love noticing joy with you. How can you carry this feeling forward?",
-          "Hold onto that lightness. What does this happiness remind you of?"
+          "Hold onto that lightness. What does this happiness remind you of?",
+          "I’m glad you’re feeling this way. Who or what contributed to it today?",
+          "Notice where that joy lives in your body right now."
         ],
         sad: [
           "I hear the heaviness in that 💙 Do you want to talk more about it?",
           "It's okay to feel low sometimes. What feels hardest right now?",
-          "You don’t have to rush feeling better. I’m here with you."
+          "You don’t have to rush feeling better. I’m here with you.",
+          "If your feelings had a voice, what would they say?",
+          "What do you wish someone would tell you in this moment?"
         ],
         overwhelmed: [
           "That sounds like a lot to hold at once. Let’s slow this down together.",
           "You’re carrying many things right now. What’s one thing you can release?",
-          "Pause with me for a second. You’re not alone in this."
+          "Pause with me for a second. You’re not alone in this.",
+          "Let’s take it one step at a time. What’s the very next small step?",
+          "If we break this into tiny pieces, what’s one piece we can name first?"
         ],
         stressed: [
           "Stress can make everything feel louder. What’s the main pressure point?",
           "Your body might be asking for gentleness right now.",
-          "Let’s breathe for a moment. What’s within your control today?"
+          "Let’s breathe for a moment. What’s within your control today?",
+          "On a scale of 1–10, how intense does this feel?",
+          "What usually helps you calm down, even a little?"
         ],
         calm: [
           "That calm feels grounding. What helped you arrive here?",
           "Peace is precious. How does your body feel in this moment?",
-          "Notice this stillness — it’s a form of strength."
+          "Notice this stillness — it’s a form of strength.",
+          "Is there anything you’d like to remember about this calm for later?",
+          "What would support you in staying close to this feeling?"
+        ],
+        anxious: [
+          "Anxiety can be really loud. What is it most afraid of right now?",
+          "It makes sense you’re feeling on edge. Do you want to unpack it together?",
+          "Let’s anchor for a moment. Can you name three things you can see?",
+          "You’re not your anxious thoughts. Which one is shouting the loudest?",
+          "If your anxiety was a character, how would you describe it?"
+        ],
+        lonely: [
+          "Feeling alone can be really painful. When did this feeling start?",
+          "You’re not weird for wanting connection. Who do you wish you could talk to?",
+          "I’m here with you in this moment. What feels most empty right now?",
+          "Sometimes loneliness shows us what we value. What do you find yourself missing?",
+          "If you could send one honest message to someone, what would it say?"
+        ],
+        angry: [
+          "Your anger is telling you something matters. What feels crossed or disrespected?",
+          "It’s okay to feel angry. What’s underneath it, if anything?",
+          "If you could say everything unfiltered, what would you want to shout?",
+          "Where do you feel this anger in your body?",
+          "What do you need right now: to vent, to calm down, or to be understood?"
+        ],
+        numb: [
+          "Feeling numb can be just as heavy as feeling sad. How long has it felt this way?",
+          "Sometimes numbness is a kind of protection. Does that resonate for you?",
+          "Even if you don’t feel much, your experience still matters here.",
+          "Is there anything that slightly cuts through the numbness, even if just 1%?",
+          "If your numbness could speak, what would it say about what it’s protecting?"
         ]
       };
 
+      // Generic reflective responses
       const genericResponses = [
         "That sounds meaningful. What does that bring up for you?",
         "I hear you. How does that make you feel?",
         "Thank you for sharing that. What else is on your mind?",
         "That’s worth exploring. What would help you feel steadier?",
-        "I’m listening. What feels most important right now?"
+        "I’m listening. What feels most important right now?",
+        "It makes sense you’d feel that way. What do you need in this moment?",
+        "Would you like to unpack the story behind that a bit more?",
+        "If you could change one small part of this situation, what would it be?",
+        "What are you hoping might happen next?",
+        "Do you want comfort, reflection, or more practical ideas right now?"
       ];
 
+      // Small-talk / greetings
+      const greetingResponses = [
+        "Hey, I’m glad you reached out. What’s on your mind today?",
+        "Hi there, I’m here with you. How are you feeling right now?",
+        "Hello 🌿 How are you doing, honestly?",
+        "Hey, it’s good to see you here. What brings you in today?",
+        "Hi, we can go at your pace. Where would you like to start?"
+      ];
+
+      const thanksResponses = [
+        "You’re welcome. I’m glad I could be here with you.",
+        "Thank you for trusting me with that.",
+        "I appreciate you sharing so openly.",
+        "Anytime. You don’t have to go through this alone.",
+        "I’m here whenever you want to talk again."
+      ];
+
+      const goodbyeResponses = [
+        "I’m glad we talked today. Take gentle care of yourself.",
+        "Thank you for spending this time with me. You can always come back.",
+        "Before you go, is there anything you want to say to your future self?",
+        "I’m rooting for you, even between our chats.",
+        "Talk to you later. You deserve rest and kindness."
+      ];
+
+      const aboutBotResponses = [
+        "I’m here to listen, reflect, and support you as you sort through your thoughts.",
+        "Right now, I’m focused on trying to understand you and respond gently.",
+        "I’m a chatbot designed to offer emotional support and curious questions.",
+        "I don’t have a life outside this chat, but I’m fully here with you when you write."
+      ];
+
+      const botFeelingResponses = [
+        "I don’t have feelings like humans do, but I’m here and focused on you.",
+        "I’m functioning well and ready to listen. How are *you* feeling?",
+        "I’m here for you, that’s what matters most to me right now.",
+        "I don’t experience days the way you do, but I care about what yours feels like."
+      ];
+
+      const smallTalkResponses = [
+        "We can talk about anything—from big feelings to small everyday stuff. What’s on your mind?",
+        "If your day had a title right now, what would you call it?",
+        "What’s one tiny thing that made today a bit better, even if it was just 1%?",
+        "If your mood was a weather forecast, what would it be?",
+        "Is there a song or movie that matches how you feel today?"
+      ];
+
+      const groundingResponses = [
+        "Let’s try something simple: can you name 3 things you can see around you?",
+        "Take one slow breath in and out. What’s one thing in this moment that feels even a little bit safe?",
+        "Notice your feet on the floor or your body on the chair. What does that feel like?",
+        "If it helps, gently look around and name a color you see in the room.",
+        "Sometimes small grounding helps. What’s one thing you can touch that feels comforting?"
+      ];
+
+      // Intent / emotion detection
       function detectEmotion(text) {
         text = text.toLowerCase();
 
-        if (text.includes('happy') || text.includes('excited') || text.includes('good')) return 'happy';
-        if (text.includes('sad') || text.includes('down') || text.includes('low')) return 'sad';
-        if (text.includes('overwhelmed') || text.includes('too much')) return 'overwhelmed';
-        if (text.includes('stressed') || text.includes('anxious') || text.includes('pressure')) return 'stressed';
-        if (text.includes('calm') || text.includes('peaceful') || text.includes('relaxed')) return 'calm';
+        if (text.includes('happy') || text.includes('excited') || text.includes('good') || text.includes('great')) return 'happy';
+        if (text.includes('sad') || text.includes('down') || text.includes('low') || text.includes('depressed')) return 'sad';
+        if (text.includes('overwhelmed') || text.includes('too much') || text.includes("can't handle") || text.includes("cant handle")) return 'overwhelmed';
+        if (text.includes('stressed') || text.includes('anxious') || text.includes('anxiety') || text.includes('pressure')) return 'stressed';
+        if (text.includes('calm') || text.includes('peaceful') || text.includes('relaxed') || text.includes('okay now')) return 'calm';
+        if (text.includes('lonely') || text.includes('alone') || text.includes('no one')) return 'lonely';
+        if (text.includes('angry') || text.includes('mad') || text.includes('furious') || text.includes('pissed')) return 'angry';
+        if (text.includes('numb') || text.includes('empty') || text.includes('feel nothing')) return 'numb';
 
         return null;
       }
 
+      function detectIntent(text) {
+        const t = text.toLowerCase();
+
+        // greetings
+        if (/(^|\s)(hi|hello|hey|heyy|hiya|sup|good morning|good night|good evening)(\W|$)/.test(t)) {
+          return 'greeting';
+        }
+
+        // gratitude
+        if (t.includes('thank you') || t.includes('thanks') || t.includes('thx') || t.includes('tysm')) {
+          return 'thanks';
+        }
+
+        // goodbye / closing
+        if (t.includes('bye') || t.includes('goodnight') || t.includes('good night') || t.includes('see you') || t.includes('gtg') || t.includes('got to go')) {
+          return 'goodbye';
+        }
+
+        // asking about bot
+        if (t.includes('who are you') || t.includes('what are you') || t.includes('what can you do') || t.includes('are you real')) {
+          return 'about_bot';
+        }
+
+        // asking how the bot is
+        if ((t.includes('how are you') || t.includes('hru') || t.includes('how you doing')) && !t.includes('how am i')) {
+          return 'bot_feeling';
+        }
+
+        // light small talk
+        if (t.includes('what are you doing') || t.includes('wyd') || t.includes('bored') || t.includes('talk to me') || t.includes('tell me something')) {
+          return 'small_talk';
+        }
+
+        // grounding / panic cues
+        if (t.includes('panic') || t.includes("can't breathe") || t.includes("cant breathe") || t.includes('freaking out') || t.includes('too much in my head')) {
+          return 'grounding';
+        }
+
+        return 'generic';
+      }
+
+      function chooseRandom(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+
       function addMessage(text, isUser = false) {
         const div = document.createElement('div');
-        div.className = `chat-message flex ${
-          isUser ? 'justify-end' : 'justify-start'
-        }`;
+        div.className = `chat-message flex ${isUser ? 'justify-end' : 'justify-start'}`;
         div.innerHTML = `
-    <div class="${
-      isUser
-        ? 'bg-[#2d2d2d] text-white'
-        : 'bg-white border border-[#e8e5dc]'
-    } rounded-3xl px-4 py-3 sm:px-6 sm:py-4 max-w-md shadow-sm">
-      <p class="text-sm leading-relaxed">${text}</p>
-    </div>
-  `;
+          <div class="${
+            isUser
+              ? 'bg-[#2d2d2d] text-white'
+              : 'bg-white border border-[#e8e5dc]'
+          } rounded-3xl px-4 py-3 sm:px-6 sm:py-4 max-w-md shadow-sm">
+            <p class="text-sm leading-relaxed">${text}</p>
+          </div>
+        `;
         chatMessagesEl.appendChild(div);
         chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+      }
+
+      function generateReply(message) {
+        const emotion = detectEmotion(message);
+        const intent = detectIntent(message);
+
+        // Higher-priority: crisis / grounding
+        if (intent === 'grounding') {
+          return chooseRandom(groundingResponses);
+        }
+
+        // Intent-based replies
+        if (intent === 'greeting') {
+          return chooseRandom(greetingResponses);
+        }
+        if (intent === 'thanks') {
+          return chooseRandom(thanksResponses);
+        }
+        if (intent === 'goodbye') {
+          return chooseRandom(goodbyeResponses);
+        }
+        if (intent === 'about_bot') {
+          return chooseRandom(aboutBotResponses);
+        }
+        if (intent === 'bot_feeling') {
+          return chooseRandom(botFeelingResponses);
+        }
+        if (intent === 'small_talk') {
+          return chooseRandom(smallTalkResponses);
+        }
+
+        // Emotion-based reflective replies
+        if (emotion && emotionResponses[emotion]) {
+          return chooseRandom(emotionResponses[emotion]);
+        }
+
+        // Fallback reflective response
+        return chooseRandom(genericResponses);
       }
 
       sendBtn.addEventListener('click', () => {
@@ -612,22 +797,9 @@
         chatInput.value = '';
 
         setTimeout(() => {
-          const emotion = detectEmotion(message);
-
-          let reply;
-          if (emotion && emotionResponses[emotion]) {
-            const responses = emotionResponses[emotion];
-            reply =
-              responses[Math.floor(Math.random() * responses.length)];
-          } else {
-            reply =
-              genericResponses[
-                Math.floor(Math.random() * genericResponses.length)
-              ];
-          }
-
+          const reply = generateReply(message);
           addMessage(reply);
-        }, 1000);
+        }, 800);
       });
 
       chatInput.addEventListener('keypress', e => {
