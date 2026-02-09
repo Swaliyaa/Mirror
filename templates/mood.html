@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" class="h-full">
- <head>
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Mirror - Mood Tracker</title>
@@ -9,7 +9,7 @@
   <script src="/_sdk/element_sdk.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Homemade+Apple&amp;family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Homemade+Apple&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&display=swap" rel="stylesheet">
   <style>
     body {
       box-sizing: border-box;
@@ -105,7 +105,8 @@
     }
   </style>
   <style>@view-transition { navigation: auto; }</style>
- </head>
+</head>
+
 <!-- Mood Chatbot -->
 <div id="mood-chatbot" class="fixed bottom-5 right-5 z-50">
   <button id="chat-toggle" class="w-14 h-14 rounded-full bg-[#3d3a37] text-white text-xl shadow-lg">
@@ -126,53 +127,95 @@
   </div>
 </div>
 
+<body class="h-full paper-bg font-body">
+  <div id="app-wrapper" class="min-h-screen w-full overflow-auto">
+    <div class="w-full px-4 sm:px-6 lg:px-12 py-6 lg:py-10">
+      <!-- Header -->
+      <header class="mb-8 lg:mb-10">
+        <div class="flex items-center gap-3 mb-3">
+          <button id="back-btn"
+                  class="ink-light hover:ink-text transition-colors text-lg"
+                  aria-label="Go back"
+                  onclick="window.location.href='/dashboard';">←</button>
+          <h1 id="page-title" class="font-journal text-2xl sm:text-3xl ink-text">Mood Tracker</h1>
+        </div>
+        <p id="page-subtitle" class="ink-light text-sm sm:text-base ml-7 mb-1">How are you feeling today?</p>
+        <p id="date-display" class="ink-faint text-xs sm:text-sm ml-7 italic"></p>
+      </header>
 
- <body class="h-full paper-bg font-body">
-  <div id="app-wrapper" class="h-full w-full overflow-auto">
-   <div class="max-w-xl mx-auto px-6 py-8"><!-- Header -->
-    <header class="mb-10">
-     <div class="flex items-center gap-3 mb-4"><button id="back-btn" class="ink-light hover:ink-text transition-colors text-lg" aria-label="Go back" onclick="window.location.href='/dashboard';">←</button>
-      <h1 id="page-title" class="font-journal text-2xl ink-text">Mood Tracker</h1>
-     </div>
-     <p id="page-subtitle" class="ink-light text-base ml-7 mb-2">How are you feeling today?</p>
-     <p id="date-display" class="ink-faint text-sm ml-7 italic"></p>
-    </header><!-- Today's Mood Section -->
-    <section class="mb-12">
-     <div class="border border-ink rounded-lg p-6 bg-white/30"><!-- Mood Selection -->
-      <div class="mb-6">
-       <p class="ink-light text-sm mb-4">Select your mood:</p>
-       <div id="mood-grid" class="grid grid-cols-5 gap-2"><!-- Mood buttons will be generated here -->
-       </div>
-      </div><!-- Selected Mood Display -->
-      <div id="selected-mood-display" class="mb-6 hidden">
-       <p class="ink-light text-sm italic"></p>
-      </div><!-- Reflection Input -->
-      <div class="mb-6"><label for="reflection-input" id="reflection-label" class="block ink-light text-sm mb-2">What's on your mind? (optional)</label> <textarea id="reflection-input" class="w-full h-24 p-3 border border-ink rounded bg-transparent ink-text text-sm resize-none focus:outline-none focus:border-[#3d3a37]" placeholder="A few words about your day..."></textarea>
-      </div><!-- Save Button -->
-      <div class="flex items-center gap-4"><button id="save-btn" class="save-btn px-5 py-2 border border-ink rounded ink-text text-sm" disabled> Save Today's Mood </button> <span id="success-message" class="ink-light text-sm italic hidden"></span>
+      <!-- Main layout: stack on mobile, two columns on large -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <!-- Left: today's mood + reflection -->
+        <div class="lg:col-span-2 space-y-8">
+          <!-- Today's Mood Section -->
+          <section class="mb-0">
+            <div class="border border-ink rounded-lg p-4 sm:p-6 bg-white/30">
+              <!-- Mood Selection -->
+              <div class="mb-6">
+                <p class="ink-light text-sm mb-4">Select your mood:</p>
+                <div id="mood-grid" class="grid grid-cols-5 sm:grid-cols-5 gap-2">
+                  <!-- Mood buttons will be generated here -->
+                </div>
+              </div>
+              <!-- Selected Mood Display -->
+              <div id="selected-mood-display" class="mb-6 hidden">
+                <p class="ink-light text-sm italic"></p>
+              </div>
+              <!-- Reflection Input -->
+              <div class="mb-6">
+                <label for="reflection-input" id="reflection-label" class="block ink-light text-sm mb-2">
+                  What's on your mind? (optional)
+                </label>
+                <textarea
+                  id="reflection-input"
+                  class="w-full h-24 p-3 border border-ink rounded bg-transparent ink-text text-sm resize-none focus:outline-none focus:border-[#3d3a3
+7]"
+                  placeholder="A few words about your day..."></textarea>
+              </div>
+              <!-- Save Button -->
+              <div class="flex flex-wrap items-center gap-3">
+                <button id="save-btn" class="save-btn px-5 py-2 border border-ink rounded ink-text text-sm" disabled>
+                  Save Today's Mood
+                </button>
+                <span id="success-message" class="ink-light text-sm italic hidden"></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Daily Reflection Section -->
+          <section class="mb-0">
+            <h2 class="font-journal text-lg ink-text mb-3 sm:mb-4">Daily Reflection</h2>
+            <div class="border-l-2 border-ink pl-3 sm:pl-4">
+              <p id="daily-reflection" class="ink-light text-sm italic leading-relaxed"></p>
+            </div>
+          </section>
+        </div>
+
+        <!-- Right: entries + weekly summary -->
+        <div class="space-y-8">
+          <!-- Recent Entries Section -->
+          <section class="mb-0">
+            <div class="flex items-baseline justify-between mb-3 sm:mb-4">
+              <h2 class="font-journal text-lg ink-text">Recent Entries</h2>
+              <span id="entry-count" class="ink-faint text-xs"></span>
+            </div>
+            <div id="entries-container" class="border border-ink rounded-lg bg-white/30 max-h-80 overflow-y-auto">
+              <!-- Entries will be rendered here -->
+            </div>
+          </section>
+
+          <!-- Weekly Summary Section -->
+          <section class="mb-0">
+            <h2 class="font-journal text-lg ink-text mb-3 sm:mb-4">Weekly Summary</h2>
+            <div id="weekly-summary" class="border border-ink rounded-lg p-4 sm:p-5 bg-white/30">
+              <!-- Summary will be rendered here -->
+            </div>
+          </section>
+        </div>
       </div>
-     </div>
-    </section><!-- Daily Reflection Section -->
-    <section class="mb-12">
-     <h2 class="font-journal text-lg ink-text mb-4">Daily Reflection</h2>
-     <div class="border-l-2 border-ink pl-4">
-      <p id="daily-reflection" class="ink-light text-sm italic leading-relaxed"></p>
-     </div>
-    </section><!-- Recent Entries Section -->
-    <section class="mb-12">
-     <div class="flex items-baseline justify-between mb-4">
-      <h2 class="font-journal text-lg ink-text">Recent Entries</h2><span id="entry-count" class="ink-faint text-xs"></span>
-     </div>
-     <div id="entries-container" class="border border-ink rounded-lg bg-white/30 max-h-80 overflow-y-auto"><!-- Entries will be rendered here -->
-     </div>
-    </section><!-- Weekly Summary Section -->
-    <section class="mb-8">
-     <h2 class="font-journal text-lg ink-text mb-4">Weekly Summary</h2>
-     <div id="weekly-summary" class="border border-ink rounded-lg p-5 bg-white/30"><!-- Summary will be rendered here -->
-     </div>
-    </section>
-   </div>
+    </div>
   </div>
+
   <script>
     // Configuration
     const defaultConfig = {
@@ -226,66 +269,65 @@
     
     let isLoading = false;
 
-const moodResponses = {
-  Happy: [
-    "That glow looks good on you 🌸",
-    "Hold onto this feeling—Allah loves gratitude 💛",
-    "Write one thing you want to remember from today."
-  ],
-  Calm: [
-    "Peace is a gift. Let it settle 🌿",
-    "Moments like this are healing—don’t rush them.",
-    "Stillness is also progress."
-  ],
-  Sad: [
-    "I’m really glad you checked in 🤍",
-    "Allah is Al-Lateef—gentle with hearts that hurt.",
-    "You don’t need to fix everything today."
-  ],
-  Anxious: [
-    "Breathe. You are safe right now.",
-    "Nothing meant for you will miss you—trust Allah.",
-    "One small step is enough for now."
-  ],
-  Stressed: [
-    "You’ve been carrying a lot, haven’t you?",
-    "Pause. Unclench your jaw. Relax your shoulders.",
-    "Allah sees your effort, even when you’re tired."
-  ],
-  Frustrated: [
-    "It’s okay to feel this way—feelings aren’t sins.",
-    "Take a breath before reacting.",
-    "Hard days don’t erase your growth."
-  ],
-  Tired: [
-    "Rest is not laziness 🌙",
-    "Your body is asking for mercy—listen.",
-    "Even prophets needed rest."
-  ],
-  Grateful: [
-    "Alhamdulillah looks beautiful on you 🤲",
-    "Gratitude multiplies barakah.",
-    "This moment matters."
-  ],
-  Excited: [
-    "That spark? Follow it 🔥",
-    "Joy is a sign of life—lean into it.",
-    "Capture this feeling somewhere."
-  ],
-  Neutral: [
-    "Not every day needs a label—and that’s okay.",
-    "Check in with yourself gently.",
-    "Stillness is allowed."
-  ]
-};
+    const moodResponses = {
+      Happy: [
+        "That glow looks good on you 🌸",
+        "Hold onto this feeling—Allah loves gratitude 💛",
+        "Write one thing you want to remember from today."
+      ],
+      Calm: [
+        "Peace is a gift. Let it settle 🌿",
+        "Moments like this are healing—don’t rush them.",
+        "Stillness is also progress."
+      ],
+      Sad: [
+        "I’m really glad you checked in 🤍",
+        "Allah is Al-Lateef—gentle with hearts that hurt.",
+        "You don’t need to fix everything today."
+      ],
+      Anxious: [
+        "Breathe. You are safe right now.",
+        "Nothing meant for you will miss you—trust Allah.",
+        "One small step is enough for now."
+      ],
+      Stressed: [
+        "You’ve been carrying a lot, haven’t you?",
+        "Pause. Unclench your jaw. Relax your shoulders.",
+        "Allah sees your effort, even when you’re tired."
+      ],
+      Frustrated: [
+        "It’s okay to feel this way—feelings aren’t sins.",
+        "Take a breath before reacting.",
+        "Hard days don’t erase your growth."
+      ],
+      Tired: [
+        "Rest is not laziness 🌙",
+        "Your body is asking for mercy—listen.",
+        "Even prophets needed rest."
+      ],
+      Grateful: [
+        "Alhamdulillah looks beautiful on you 🤲",
+        "Gratitude multiplies barakah.",
+        "This moment matters."
+      ],
+      Excited: [
+        "That spark? Follow it 🔥",
+        "Joy is a sign of life—lean into it.",
+        "Capture this feeling somewhere."
+      ],
+      Neutral: [
+        "Not every day needs a label—and that’s okay.",
+        "Check in with yourself gently.",
+        "Stillness is allowed."
+      ]
+    };
 
-const genericResponses = [
-  "I’m here with you 🤍",
-  "Thank you for checking in.",
-  "Your feelings make sense.",
-  "Be gentle with yourself today."
-];
-
+    const genericResponses = [
+      "I’m here with you 🤍",
+      "Thank you for checking in.",
+      "Your feelings make sense.",
+      "Be gentle with yourself today."
+    ];
 
     // Helper functions
     function getTodayDateString() {
@@ -356,45 +398,44 @@ const genericResponses = [
 
     // Save mood entry
     async function saveMood() {
-  if (!selectedMood || isLoading) return;
+      if (!selectedMood || isLoading) return;
 
-  isLoading = true;
-  const saveBtn = document.getElementById('save-btn');
-  saveBtn.textContent = 'Saving...';
-  saveBtn.disabled = true;
+      isLoading = true;
+      const saveBtn = document.getElementById('save-btn');
+      saveBtn.textContent = 'Saving...';
+      saveBtn.disabled = true;
 
-  const reflection = document.getElementById('reflection-input').value.trim();
-  const today = getTodayDateString();
+      const reflection = document.getElementById('reflection-input').value.trim();
+      const today = getTodayDateString();
 
-  try {
-    const newEntry = {
-      mood_emoji: selectedMood.emoji,
-      mood_name: selectedMood.name,
-      reflection: reflection,
-      date: today,
-      timestamp: Date.now()
-    };
+      try {
+        const newEntry = {
+          mood_emoji: selectedMood.emoji,
+          mood_name: selectedMood.name,
+          reflection: reflection,
+          date: today,
+          timestamp: Date.now()
+        };
 
-    const result = await window.dataSdk.create(newEntry);
+        const result = await window.dataSdk.create(newEntry);
 
-    if (!result.isOk) {
-      throw new Error('Failed to save mood');
+        if (!result.isOk) {
+          throw new Error('Failed to save mood');
+        }
+
+        showMessage('Mood saved');
+        document.getElementById('reflection-input').value = '';
+        triggerMoodResponse(newEntry);
+
+      } catch (error) {
+        console.error(error);
+        showMessage('Could not save. Please try again.');
+      } finally {
+        isLoading = false;
+        saveBtn.textContent = 'Save Mood';
+        saveBtn.disabled = !selectedMood;
+      }
     }
-
-    showMessage('Mood saved');
-    document.getElementById('reflection-input').value = '';
-    triggerMoodResponse(newEntry);
-
-  } catch (error) {
-    console.error(error);
-    showMessage('Could not save. Please try again.');
-  } finally {
-    isLoading = false;
-    saveBtn.textContent = 'Save Mood';
-    saveBtn.disabled = !selectedMood;
-  }
-}
-
 
     // Show success/error message
     function showMessage(text) {
@@ -451,7 +492,6 @@ const genericResponses = [
       // Filter entries from this week
       const weekEntries = entries.filter(e => e.timestamp >= weekStart.getTime());
 
-      
       if (weekEntries.length === 0) {
         container.innerHTML = `
           <p class="ink-faint text-sm italic">No moods recorded this week yet.</p>
@@ -511,12 +551,7 @@ const genericResponses = [
     // Handle data changes
     function onDataChanged(data) {
       allEntries = data || [];
-      
-      // Check for today's entry
       document.getElementById('save-btn').textContent = 'Save Mood';
-
-      
-      // Render entries and summary
       renderEntries(allEntries);
       renderWeeklySummary(allEntries);
     }
@@ -525,22 +560,18 @@ const genericResponses = [
     async function onConfigChange(cfg) {
       config = { ...defaultConfig, ...cfg };
       
-      // Update text content
       document.getElementById('page-title').textContent = config.page_title || defaultConfig.page_title;
       document.getElementById('page-subtitle').textContent = config.page_subtitle || defaultConfig.page_subtitle;
       document.getElementById('reflection-label').textContent = config.reflection_label || defaultConfig.reflection_label;
       
-      // Apply colors
       document.documentElement.style.setProperty('--bg-color', config.background_color || defaultConfig.background_color);
       document.documentElement.style.setProperty('--text-color', config.text_color || defaultConfig.text_color);
       
-      // Apply font
       const fontFamily = config.font_family || defaultConfig.font_family;
       document.querySelectorAll('.font-body').forEach(el => {
         el.style.fontFamily = `${fontFamily}, Georgia, serif`;
       });
       
-      // Apply font size
       const baseSize = config.font_size || defaultConfig.font_size;
       document.body.style.fontSize = `${baseSize}px`;
     }
@@ -593,19 +624,11 @@ const genericResponses = [
 
     // Initialize
     async function init() {
-      // Set today's date
       document.getElementById('date-display').textContent = formatDisplayDate(new Date());
-      
-      // Set daily reflection
       document.getElementById('daily-reflection').textContent = getRandomReflection();
-      
-      // Initialize mood grid
       initMoodGrid();
-      
-      // Add save button listener
       document.getElementById('save-btn').addEventListener('click', saveMood);
       
-      // Initialize Element SDK
       if (window.elementSdk) {
         window.elementSdk.init({
           defaultConfig,
@@ -615,7 +638,6 @@ const genericResponses = [
         });
       }
       
-      // Initialize Data SDK
       if (window.dataSdk) {
         const result = await window.dataSdk.init({
           onDataChanged
@@ -629,178 +651,199 @@ const genericResponses = [
     init();
 
     const chatToggle = document.getElementById('chat-toggle');
-const chatWindow = document.getElementById('chat-window');
-const chatInput = document.getElementById('chat-input');
-const chatMessages = document.getElementById('chat-messages');
+    const chatWindow = document.getElementById('chat-window');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
 
-chatToggle.addEventListener('click', () => {
-  chatWindow.classList.toggle('hidden');
+    chatToggle.addEventListener('click', () => {
+      chatWindow.classList.toggle('hidden');
 
-  if (!chatWindow.classList.contains('hidden') && chatMessages.children.length === 0) {
-    addChatMessage("Hey, I’m here with you 💬", 'bot');
-  }
-});
+      if (!chatWindow.classList.contains('hidden') && chatMessages.children.length === 0) {
+        addChatMessage("Hey, I’m here with you 💬", 'bot');
+      }
+    });
 
-
-function addChatMessage(text, from = 'bot') {
-  const div = document.createElement('div');
-  div.className = from === 'bot'
-    ? 'bg-white/60 p-2 rounded text-ink'
-    : 'text-right text-ink';
-  div.textContent = text;
-  chatMessages.appendChild(div);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-function triggerMoodResponse(entry) {
-  const moodName = entry.mood_name;
-  const reflection = entry.reflection?.toLowerCase();
-
-  let responses = moodResponses[moodName] || genericResponses;
-
-  // Optional reflection-based soft tuning
-  if (reflection) {
-    if (reflection.includes('tired') || reflection.includes('exhaust')) {
-      responses = moodResponses.Tired || responses;
+    function addChatMessage(text, from = 'bot') {
+      const div = document.createElement('div');
+      div.className = from === 'bot'
+        ? 'bg-white/60 p-2 rounded text-ink'
+        : 'text-right text-ink';
+      div.textContent = text;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-    if (reflection.includes('stress') || reflection.includes('pressure')) {
-      responses = moodResponses.Stressed || responses;
+
+    function triggerMoodResponse(entry) {
+      const moodName = entry.mood_name;
+      const reflection = entry.reflection?.toLowerCase();
+
+      let responses = moodResponses[moodName] || genericResponses;
+
+      if (reflection) {
+        if (reflection.includes('tired') || reflection.includes('exhaust')) {
+          responses = moodResponses.Tired || responses;
+        }
+        if (reflection.includes('stress') || reflection.includes('pressure')) {
+          responses = moodResponses.Stressed || responses;
+        }
+        if (reflection.includes('happy') || reflection.includes('good')) {
+          responses = moodResponses.Happy || responses;
+        }
+      }
+
+      const reply = responses[Math.floor(Math.random() * responses.length)];
+
+      chatWindow.classList.remove('hidden');
+
+      setTimeout(() => {
+        addChatMessage(reply, 'bot');
+      }, 500);
+
+      const pattern = analyzeLastThreeMoods();
+
+      if (pattern && patternResponses[pattern]) {
+        const patternReply =
+          patternResponses[pattern][
+            Math.floor(Math.random() * patternResponses[pattern].length)
+          ];
+
+        setTimeout(() => {
+          addChatMessage(patternReply, 'bot');
+        }, 1600);
+      }
     }
-    if (reflection.includes('happy') || reflection.includes('good')) {
-      responses = moodResponses.Happy || responses;
+
+    function analyzeLastThreeMoods() {
+      if (!allEntries || allEntries.length < 2) return null;
+
+      const recent = [...allEntries]
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .slice(0, 3);
+
+      const names = recent.map(e => e.mood_name);
+
+      const positive = ['Happy', 'Calm', 'Excited', 'Grateful'];
+      const negative = ['Sad', 'Anxious', 'Stressed', 'Frustrated', 'Tired'];
+
+      const posCount = names.filter(n => positive.includes(n)).length;
+      const negCount = names.filter(n => negative.includes(n)).length;
+
+      if (posCount === recent.length) return 'positive-streak';
+      if (negCount === recent.length) return 'negative-streak';
+      if (names[0] === names[1]) return 'repeating';
+      if (posCount > negCount) return 'improving';
+      if (negCount > posCount) return 'declining';
+
+      return 'mixed';
     }
-  }
 
-  const reply = responses[Math.floor(Math.random() * responses.length)];
+    const patternResponses = {
+      'positive-streak': [
+        "You've been feeling consistently lighter lately 🌤️",
+        "There's a steady calm in your check-ins. That's nice to see.",
+        "Your mood pattern looks gentle and balanced."
+      ],
+      'negative-streak': [
+        "You've been carrying this for a few days now.",
+        "It looks like things have felt heavy recently.",
+        "I'm really glad you're still checking in."
+      ],
+      'repeating': [
+        "That feeling seems to be sticking around.",
+        "You've felt this more than once recently.",
+        "Maybe this mood wants a little attention."
+      ],
+      'improving': [
+        "Your mood seems to be lifting compared to earlier.",
+        "There’s a subtle shift upward happening.",
+        "Things look a bit lighter than before."
+      ],
+      'declining': [
+        "Your recent moods seem to be dipping.",
+        "It looks like stress has been creeping in.",
+        "Something might be draining you lately."
+      ],
+      'mixed': [
+        "Your feelings have been a mix lately.",
+        "There’s been some emotional variety recently.",
+        "Looks like a lot has been going on."
+      ]
+    };
 
-  // Open chatbot automatically
-  chatWindow.classList.remove('hidden');
+    const smallTalk = {
+      hello: [
+        "Hey 🌸",
+        "Hi there.",
+        "Hello — how are you feeling?"
+      ],
+      thanks: [
+        "You're welcome 🤍",
+        "Anytime.",
+        "I'm glad I could help."
+      ]
+    };
 
-  // Bot speaks (immediate response)
-  setTimeout(() => {
-    addChatMessage(reply, 'bot');
-  }, 500);
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && chatInput.value.trim()) {
+        const userText = chatInput.value.trim();
+        chatInput.value = '';
+        addChatMessage(userText, 'user');
 
-  // 🔥 NEW: pattern-based follow-up (last 2–3 moods)
-  const pattern = analyzeLastThreeMoods();
+        const mood = selectedMood?.name;
+        let reply;
+        const lower = userText.toLowerCase();
 
-  if (pattern && patternResponses[pattern]) {
-    const patternReply =
-      patternResponses[pattern][
-        Math.floor(Math.random() * patternResponses[pattern].length)
-      ];
+        if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
+          reply = smallTalk.hello[Math.floor(Math.random() * smallTalk.hello.length)];
+        } else if (lower.includes('thank')) {
+          reply = smallTalk.thanks[Math.floor(Math.random() * smallTalk.thanks.length)];
+        }
 
-    setTimeout(() => {
-      addChatMessage(patternReply, 'bot');
-    }, 1600); // delayed so it feels thoughtful, not robotic
-  }
-}
+        if (!reply) {
+          if (mood && moodResponses[mood]) {
+            const arr = moodResponses[mood];
+            reply = arr[Math.floor(Math.random() * arr.length)];
+          } else {
+            reply = genericResponses[Math.floor(Math.random() * genericResponses.length)];
+          }
+        }
 
-
-function analyzeLastThreeMoods() {
-  if (!allEntries || allEntries.length < 2) return null;
-
-  const recent = [...allEntries]
-    .sort((a, b) => b.timestamp - a.timestamp)
-    .slice(0, 3);
-
-  const names = recent.map(e => e.mood_name);
-
-  const positive = ['Happy', 'Calm', 'Excited', 'Grateful'];
-  const negative = ['Sad', 'Anxious', 'Stressed', 'Frustrated', 'Tired'];
-
-  const posCount = names.filter(n => positive.includes(n)).length;
-  const negCount = names.filter(n => negative.includes(n)).length;
-
-  if (posCount === recent.length) return 'positive-streak';
-  if (negCount === recent.length) return 'negative-streak';
-  if (names[0] === names[1]) return 'repeating';
-  if (posCount > negCount) return 'improving';
-  if (negCount > posCount) return 'declining';
-
-  return 'mixed';
-}
-
-const patternResponses = {
-  'positive-streak': [
-    "You've been feeling consistently lighter lately 🌤️",
-    "There's a steady calm in your check-ins. That's nice to see.",
-    "Your mood pattern looks gentle and balanced."
-  ],
-  'negative-streak': [
-    "You've been carrying this for a few days now.",
-    "It looks like things have felt heavy recently.",
-    "I'm really glad you're still checking in."
-  ],
-  'repeating': [
-    "That feeling seems to be sticking around.",
-    "You've felt this more than once recently.",
-    "Maybe this mood wants a little attention."
-  ],
-  'improving': [
-    "Your mood seems to be lifting compared to earlier.",
-    "There’s a subtle shift upward happening.",
-    "Things look a bit lighter than before."
-  ],
-  'declining': [
-    "Your recent moods seem to be dipping.",
-    "It looks like stress has been creeping in.",
-    "Something might be draining you lately."
-  ],
-  'mixed': [
-    "Your feelings have been a mix lately.",
-    "There’s been some emotional variety recently.",
-    "Looks like a lot has been going on."
-  ]
-};
-
-const smallTalk = {
-  hello: [
-    "Hey 🌸",
-    "Hi there.",
-    "Hello — how are you feeling?"
-  ],
-  thanks: [
-    "You're welcome 🤍",
-    "Anytime.",
-    "I'm glad I could help."
-  ]
-};
-
-
-chatInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && chatInput.value.trim()) {
-    const userText = chatInput.value.trim();
-    chatInput.value = '';
-    addChatMessage(userText, 'user');
-
-    const mood = selectedMood?.name;
-    let reply;
-const lower = userText.toLowerCase();
-
-if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
-  reply = smallTalk.hello[Math.floor(Math.random() * smallTalk.hello.length)];
-} 
-else if (lower.includes('thank')) {
-  reply = smallTalk.thanks[Math.floor(Math.random() * smallTalk.thanks.length)];
-}
-
-
-    if (!reply) {
-  if (mood && moodResponses[mood]) {
-    const arr = moodResponses[mood];
-    reply = arr[Math.floor(Math.random() * arr.length)];
-  } else {
-    reply = genericResponses[Math.floor(Math.random() * genericResponses.length)];
-  }
-}
-
-
-    setTimeout(() => addChatMessage(reply), 600);
-  }
-});
-
+        setTimeout(() => addChatMessage(reply), 600);
+      }
+    });
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c8991761655b2b3',t:'MTc3MDIwMTgxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 
+  <script>
+    (function(){
+      function c(){
+        var b=a.contentDocument||a.contentWindow.document;
+        if(b){
+          var d=b.createElement('script');
+          d.innerHTML="window.__CF$cv$params={r:'9c8991761655b2b3',t:'MTc3MDIwMTgxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+          b.getElementsByTagName('head')[0].appendChild(d)
+        }
+      }
+      if(document.body){
+        var a=document.createElement('iframe');
+        a.height=1;
+        a.width=1;
+        a.style.position='absolute';
+        a.style.top=0;
+        a.style.left=0;
+        a.style.border='none';
+        a.style.visibility='hidden';
+        document.body.appendChild(a);
+        if('loading'!==document.readyState)c();
+        else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);
+        else{
+          var e=document.onreadystatechange||function(){};
+          document.onreadystatechange=function(b){
+            e(b);
+            'loading'!==document.readyState&&(document.onreadystatechange=e,c())
+          }
+        }
+      }
+    })();
+  </script>
+</body>
 </html>
