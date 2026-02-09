@@ -33,14 +33,14 @@
       background-image:
         repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.01) 2px, rgba(0, 0, 0, 0.01) 4px),
         repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 0, 0, 0.01) 2px, rgba(0, 0, 0, 0.01) 4px);
+      min-height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100%;
       padding: 40px 20px;
       overflow-y: auto;
-      position: relative; /* for stickers */
+      position: relative;
     }
 
     .page-title {
@@ -52,7 +52,7 @@
       opacity: 0;
       animation: fadeIn 0.8s ease-out 0.2s forwards;
       position: relative;
-      z-index: 2;
+      z-index: 10;
     }
 
     @keyframes fadeIn {
@@ -67,7 +67,7 @@
       opacity: 0;
       animation: fadeInUp 0.8s ease-out 0.4s forwards;
       position: relative;
-      z-index: 2; /* above stickers */
+      z-index: 10;
     }
 
     @keyframes fadeInUp {
@@ -295,14 +295,14 @@
       padding: 6px 12px;
       font-size: 11px;
       color: #4b463f;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       box-shadow:
         0 8px 18px rgba(0, 0, 0, 0.08),
         0 0 0 1px rgba(0, 0, 0, 0.02);
       transform: rotate(-3deg);
-      pointer-events: none;
-      z-index: 1;
       white-space: nowrap;
+      pointer-events: none;
+      z-index: 5;
     }
 
     .sticker.accent {
@@ -317,40 +317,40 @@
     }
 
     .sticker-top-left {
-      top: 18%;
-      left: 8%;
-    }
-
-    .sticker-top-right {
-      top: 16%;
-      right: 10%;
-    }
-
-    .sticker-bottom-left {
-      bottom: 14%;
+      top: 12%;
       left: 6%;
     }
 
+    .sticker-top-right {
+      top: 12%;
+      right: 6%;
+    }
+
+    .sticker-bottom-left {
+      bottom: 10%;
+      left: 8%;
+    }
+
     .sticker-bottom-right {
-      bottom: 12%;
+      bottom: 8%;
       right: 8%;
     }
 
     .sticker-mid-left {
-      top: 52%;
+      top: 50%;
       left: 4%;
       transform: translateY(-50%) rotate(-6deg);
     }
 
     .sticker-mid-right {
-      top: 54%;
-      right: 5%;
+      top: 52%;
+      right: 4%;
       transform: translateY(-50%) rotate(5deg);
     }
 
     @keyframes floatSoft {
       0%, 100% { transform: translateY(0) rotate(var(--rotate, 0deg)); }
-      50% { transform: translateY(-3px) rotate(var(--rotate, 0deg)); }
+      50%      { transform: translateY(-3px) rotate(var(--rotate, 0deg)); }
     }
 
     .sticker.float {
@@ -385,27 +385,27 @@
 
       .sticker-mid-left,
       .sticker-mid-right {
-        display: none; /* keep sides cleaner on tiny screens */
+        display: none;
       }
 
       .sticker-top-left {
-        top: 10%;
-        left: 6%;
+        top: 6%;
+        left: 4%;
       }
 
       .sticker-top-right {
-        top: 10%;
-        right: 6%;
+        top: 6%;
+        right: 4%;
       }
 
       .sticker-bottom-left {
-        bottom: 10%;
-        left: 6%;
+        bottom: 6%;
+        left: 4%;
       }
 
       .sticker-bottom-right {
-        bottom: 8%;
-        right: 6%;
+        bottom: 4%;
+        right: 4%;
       }
     }
   </style>
@@ -457,6 +457,7 @@
           <a class="toggle-link" id="show-signup">Sign up</a>
         </div>
       </div>
+
       <!-- Sign Up View -->
       <div id="signup-view" class="view">
         <h2 class="form-heading" id="signup-heading">Begin your journey</h2>
@@ -486,6 +487,7 @@
           <a class="toggle-link" id="show-signin">Sign in</a>
         </div>
       </div>
+
       <!-- Forgot Password View -->
       <div id="forgot-view" class="view">
         <a class="back-link" id="back-to-signin">
@@ -507,6 +509,7 @@
       </div>
     </div>
   </div>
+
   <script>
     const defaultConfig = {
       app_title: "The Mirror",
@@ -545,13 +548,15 @@
         document.getElementById('back-text').textContent = config.back_to_signin || defaultConfig.back_to_signin;
 
         const titleFontStack = 'cursive';
-        document.querySelector('.page-title').style.fontFamily = `${config.title_font_family || defaultConfig.title_font_family}, ${titleFontStack}`;
+        document.querySelector('.page-title').style.fontFamily =
+          `${config.title_font_family || defaultConfig.title_font_family}, ${titleFontStack}`;
 
         document.body.style.backgroundColor = config.background_color || defaultConfig.background_color;
 
-        document.querySelectorAll('.page-title, .form-heading, .submit-btn, .toggle-link, .forgot-link, .back-link, .social-btn').forEach(el => {
-          el.style.color = config.text_color || defaultConfig.text_color;
-        });
+        document.querySelectorAll('.page-title, .form-heading, .submit-btn, .toggle-link, .forgot-link, .back-link, .social-btn')
+          .forEach(el => {
+            el.style.color = config.text_color || defaultConfig.text_color;
+          });
 
         document.querySelectorAll('.card, .submit-btn').forEach(el => {
           el.style.borderColor = config.border_color || defaultConfig.border_color;
@@ -622,7 +627,6 @@
       window.elementSdk.init(element);
     }
 
-    // View management
     const views = {
       signin: document.getElementById('signin-view'),
       signup: document.getElementById('signup-view'),
@@ -634,7 +638,6 @@
       views[viewName].classList.add('active');
     }
 
-    // Navigation
     document.getElementById('show-signup').addEventListener('click', e => {
       e.preventDefault();
       showView('signup');
@@ -657,14 +660,6 @@
       showView('signin');
     });
 
-    // Social login handlers (if you add buttons back later)
-    function handleSocialLogin(provider) {
-      const message = `${provider} authentication would connect here`;
-      showMessage('signin-message', message, 'success');
-      setTimeout(() => hideMessage('signin-message'), 3000);
-    }
-
-    // Message helpers
     function showMessage(elementId, text, type) {
       const message = document.getElementById(elementId);
       if (!message) return;
@@ -678,13 +673,11 @@
       message.className = 'message';
     }
 
-    // Sign in form
     document.getElementById('signin-form').addEventListener('submit', async e => {
       const button = document.getElementById('signin-btn');
       button.textContent = 'Signing in...';
     });
 
-    // Sign up form
     document.getElementById('signup-form').addEventListener('submit', async e => {
       const password = document.getElementById('signup-password').value;
       const confirm = document.getElementById('signup-confirm').value;
@@ -699,7 +692,6 @@
       button.textContent = 'Creating account...';
     });
 
-    // Forgot password form
     document.getElementById('forgot-form').addEventListener('submit', async e => {
       e.preventDefault();
       const button = document.getElementById('reset-btn');
