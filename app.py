@@ -457,13 +457,14 @@ def summary_today_todos():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    # "Today" based on due_date if present, otherwise created_at date
+    # Treat "today" as: all not-completed todos, newest first.
+    # If you want, you can also LIMIT 10.
     cursor.execute("""
         SELECT id, text, completed,
                COALESCE(due_date::date, created_at::date) AS effective_date
         FROM todo
         WHERE user_id = %s
-          AND COALESCE(due_date::date, created_at::date) = CURRENT_DATE
+          AND completed = FALSE
         ORDER BY created_at DESC
     """, (user_id,))
     rows = cursor.fetchall()
@@ -472,8 +473,8 @@ def summary_today_todos():
     conn.close()
 
     total = len(rows)
-    completed = sum(1 for r in rows if r["completed"])
-    pending = total - completed
+    completed = 0
+    pending = total  # all are pending by filter
 
     return jsonify({
         "isOk": True,
@@ -583,3 +584,4 @@ def summary_recent_moods():
         "entries": rows,
         "counts": mood_counts
     })
+
