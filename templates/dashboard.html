@@ -372,29 +372,28 @@
           return;
         }
 
+        // Read-only, visually appealing preview
         todoList.innerHTML = todos
           .map(
             todo => `
-    <div class="flex items-start gap-3 group">
-      <input 
-        type="checkbox" 
-        ${todo.completed ? 'checked' : ''} 
-        data-id="${todo.id}" 
-        class="todo-checkbox w-4 h-4 mt-1 rounded border-[#d4d1c8] cursor-pointer flex-shrink-0"
-      >
-      <span class="text-sm text-[#2d2d2d] flex-1 leading-relaxed ${
-        todo.completed ? 'task-complete' : ''
-      }">
-        ${todo.content}
-      </span>
-    </div>
-  `
+      <div class="flex items-start gap-3 group">
+        <div class="mt-1 w-2 h-2 rounded-full ${
+          todo.completed ? 'bg-[#9b9b9b]' : 'bg-[#2d2d2d]'
+        }"></div>
+        <div class="flex-1">
+          <p class="text-sm text-[#2d2d2d] leading-snug ${
+            todo.completed ? 'opacity-60 line-through' : ''
+          }">
+            ${todo.content}
+          </p>
+          <p class="text-[11px] text-[#9b9b9b] mt-0.5">
+            ${todo.completed ? 'Completed' : 'Still open'}
+          </p>
+        </div>
+      </div>
+    `
           )
           .join('');
-
-        document
-          .querySelectorAll('.todo-checkbox')
-          .forEach(cb => cb.addEventListener('change', handleTodoToggle));
       }
 
       function renderHabits() {
@@ -407,33 +406,32 @@
           return;
         }
 
+        // Read-only, compact preview of habits + streak
         habitList.innerHTML = habits
           .map(
             habit => `
-    <button 
-      class="habit-btn w-full text-left px-4 py-3 rounded-2xl border border-[#d4d1c8] transition-all hover:border-[#8b8982] ${
-        habit.completed ? 'habit-complete' : 'bg-white'
-      }"
-      data-id="${habit.id}"
-    >
-      <div class="text-sm mb-1 ${
-        habit.completed ? 'text-white' : 'text-[#2d2d2d]'
-      }">
-        ${habit.content}
+      <div class="w-full px-4 py-3 rounded-2xl border border-[#d4d1c8] bg-white/70 backdrop-blur-sm">
+        <div class="flex items-center justify-between">
+          <p class="text-sm ${
+            habit.completed ? 'text-[#2d2d2d]' : 'text-[#2d2d2d]'
+          }">
+            ${habit.content}
+          </p>
+          <span class="text-[11px] px-2 py-0.5 rounded-full ${
+            habit.completed
+              ? 'bg-[#2d2d2d] text-[#f5f1e8]'
+              : 'bg-[#f0eee6] text-[#6b6b6b]'
+          }">
+            ${habit.completed ? 'Done today' : 'Not yet'}
+          </span>
+        </div>
+        <p class="text-[11px] text-[#9b9b9b] mt-1">
+          🔥 ${habit.streak || 0} day streak
+        </p>
       </div>
-      <div class="text-xs ${
-        habit.completed ? 'text-[#d4d1c8]' : 'text-[#9b9b9b]'
-      }">
-        🔥 ${habit.streak} day streak
-      </div>
-    </button>
-  `
+    `
           )
           .join('');
-
-        document
-          .querySelectorAll('.habit-btn')
-          .forEach(btn => btn.addEventListener('click', handleHabitToggle));
       }
 
       function renderMood() {
@@ -487,7 +485,7 @@
         }
       }
 
-      // ----- EVENT HANDLERS -----
+      // ----- EVENT HANDLERS (kept but no longer used by dashboard previews) -----
       function handleTodoToggle(e) {
         const id = e.target.dataset.id;
         const todo = currentData.find(d => d.id === id);
@@ -508,7 +506,7 @@
         }
       }
 
-      // ----- ADD NEW TODOS -----
+      // ----- ADD NEW TODOS (local only, as before) -----
       document
         .getElementById('add-todo-btn')
         .addEventListener('click', () => {
@@ -538,7 +536,6 @@
       const chatInput = document.getElementById('chat-input');
       const sendBtn = document.getElementById('send-btn');
 
-      // Emotion + generic responses (unchanged)
       const emotionResponses = {
         happy: [
           "That happiness sounds genuine 🌱 What do you think sparked it?",
@@ -613,7 +610,6 @@
         "Take one slow breath in and out. What’s one thing in this moment that feels even a little bit safe?"
       ];
 
-      // ---- NEW: intent detection for data questions ----
       function detectEmotion(text) {
         text = text.toLowerCase();
 
@@ -629,66 +625,32 @@
       function detectIntent(text) {
         const t = text.toLowerCase();
 
-        // greetings
         if (/(^|\\s)(hi|hello|hey|good morning|good night|good evening)(\\W|$)/.test(t)) {
           return 'greeting';
         }
 
-        // gratitude
         if (t.includes('thank you') || t.includes('thanks') || t.includes('thx')) {
           return 'thanks';
         }
 
-        // goodbye / closing
         if (t.includes('bye') || t.includes('goodnight') || t.includes('good night') || t.includes('see you')) {
           return 'goodbye';
         }
 
-        // asking about bot
         if (t.includes('who are you') || t.includes('what are you') || t.includes('what can you do')) {
           return 'about_bot';
         }
 
-        // asking how the bot is
         if ((t.includes('how are you') || t.includes('hru')) && !t.includes('how am i')) {
           return 'bot_feeling';
         }
 
-        // light small talk
         if (t.includes('what are you doing') || t.includes('bored') || t.includes('talk to me')) {
           return 'small_talk';
         }
 
-        // grounding / panic cues
         if (t.includes('panic') || t.includes("can't breathe") || t.includes('freaking out')) {
           return 'grounding';
-        }
-
-        // ----- NEW: data-related intents -----
-
-        // today todos
-        if (
-          (t.includes('todo') || t.includes('to-do') || t.includes('tasks')) &&
-          (t.includes('today') || t.includes('for today') || t.includes("for this day"))
-        ) {
-          return 'today_todos';
-        }
-
-        // recent habits / yesterday habit
-        if (
-          t.includes('habit') &&
-          (t.includes('yesterday') || t.includes('last few days') || t.includes('last 3 days') || t.includes('how are my habits') || t.includes('how are my habits going'))
-        ) {
-          // We will treat this as recent habits; if you want strict "yesterday", can refine.
-          return 'recent_habits';
-        }
-
-        // mood trend / stability
-        if (
-          t.includes('mood') &&
-          (t.includes('stable') || t.includes('recent') || t.includes('last few days') || t.includes('last week') || t.includes('how is my mood') || t.includes('how has my mood been'))
-        ) {
-          return 'recent_moods';
         }
 
         return 'generic';
@@ -714,91 +676,13 @@
         chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
       }
 
-      // ---- NEW: helper fns to format backend summaries ----
-      async function answerTodayTodos() {
-        try {
-          const res = await fetch('/api/summary/today-todos');
-          if (!res.ok) throw new Error('Failed');
-          const data = await res.json();
-
-          if (!data.total) {
-            return "You don't have any todos scheduled for today.";
-          }
-
-          const titles = data.items.map(i => `• ${i.text}${i.completed ? " (done)" : ""}`).join('<br>');
-          return `For today, you have ${data.total} todo${data.total > 1 ? 's' : ''} — ${data.completed} completed and ${data.pending} pending:<br>${titles}`;
-        } catch (e) {
-          return "I couldn't load today's todos right now, but you can still check them in the list.";
-        }
-      }
-
-      async function answerRecentHabits() {
-        const days = 3;
-        try {
-          const res = await fetch(`/api/summary/recent-habits?days=${days}`);
-          if (!res.ok) throw new Error('Failed');
-          const data = await res.json();
-
-          if (!data.habits || !data.habits.length) {
-            return "You don't have any habits tracked yet.";
-          }
-
-          const lines = data.habits.map(h => {
-            if (!h.days_logged) {
-              return `• ${h.name}: no check-ins in the last ${days} days.`;
-            }
-            return `• ${h.name}: done on ${h.completed_days} out of ${h.days_logged} logged day${h.days_logged > 1 ? 's' : ''}.`;
-          }).join('<br>');
-
-          return `Here's how your habits have been going over the last ${days} days:<br>${lines}`;
-        } catch (e) {
-          return "I couldn't load your recent habits right now.";
-        }
-      }
-
-      async function answerRecentMoods() {
-        const days = 7;
-        try {
-          const res = await fetch(`/api/summary/recent-moods?days=${days}`);
-          if (!res.ok) throw new Error('Failed');
-          const data = await res.json();
-
-          if (!data.entries || !data.entries.length) {
-            return "I don't see any mood check-ins for the last few days.";
-          }
-
-          const total = data.entries.length;
-          const counts = data.counts || {};
-          const parts = Object.keys(counts).map(name => `${name}: ${counts[name]} time${counts[name] > 1 ? 's' : ''}`);
-          const summary = parts.join(', ');
-
-          return `In the last ${days} days, you've checked in ${total} time${total > 1 ? 's' : ''}. Your moods have mostly been: ${summary}.`;
-        } catch (e) {
-          return "I couldn't load your recent mood history right now.";
-        }
-      }
-
       async function generateReply(message) {
         const emotion = detectEmotion(message);
         const intent = detectIntent(message);
 
-        // Higher-priority: data intents
-        if (intent === 'today_todos') {
-          return await answerTodayTodos();
-        }
-        if (intent === 'recent_habits') {
-          return await answerRecentHabits();
-        }
-        if (intent === 'recent_moods') {
-          return await answerRecentMoods();
-        }
-
-        // Higher-priority: crisis / grounding
         if (intent === 'grounding') {
           return chooseRandom(groundingResponses);
         }
-
-        // Intent-based replies
         if (intent === 'greeting') {
           return chooseRandom(greetingResponses);
         }
@@ -818,12 +702,10 @@
           return chooseRandom(smallTalkResponses);
         }
 
-        // Emotion-based reflective replies
         if (emotion && emotionResponses[emotion]) {
           return chooseRandom(emotionResponses[emotion]);
         }
 
-        // Fallback reflective response
         return chooseRandom(genericResponses);
       }
 
