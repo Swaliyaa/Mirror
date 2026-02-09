@@ -538,154 +538,90 @@
       const chatInput = document.getElementById('chat-input');
       const sendBtn = document.getElementById('send-btn');
 
-      // Core emotional response bank (expanded)
+      // Emotion + generic responses (unchanged)
       const emotionResponses = {
         happy: [
           "That happiness sounds genuine 🌱 What do you think sparked it?",
           "I love noticing joy with you. How can you carry this feeling forward?",
-          "Hold onto that lightness. What does this happiness remind you of?",
-          "I’m glad you’re feeling this way. Who or what contributed to it today?",
-          "Notice where that joy lives in your body right now."
+          "Hold onto that lightness. What does this happiness remind you of?"
         ],
         sad: [
           "I hear the heaviness in that 💙 Do you want to talk more about it?",
           "It's okay to feel low sometimes. What feels hardest right now?",
-          "You don’t have to rush feeling better. I’m here with you.",
-          "If your feelings had a voice, what would they say?",
-          "What do you wish someone would tell you in this moment?"
+          "You don’t have to rush feeling better. I’m here with you."
         ],
         overwhelmed: [
           "That sounds like a lot to hold at once. Let’s slow this down together.",
           "You’re carrying many things right now. What’s one thing you can release?",
-          "Pause with me for a second. You’re not alone in this.",
-          "Let’s take it one step at a time. What’s the very next small step?",
-          "If we break this into tiny pieces, what’s one piece we can name first?"
+          "Pause with me for a second. You’re not alone in this."
         ],
         stressed: [
           "Stress can make everything feel louder. What’s the main pressure point?",
           "Your body might be asking for gentleness right now.",
-          "Let’s breathe for a moment. What’s within your control today?",
-          "On a scale of 1–10, how intense does this feel?",
-          "What usually helps you calm down, even a little?"
+          "Let’s breathe for a moment. What’s within your control today?"
         ],
         calm: [
           "That calm feels grounding. What helped you arrive here?",
           "Peace is precious. How does your body feel in this moment?",
-          "Notice this stillness — it’s a form of strength.",
-          "Is there anything you’d like to remember about this calm for later?",
-          "What would support you in staying close to this feeling?"
-        ],
-        anxious: [
-          "Anxiety can be really loud. What is it most afraid of right now?",
-          "It makes sense you’re feeling on edge. Do you want to unpack it together?",
-          "Let’s anchor for a moment. Can you name three things you can see?",
-          "You’re not your anxious thoughts. Which one is shouting the loudest?",
-          "If your anxiety was a character, how would you describe it?"
-        ],
-        lonely: [
-          "Feeling alone can be really painful. When did this feeling start?",
-          "You’re not weird for wanting connection. Who do you wish you could talk to?",
-          "I’m here with you in this moment. What feels most empty right now?",
-          "Sometimes loneliness shows us what we value. What do you find yourself missing?",
-          "If you could send one honest message to someone, what would it say?"
-        ],
-        angry: [
-          "Your anger is telling you something matters. What feels crossed or disrespected?",
-          "It’s okay to feel angry. What’s underneath it, if anything?",
-          "If you could say everything unfiltered, what would you want to shout?",
-          "Where do you feel this anger in your body?",
-          "What do you need right now: to vent, to calm down, or to be understood?"
-        ],
-        numb: [
-          "Feeling numb can be just as heavy as feeling sad. How long has it felt this way?",
-          "Sometimes numbness is a kind of protection. Does that resonate for you?",
-          "Even if you don’t feel much, your experience still matters here.",
-          "Is there anything that slightly cuts through the numbness, even if just 1%?",
-          "If your numbness could speak, what would it say about what it’s protecting?"
+          "Notice this stillness — it’s a form of strength."
         ]
       };
 
-      // Generic reflective responses
       const genericResponses = [
         "That sounds meaningful. What does that bring up for you?",
         "I hear you. How does that make you feel?",
         "Thank you for sharing that. What else is on your mind?",
         "That’s worth exploring. What would help you feel steadier?",
-        "I’m listening. What feels most important right now?",
-        "It makes sense you’d feel that way. What do you need in this moment?",
-        "Would you like to unpack the story behind that a bit more?",
-        "If you could change one small part of this situation, what would it be?",
-        "What are you hoping might happen next?",
-        "Do you want comfort, reflection, or more practical ideas right now?"
+        "I’m listening. What feels most important right now?"
       ];
 
-      // Small-talk / greetings
       const greetingResponses = [
         "Hey, I’m glad you reached out. What’s on your mind today?",
         "Hi there, I’m here with you. How are you feeling right now?",
-        "Hello 🌿 How are you doing, honestly?",
-        "Hey, it’s good to see you here. What brings you in today?",
-        "Hi, we can go at your pace. Where would you like to start?"
+        "Hello 🌿 How are you doing, honestly?"
       ];
 
       const thanksResponses = [
         "You’re welcome. I’m glad I could be here with you.",
         "Thank you for trusting me with that.",
-        "I appreciate you sharing so openly.",
-        "Anytime. You don’t have to go through this alone.",
-        "I’m here whenever you want to talk again."
+        "Anytime. You don’t have to go through this alone."
       ];
 
       const goodbyeResponses = [
         "I’m glad we talked today. Take gentle care of yourself.",
         "Thank you for spending this time with me. You can always come back.",
-        "Before you go, is there anything you want to say to your future self?",
-        "I’m rooting for you, even between our chats.",
-        "Talk to you later. You deserve rest and kindness."
+        "I’m rooting for you, even between our chats."
       ];
 
       const aboutBotResponses = [
         "I’m here to listen, reflect, and support you as you sort through your thoughts.",
-        "Right now, I’m focused on trying to understand you and respond gently.",
-        "I’m a chatbot designed to offer emotional support and curious questions.",
-        "I don’t have a life outside this chat, but I’m fully here with you when you write."
+        "I’m a chatbot designed to offer emotional support and gentle prompts."
       ];
 
       const botFeelingResponses = [
         "I don’t have feelings like humans do, but I’m here and focused on you.",
-        "I’m functioning well and ready to listen. How are *you* feeling?",
-        "I’m here for you, that’s what matters most to me right now.",
-        "I don’t experience days the way you do, but I care about what yours feels like."
+        "I’m here for you, that’s what matters most to me right now."
       ];
 
       const smallTalkResponses = [
         "We can talk about anything—from big feelings to small everyday stuff. What’s on your mind?",
-        "If your day had a title right now, what would you call it?",
-        "What’s one tiny thing that made today a bit better, even if it was just 1%?",
-        "If your mood was a weather forecast, what would it be?",
-        "Is there a song or movie that matches how you feel today?"
+        "If your day had a title right now, what would you call it?"
       ];
 
       const groundingResponses = [
         "Let’s try something simple: can you name 3 things you can see around you?",
-        "Take one slow breath in and out. What’s one thing in this moment that feels even a little bit safe?",
-        "Notice your feet on the floor or your body on the chair. What does that feel like?",
-        "If it helps, gently look around and name a color you see in the room.",
-        "Sometimes small grounding helps. What’s one thing you can touch that feels comforting?"
+        "Take one slow breath in and out. What’s one thing in this moment that feels even a little bit safe?"
       ];
 
-      // Intent / emotion detection
+      // ---- NEW: intent detection for data questions ----
       function detectEmotion(text) {
         text = text.toLowerCase();
 
-        if (text.includes('happy') || text.includes('excited') || text.includes('good') || text.includes('great')) return 'happy';
-        if (text.includes('sad') || text.includes('down') || text.includes('low') || text.includes('depressed')) return 'sad';
-        if (text.includes('overwhelmed') || text.includes('too much') || text.includes("can't handle") || text.includes("cant handle")) return 'overwhelmed';
-        if (text.includes('stressed') || text.includes('anxious') || text.includes('anxiety') || text.includes('pressure')) return 'stressed';
-        if (text.includes('calm') || text.includes('peaceful') || text.includes('relaxed') || text.includes('okay now')) return 'calm';
-        if (text.includes('lonely') || text.includes('alone') || text.includes('no one')) return 'lonely';
-        if (text.includes('angry') || text.includes('mad') || text.includes('furious') || text.includes('pissed')) return 'angry';
-        if (text.includes('numb') || text.includes('empty') || text.includes('feel nothing')) return 'numb';
+        if (text.includes('happy') || text.includes('excited') || text.includes('good')) return 'happy';
+        if (text.includes('sad') || text.includes('down') || text.includes('low')) return 'sad';
+        if (text.includes('overwhelmed') || text.includes('too much')) return 'overwhelmed';
+        if (text.includes('stressed') || text.includes('anxious') || text.includes('pressure')) return 'stressed';
+        if (text.includes('calm') || text.includes('peaceful') || text.includes('relaxed')) return 'calm';
 
         return null;
       }
@@ -694,38 +630,65 @@
         const t = text.toLowerCase();
 
         // greetings
-        if (/(^|\s)(hi|hello|hey|heyy|hiya|sup|good morning|good night|good evening)(\W|$)/.test(t)) {
+        if (/(^|\\s)(hi|hello|hey|good morning|good night|good evening)(\\W|$)/.test(t)) {
           return 'greeting';
         }
 
         // gratitude
-        if (t.includes('thank you') || t.includes('thanks') || t.includes('thx') || t.includes('tysm')) {
+        if (t.includes('thank you') || t.includes('thanks') || t.includes('thx')) {
           return 'thanks';
         }
 
         // goodbye / closing
-        if (t.includes('bye') || t.includes('goodnight') || t.includes('good night') || t.includes('see you') || t.includes('gtg') || t.includes('got to go')) {
+        if (t.includes('bye') || t.includes('goodnight') || t.includes('good night') || t.includes('see you')) {
           return 'goodbye';
         }
 
         // asking about bot
-        if (t.includes('who are you') || t.includes('what are you') || t.includes('what can you do') || t.includes('are you real')) {
+        if (t.includes('who are you') || t.includes('what are you') || t.includes('what can you do')) {
           return 'about_bot';
         }
 
         // asking how the bot is
-        if ((t.includes('how are you') || t.includes('hru') || t.includes('how you doing')) && !t.includes('how am i')) {
+        if ((t.includes('how are you') || t.includes('hru')) && !t.includes('how am i')) {
           return 'bot_feeling';
         }
 
         // light small talk
-        if (t.includes('what are you doing') || t.includes('wyd') || t.includes('bored') || t.includes('talk to me') || t.includes('tell me something')) {
+        if (t.includes('what are you doing') || t.includes('bored') || t.includes('talk to me')) {
           return 'small_talk';
         }
 
         // grounding / panic cues
-        if (t.includes('panic') || t.includes("can't breathe") || t.includes("cant breathe") || t.includes('freaking out') || t.includes('too much in my head')) {
+        if (t.includes('panic') || t.includes("can't breathe") || t.includes('freaking out')) {
           return 'grounding';
+        }
+
+        // ----- NEW: data-related intents -----
+
+        // today todos
+        if (
+          (t.includes('todo') || t.includes('to-do') || t.includes('tasks')) &&
+          (t.includes('today') || t.includes('for today') || t.includes("for this day"))
+        ) {
+          return 'today_todos';
+        }
+
+        // recent habits / yesterday habit
+        if (
+          t.includes('habit') &&
+          (t.includes('yesterday') || t.includes('last few days') || t.includes('last 3 days') || t.includes('how are my habits') || t.includes('how are my habits going'))
+        ) {
+          // We will treat this as recent habits; if you want strict "yesterday", can refine.
+          return 'recent_habits';
+        }
+
+        // mood trend / stability
+        if (
+          t.includes('mood') &&
+          (t.includes('stable') || t.includes('recent') || t.includes('last few days') || t.includes('last week') || t.includes('how is my mood') || t.includes('how has my mood been'))
+        ) {
+          return 'recent_moods';
         }
 
         return 'generic';
@@ -751,9 +714,84 @@
         chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
       }
 
-      function generateReply(message) {
+      // ---- NEW: helper fns to format backend summaries ----
+      async function answerTodayTodos() {
+        try {
+          const res = await fetch('/api/summary/today-todos');
+          if (!res.ok) throw new Error('Failed');
+          const data = await res.json();
+
+          if (!data.total) {
+            return "You don't have any todos scheduled for today.";
+          }
+
+          const titles = data.items.map(i => `• ${i.text}${i.completed ? " (done)" : ""}`).join('<br>');
+          return `For today, you have ${data.total} todo${data.total > 1 ? 's' : ''} — ${data.completed} completed and ${data.pending} pending:<br>${titles}`;
+        } catch (e) {
+          return "I couldn't load today's todos right now, but you can still check them in the list.";
+        }
+      }
+
+      async function answerRecentHabits() {
+        const days = 3;
+        try {
+          const res = await fetch(`/api/summary/recent-habits?days=${days}`);
+          if (!res.ok) throw new Error('Failed');
+          const data = await res.json();
+
+          if (!data.habits || !data.habits.length) {
+            return "You don't have any habits tracked yet.";
+          }
+
+          const lines = data.habits.map(h => {
+            if (!h.days_logged) {
+              return `• ${h.name}: no check-ins in the last ${days} days.`;
+            }
+            return `• ${h.name}: done on ${h.completed_days} out of ${h.days_logged} logged day${h.days_logged > 1 ? 's' : ''}.`;
+          }).join('<br>');
+
+          return `Here's how your habits have been going over the last ${days} days:<br>${lines}`;
+        } catch (e) {
+          return "I couldn't load your recent habits right now.";
+        }
+      }
+
+      async function answerRecentMoods() {
+        const days = 7;
+        try {
+          const res = await fetch(`/api/summary/recent-moods?days=${days}`);
+          if (!res.ok) throw new Error('Failed');
+          const data = await res.json();
+
+          if (!data.entries || !data.entries.length) {
+            return "I don't see any mood check-ins for the last few days.";
+          }
+
+          const total = data.entries.length;
+          const counts = data.counts || {};
+          const parts = Object.keys(counts).map(name => `${name}: ${counts[name]} time${counts[name] > 1 ? 's' : ''}`);
+          const summary = parts.join(', ');
+
+          return `In the last ${days} days, you've checked in ${total} time${total > 1 ? 's' : ''}. Your moods have mostly been: ${summary}.`;
+        } catch (e) {
+          return "I couldn't load your recent mood history right now.";
+        }
+      }
+
+      async function generateReply(message) {
         const emotion = detectEmotion(message);
         const intent = detectIntent(message);
+
+        // Higher-priority: data intents
+        if (intent === 'today_todos') {
+          return await answerTodayTodos();
+        }
+        if (intent === 'recent_habits') {
+          return await answerRecentHabits();
+        }
+        if (intent === 'recent_moods') {
+          return await answerRecentMoods();
+        }
 
         // Higher-priority: crisis / grounding
         if (intent === 'grounding') {
@@ -789,15 +827,15 @@
         return chooseRandom(genericResponses);
       }
 
-      sendBtn.addEventListener('click', () => {
+      sendBtn.addEventListener('click', async () => {
         const message = chatInput.value.trim();
         if (!message) return;
 
         addMessage(message, true);
         chatInput.value = '';
 
-        setTimeout(() => {
-          const reply = generateReply(message);
+        setTimeout(async () => {
+          const reply = await generateReply(message);
           addMessage(reply);
         }, 800);
       });
