@@ -357,24 +357,67 @@
       animation: floatSoft 5.2s ease-in-out infinite;
     }
 
+    /* MOBILE TWEAKS */
     @media (max-width: 480px) {
+      body {
+        padding: 24px 16px;
+      }
+
       .page-title {
-        font-size: 28px;
-        margin-bottom: 24px;
+        font-size: 26px;
+        margin-bottom: 18px;
+      }
+
+      .card-container {
+        max-width: 360px;       /* slightly narrower on phones */
       }
 
       .card {
-        padding: 40px 28px;
+        padding: 28px 20px;     /* was 48px 44px */
       }
 
       .form-heading {
-        font-size: 22px;
+        font-size: 20px;
+        margin-bottom: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 18px;
+      }
+
+      .form-group label {
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+
+      .form-group input[type="text"],
+      .form-group input[type="email"],
+      .form-group input[type="password"] {
+        font-size: 14px;
+        padding: 10px 0;
       }
 
       .remember-forgot {
         flex-direction: column;
         align-items: flex-start;
-        gap: 12px;
+        gap: 10px;
+        margin: 16px 0 22px 0;
+        font-size: 12px;
+      }
+
+      .submit-btn {
+        padding: 12px;
+        font-size: 12px;
+      }
+
+      .toggle-section {
+        margin-top: 20px;
+        font-size: 12px;
+      }
+
+      .back-link {
+        font-size: 12px;
+        margin-bottom: 18px;
       }
 
       .sticker {
