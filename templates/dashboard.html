@@ -75,75 +75,148 @@
   <style>@view-transition { navigation: auto; }</style>
  </head>
  <body class="h-full body-text">
-  <div class="h-full w-full overflow-auto bg-[#f5f1e8] paper-texture"><!-- Hero Section -->
-   <header class="w-full py-16 px-6 relative">
-  <div class="max-w-4xl mx-auto text-center">
-    <h1 id="site-title" class="handwritten text-7xl md:text-8xl text-[#2d2d2d] mb-6">The Mirror</h1>
-    <p id="hero-subtitle" class="text-xl md:text-2xl text-[#4a4a4a] mb-4 font-light">A quiet space for daily reflection</p>
-    <p id="hero-description" class="text-base text-[#6b6b6b] max-w-xl mx-auto leading-relaxed">Check in with yourself. Track what matters. Reflect with intention.</p>
-  </div>
+  <div class="h-full w-full overflow-auto bg-[#f5f1e8] paper-texture">
+   <!-- Hero Section -->
+   <header class="w-full pt-10 pb-14 px-4 sm:px-6 md:px-8 lg:px-12 relative">
+    <div class="max-w-4xl mx-auto text-center px-2">
+      <h1 id="site-title" class="handwritten text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-[#2d2d2d] mb-4 sm:mb-6">
+        The Mirror
+      </h1>
+      <p id="hero-subtitle" class="text-lg sm:text-xl md:text-2xl text-[#4a4a4a] mb-3 sm:mb-4 font-light">
+        A quiet space for daily reflection
+      </p>
+      <p id="hero-description" class="text-sm sm:text-base text-[#6b6b6b] max-w-xl mx-auto leading-relaxed px-2">
+        Check in with yourself. Track what matters. Reflect with intention.
+      </p>
+    </div>
 
-  <!-- Logout Button: Top-Right -->
-  <div class="absolute top-6 right-6">
-    <a href="/logout" title="Log Out" class="text-[#2d2d2d] hover:text-[#8b8982] transition-colors text-2xl">
-      🔒
-    </a>
-  </div>
-</header><!-- Main Content Container -->
-   <main class="w-full px-6 pb-20 -mt-8">
-    <div class="max-w-6xl mx-auto space-y-16"><!-- Reflection Space Section -->
+    <!-- Logout Button: Top-Right -->
+    <div class="absolute top-4 right-4 sm:top-6 sm:right-6">
+      <a href="/logout" title="Log Out" class="text-[#2d2d2d] hover:text-[#8b8982] transition-colors text-xl sm:text-2xl">
+        🔒
+      </a>
+    </div>
+   </header>
+
+   <!-- Main Content Container -->
+   <main class="w-full px-4 sm:px-6 md:px-8 lg:px-12 pb-16 -mt-4 sm:-mt-8">
+    <div class="max-w-6xl mx-auto space-y-12 sm:space-y-16">
+     <!-- Reflection Space Section -->
      <section class="w-full">
-      <div class="text-center mb-8">
-       <h2 id="chat-section-title" class="text-3xl text-[#2d2d2d] mb-2 font-light">Reflection Space</h2>
-       <p id="chat-section-description" class="text-sm text-[#6b6b6b]">A gentle conversation with yourself</p>
+      <div class="text-center mb-6 sm:mb-8">
+       <h2 id="chat-section-title" class="text-2xl sm:text-3xl text-[#2d2d2d] mb-2 font-light">
+         Reflection Space
+       </h2>
+       <p id="chat-section-description" class="text-xs sm:text-sm text-[#6b6b6b]">
+         A gentle conversation with yourself
+       </p>
       </div>
-      <div class="section-card rounded-3xl shadow-lg p-8 md:p-10 max-w-4xl mx-auto border border-[#e8e5dc]">
-       <div id="chat-messages" class="min-h-[120px] max-h-96 overflow-y-auto mb-6 space-y-4 px-2">
+      <div class="section-card rounded-3xl shadow-lg px-4 py-6 sm:px-6 sm:py-8 md:p-10 max-w-4xl mx-auto border border-[#e8e5dc]">
+       <div id="chat-messages" class="min-h-[120px] max-h-80 sm:max-h-96 overflow-y-auto mb-4 sm:mb-6 space-y-4 px-1 sm:px-2">
         <div class="chat-message flex justify-start">
-         <div class="bg-white rounded-3xl px-6 py-4 max-w-md shadow-sm border border-[#e8e5dc]">
-          <p class="text-sm text-[#2d2d2d] leading-relaxed">Hello. I'm here to listen. How are you feeling today?</p>
+         <div class="bg-white rounded-3xl px-4 py-3 sm:px-6 sm:py-4 max-w-md shadow-sm border border-[#e8e5dc]">
+          <p class="text-sm text-[#2d2d2d] leading-relaxed">
+            Hello. I'm here to listen. How are you feeling today?
+          </p>
          </div>
         </div>
        </div>
-       <div class="flex gap-3"><input type="text" id="chat-input" placeholder="Share what's on your mind..." class="flex-1 px-6 py-4 rounded-full border border-[#d4d1c8] bg-white text-[#2d2d2d] text-sm focus:outline-none focus:border-[#8b8982] transition-colors"> <button id="send-btn" class="px-8 py-4 bg-[#2d2d2d] text-[#f5f1e8] rounded-full text-sm hover:bg-[#1a1a1a] transition-all disabled:opacity-50 disabled:cursor-not-allowed"> Send </button>
+       <div class="flex flex-col sm:flex-row gap-3">
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="Share what's on your mind..."
+          class="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-full border border-[#d4d1c8] bg-white text-[#2d2d2d] text-sm focus:outline-none focus:border-[#8b8982] transition-colors"
+        >
+        <button
+          id="send-btn"
+          class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-[#2d2d2d] text-[#f5f1e8] rounded-full text-sm hover:bg-[#1a1a1a] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Send
+        </button>
        </div>
       </div>
-     </section><!-- Daily Practices Section -->
+     </section>
+
+     <!-- Daily Practices Section -->
      <section class="w-full">
-      <div class="text-center mb-8">
-       <h2 id="trackers-section-title" class="text-3xl text-[#2d2d2d] mb-2 font-light">Daily Practices</h2>
-       <div class="w-16 h-px bg-[#d4d1c8] mx-auto mt-4"></div>
+      <div class="text-center mb-6 sm:mb-8">
+       <h2 id="trackers-section-title" class="text-2xl sm:text-3xl text-[#2d2d2d] mb-2 font-light">
+         Daily Practices
+       </h2>
+       <div class="w-12 sm:w-16 h-px bg-[#d4d1c8] mx-auto mt-3 sm:mt-4"></div>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto"><!-- To-Do Tracker -->
-       <div class="section-card rounded-3xl shadow-lg p-6 border border-[#e8e5dc]">
-        <h3 id="todo-title" class="text-lg text-[#2d2d2d] mb-5 font-light text-center">To-Do List</h3>
-        <div id="todo-list" class="space-y-3 mb-5 min-h-[160px]"><!-- Tasks will be rendered here -->
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 max-w-6xl mx-auto">
+       <!-- To-Do Tracker -->
+       <div class="section-card rounded-3xl shadow-lg p-5 sm:p-6 border border-[#e8e5dc]">
+        <h3 id="todo-title" class="text-base sm:text-lg text-[#2d2d2d] mb-4 sm:mb-5 font-light text-center">
+          To-Do List
+        </h3>
+        <div id="todo-list" class="space-y-3 mb-4 sm:mb-5 min-h-[140px] sm:min-h-[160px]">
+          <!-- Tasks will be rendered here -->
         </div>
-        <div class="pt-4 border-t border-[#e8e5dc]">
-         <div class="flex gap-2"><input type="text" id="todo-input" placeholder="Add intention..." class="flex-1 px-4 py-2 rounded-full border border-[#d4d1c8] bg-white text-[#2d2d2d] text-sm focus:outline-none focus:border-[#8b8982]"> <button id="add-todo-btn" class="px-5 py-2 bg-[#2d2d2d] text-[#f5f1e8] rounded-full text-sm hover:bg-[#1a1a1a] transition-colors"> + </button>
+        <div class="pt-3 sm:pt-4 border-t border-[#e8e5dc]">
+         <div class="flex flex-col sm:flex-row gap-2">
+          <input
+            type="text"
+            id="todo-input"
+            placeholder="Add intention..."
+            class="flex-1 px-4 py-2 rounded-full border border-[#d4d1c8] bg-white text-[#2d2d2d] text-sm focus:outline-none focus:border-[#8b8982]"
+          >
+          <button
+            id="add-todo-btn"
+            class="w-full sm:w-auto px-5 py-2 bg-[#2d2d2d] text-[#f5f1e8] rounded-full text-sm hover:bg-[#1a1a1a] transition-colors"
+          >
+            +
+          </button>
          </div>
         </div>
-       </div><!-- Habit Tracker -->
-       <div class="section-card rounded-3xl shadow-lg p-6 border border-[#e8e5dc]">
-        <h3 id="habit-title" class="text-lg text-[#2d2d2d] mb-5 font-light text-center">Habit Tracker</h3>
-        <div id="habit-list" class="space-y-3 min-h-[160px]"><!-- Habits will be rendered here -->
+       </div>
+
+       <!-- Habit Tracker -->
+       <div class="section-card rounded-3xl shadow-lg p-5 sm:p-6 border border-[#e8e5dc]">
+        <h3 id="habit-title" class="text-base sm:text-lg text-[#2d2d2d] mb-4 sm:mb-5 font-light text-center">
+          Habit Tracker
+        </h3>
+        <div id="habit-list" class="space-y-3 min-h-[140px] sm:min-h-[160px]">
+          <!-- Habits will be rendered here -->
         </div>
-       </div><!-- Mood Tracker -->
-       <div class="section-card rounded-3xl shadow-lg p-6 border border-[#e8e5dc]">
-        <h3 id="mood-title" class="text-lg text-[#2d2d2d] mb-5 font-light text-center">How I'm Feeling</h3>
-        <div id="mood-selector" class="flex justify-center gap-3 mb-6 mt-8"><button class="mood-btn text-4xl transition-all duration-300 hover:scale-110 cursor-pointer" data-mood="happy">😊</button> <button class="mood-btn text-4xl transition-all duration-300 hover:scale-110 cursor-pointer" data-mood="calm">😌</button> <button class="mood-btn text-4xl transition-all duration-300 hover:scale-110 cursor-pointer" data-mood="thoughtful">🤔</button> <button class="mood-btn text-4xl transition-all duration-300 hover:scale-110 cursor-pointer" data-mood="sad">😔</button> <button class="mood-btn text-4xl transition-all duration-300 hover:scale-110 cursor-pointer" data-mood="stressed">😰</button>
+       </div>
+
+       <!-- Mood Tracker -->
+       <div class="section-card rounded-3xl shadow-lg p-5 sm:p-6 border border-[#e8e5dc]">
+        <h3 id="mood-title" class="text-base sm:text-lg text-[#2d2d2d] mb-4 sm:mb-5 font-light text-center">
+          How I'm Feeling
+        </h3>
+        <div
+          id="mood-selector"
+          class="flex justify-center flex-wrap gap-3 mb-4 sm:mb-6 mt-4 sm:mt-8"
+        >
+          <button class="mood-btn text-3xl sm:text-4xl transition-all duration-300 hover:scale-110 cursor-pointer" data-mood="happy">😊</button>
+          <button class="mood-btn text-3xl sm:text-4xl transition-all duration-300 hover:scale-110 cursor-pointer" data-mood="calm">😌</button>
+          <button class="mood-btn text-3xl sm:text-4xl transition-all duration-300 hover:scale-110 cursor-pointer" data-mood="thoughtful">🤔</button>
+          <button class="mood-btn text-3xl sm:text-4xl transition-all duration-300 hover:scale-110 cursor-pointer" data-mood="sad">😔</button>
+          <button class="mood-btn text-3xl sm:text-4xl transition-all duration-300 hover:scale-110 cursor-pointer" data-mood="stressed">😰</button>
         </div>
-        <div id="mood-display" class="text-center text-sm text-[#6b6b6b] min-h-[80px] flex items-center justify-center">
-         Select how you're feeling
+        <div
+          id="mood-display"
+          class="text-center text-xs sm:text-sm text-[#6b6b6b] min-h-[64px] sm:min-h-[80px] flex items-center justify-center px-2"
+        >
+          Select how you're feeling
         </div>
        </div>
       </div>
      </section>
     </div>
-   </main><!-- Footer -->
-   <footer class="w-full py-12 px-6 mt-20 border-t border-[#e8e5dc]">
+   </main>
+
+   <!-- Footer -->
+   <footer class="w-full py-10 sm:py-12 px-4 sm:px-6 md:px-8 lg:px-12 mt-10 sm:mt-16 border-t border-[#e8e5dc]">
     <div class="max-w-4xl mx-auto text-center">
-     <p id="footer-text" class="text-sm text-[#8b8982] mb-4">Return to yourself, gently</p>
+     <p id="footer-text" class="text-xs sm:text-sm text-[#8b8982] mb-3 sm:mb-4">
+       Return to yourself, gently
+     </p>
      <div class="flex justify-center gap-2 items-center">
       <div class="w-1 h-1 rounded-full bg-[#d4d1c8]"></div>
       <div class="w-1 h-1 rounded-full bg-[#d4d1c8]"></div>
@@ -152,6 +225,7 @@
     </div>
    </footer>
   </div>
+
   <script>
  let currentData = {{ initial_data | tojson }};
 
@@ -161,7 +235,7 @@ function renderTodos() {
   const todos = currentData.filter(d => d.type === 'todo');
 
   if (!todos.length) {
-    todoList.innerHTML = '<p class="text-sm text-[#9b9b9b] italic text-center py-8">No intentions set yet</p>';
+    todoList.innerHTML = '<p class="text-sm text-[#9b9b9b] italic text-center py-6 sm:py-8">No intentions set yet</p>';
     return;
   }
 
@@ -173,11 +247,15 @@ function renderTodos() {
         data-id="${todo.id}" 
         class="todo-checkbox w-4 h-4 mt-1 rounded border-[#d4d1c8] cursor-pointer flex-shrink-0"
       >
-      <span class="text-sm text-[#2d2d2d] flex-1 leading-relaxed ${todo.completed ? 'task-complete' : ''}">${todo.content}</span>
+      <span class="text-sm text-[#2d2d2d] flex-1 leading-relaxed ${todo.completed ? 'task-complete' : ''}">
+        ${todo.content}
+      </span>
     </div>
   `).join('');
 
-  document.querySelectorAll('.todo-checkbox').forEach(cb => cb.addEventListener('change', handleTodoToggle));
+  document
+    .querySelectorAll('.todo-checkbox')
+    .forEach(cb => cb.addEventListener('change', handleTodoToggle));
 }
 
 function renderHabits() {
@@ -185,7 +263,7 @@ function renderHabits() {
   const habits = currentData.filter(d => d.type === 'habit');
 
   if (!habits.length) {
-    habitList.innerHTML = '<p class="text-sm text-[#9b9b9b] italic text-center py-8">No rituals tracked</p>';
+    habitList.innerHTML = '<p class="text-sm text-[#9b9b9b] italic text-center py-6 sm:py-8">No rituals tracked</p>';
     return;
   }
 
@@ -194,17 +272,23 @@ function renderHabits() {
       class="habit-btn w-full text-left px-4 py-3 rounded-2xl border border-[#d4d1c8] transition-all hover:border-[#8b8982] ${habit.completed ? 'habit-complete' : 'bg-white'}"
       data-id="${habit.id}"
     >
-      <div class="text-sm mb-1 ${habit.completed ? 'text-white' : 'text-[#2d2d2d]'}">${habit.content}</div>
-      <div class="text-xs ${habit.completed ? 'text-[#d4d1c8]' : 'text-[#9b9b9b]'}">🔥 ${habit.streak} day streak</div>
+      <div class="text-sm mb-1 ${habit.completed ? 'text-white' : 'text-[#2d2d2d]'}">
+        ${habit.content}
+      </div>
+      <div class="text-xs ${habit.completed ? 'text-[#d4d1c8]' : 'text-[#9b9b9b]'}">
+        🔥 ${habit.streak} day streak
+      </div>
     </button>
   `).join('');
 
-  document.querySelectorAll('.habit-btn').forEach(btn => btn.addEventListener('click', handleHabitToggle));
+  document
+    .querySelectorAll('.habit-btn')
+    .forEach(btn => btn.addEventListener('click', handleHabitToggle));
 }
 
 function renderMood() {
   const moods = currentData.filter(d => d.type === 'mood');
-  const moodRecord = moods.length ? moods[0] : null; // latest only
+  const moodRecord = moods.length ? moods[0] : null;
 
   const moodBtns = document.querySelectorAll('.mood-btn');
   const moodDisplay = document.getElementById('mood-display');
@@ -230,10 +314,10 @@ function renderMood() {
 
     moodDisplay.innerHTML = `
       <div>
-        <p class="text-base mb-2">
+        <p class="text-sm sm:text-base mb-1 sm:mb-2">
           Feeling <strong>${moodLabels[moodRecord.content]}</strong>
         </p>
-        <p class="text-xs text-[#9b9b9b]">
+        <p class="text-[11px] sm:text-xs text-[#9b9b9b]">
           Recently checked in.
         </p>
       </div>
@@ -245,7 +329,6 @@ function renderMood() {
     moodDisplay.textContent = "Select how you're feeling";
   }
 }
-
 
 // ----- EVENT HANDLERS -----
 function handleTodoToggle(e) {
@@ -274,7 +357,12 @@ document.getElementById('add-todo-btn').addEventListener('click', () => {
   const content = input.value.trim();
   if (!content) return;
 
-  currentData.push({ id: `todo-${Date.now()}`, type: 'todo', content, completed: false });
+  currentData.push({
+    id: `todo-${Date.now()}`,
+    type: 'todo',
+    content,
+    completed: false
+  });
   input.value = '';
   renderTodos();
 });
@@ -283,13 +371,11 @@ document.getElementById('todo-input').addEventListener('keypress', e => {
   if (e.key === 'Enter') document.getElementById('add-todo-btn').click();
 });
 
-// ----- MOOD SELECTION -----
-
-
 // ----- REFLECTION CHAT -----
-const chatMessages = document.getElementById('chat-messages');
+const chatMessagesEl = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
 const sendBtn = document.getElementById('send-btn');
+
 const emotionResponses = {
   happy: [
     "That happiness sounds genuine 🌱 What do you think sparked it?",
@@ -338,52 +424,95 @@ function detectEmotion(text) {
   return null;
 }
 
-
-function addMessage(text, isUser=false){
+function addMessage(text, isUser = false) {
   const div = document.createElement('div');
-  div.className = `chat-message flex ${isUser?'justify-end':'justify-start'}`;
-  div.innerHTML = `<div class="${isUser?'bg-[#2d2d2d] text-white':'bg-white border border-[#e8e5dc]'} rounded-3xl px-6 py-4 max-w-md shadow-sm"><p class="text-sm leading-relaxed">${text}</p></div>`;
-  chatMessages.appendChild(div);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  div.className = `chat-message flex ${isUser ? 'justify-end' : 'justify-start'}`;
+  div.innerHTML = `
+    <div class="${isUser ? 'bg-[#2d2d2d] text-white' : 'bg-white border border-[#e8e5dc]'} rounded-3xl px-4 py-3 sm:px-6 sm:py-4 max-w-md shadow-sm">
+      <p class="text-sm leading-relaxed">${text}</p>
+    </div>
+  `;
+  chatMessagesEl.appendChild(div);
+  chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
 }
 
 sendBtn.addEventListener('click', () => {
-  const message = chatInput.value.trim(); if(!message) return;
-  addMessage(message, true); chatInput.value='';
+  const message = chatInput.value.trim();
+  if (!message) return;
+
+  addMessage(message, true);
+  chatInput.value = '';
+
   setTimeout(() => {
-  const emotion = detectEmotion(message);
+    const emotion = detectEmotion(message);
 
-  let reply;
-  if (emotion && emotionResponses[emotion]) {
-    const responses = emotionResponses[emotion];
-    reply = responses[Math.floor(Math.random() * responses.length)];
-  } else {
-    reply = genericResponses[Math.floor(Math.random() * genericResponses.length)];
-  }
+    let reply;
+    if (emotion && emotionResponses[emotion]) {
+      const responses = emotionResponses[emotion];
+      reply = responses[Math.floor(Math.random() * responses.length)];
+    } else {
+      reply = genericResponses[Math.floor(Math.random() * genericResponses.length)];
+    }
 
-  addMessage(reply);
-}, 1000);
-
+    addMessage(reply);
+  }, 1000);
 });
 
 chatInput.addEventListener('keypress', e => {
-  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendBtn.click();
+  }
 });
 
 // ----- DOUBLE-CLICK NAVIGATION -----
-document.getElementById('todo-list').parentElement.addEventListener('dblclick',()=>window.location='/todo');
-document.getElementById('habit-list').parentElement.addEventListener('dblclick',()=>window.location='/habit');
-document.getElementById('mood-selector').parentElement.addEventListener('dblclick',()=>window.location='/mood');
-
-
+document
+  .getElementById('todo-list')
+  .parentElement.addEventListener('dblclick', () => (window.location = '/todo'));
+document
+  .getElementById('habit-list')
+  .parentElement.addEventListener('dblclick', () => (window.location = '/habit'));
+document
+  .getElementById('mood-selector')
+  .parentElement.addEventListener('dblclick', () => (window.location = '/mood'));
 
 // ----- INIT APP -----
-
 renderTodos();
 renderHabits();
 renderMood();
-</script>
+  </script>
 
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c893772027eb2b3',t:'MTc3MDE5ODEzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-
+  <script>
+    (function(){
+      function c(){
+        var b=a.contentDocument||a.contentWindow.document;
+        if(b){
+          var d=b.createElement('script');
+          d.innerHTML="window.__CF$cv$params={r:'9c893772027eb2b3',t:'MTc3MDE5ODEzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+          b.getElementsByTagName('head')[0].appendChild(d)
+        }
+      }
+      if(document.body){
+        var a=document.createElement('iframe');
+        a.height=1;
+        a.width=1;
+        a.style.position='absolute';
+        a.style.top=0;
+        a.style.left=0;
+        a.style.border='none';
+        a.style.visibility='hidden';
+        document.body.appendChild(a);
+        if('loading'!==document.readyState)c();
+        else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);
+        else{
+          var e=document.onreadystatechange||function(){};
+          document.onreadystatechange=function(b){
+            e(b);
+            'loading'!==document.readyState&&(document.onreadystatechange=e,c())
+          }
+        }
+      }
+    })();
+  </script>
+ </body>
 </html>
