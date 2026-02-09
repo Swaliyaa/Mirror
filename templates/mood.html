@@ -14,72 +14,72 @@
     body {
       box-sizing: border-box;
     }
-    
+
     .font-journal {
       font-family: 'Homemade Apple', cursive;
     }
-    
+
     .font-body {
       font-family: 'Source Serif 4', Georgia, serif;
     }
-    
+
     .paper-bg {
       background-color: #faf8f5;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
     }
-    
+
     .ink-text {
       color: #3d3a37;
     }
-    
+
     .ink-light {
       color: #6b6560;
     }
-    
+
     .ink-faint {
       color: #9a9590;
     }
-    
+
     .border-ink {
       border-color: #d4d0cb;
     }
-    
+
     .mood-btn {
       transition: all 0.2s ease;
     }
-    
+
     .mood-btn:hover {
       background-color: rgba(61, 58, 55, 0.05);
     }
-    
+
     .mood-btn.selected {
       background-color: rgba(61, 58, 55, 0.08);
       border-color: #3d3a37;
     }
-    
+
     .save-btn {
       transition: all 0.2s ease;
     }
-    
+
     .save-btn:disabled {
       opacity: 0.4;
       cursor: not-allowed;
     }
-    
+
     .save-btn:not(:disabled):hover {
       background-color: #3d3a37;
       color: #faf8f5;
     }
-    
+
     textarea::placeholder {
       font-style: italic;
       color: #9a9590;
     }
-    
+
     .entry-card {
       border-bottom: 1px solid #e8e5e0;
     }
-    
+
     .entry-card:last-child {
       border-bottom: none;
     }
@@ -103,116 +103,263 @@
       85% { opacity: 1; }
       100% { opacity: 0; }
     }
+
+    /* glassy surfaces (only on inner cards) */
+    .glass-surface {
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(14px) saturate(150%);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    /* journal stickers + doodles in OUTER gutters only */
+    .sticker-pill {
+      position: absolute;
+      border-radius: 999px;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      background: #ffe6ec;
+      color: #8b5b68;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+      transform: rotate(-6deg);
+      pointer-events: none;
+      z-index: 1;
+      border: 1px dashed rgba(139, 91, 104, 0.35);
+      white-space: nowrap;
+    }
+
+    .sticker-pill-blue {
+      background: #e4f0ff;
+      color: #4b607e;
+      border-color: rgba(75, 96, 126, 0.35);
+      transform: rotate(4deg);
+    }
+
+    .sticker-pill-green {
+      background: #e9f7ec;
+      color: #4a6b54;
+      border-color: rgba(74, 107, 84, 0.35);
+      transform: rotate(-3deg);
+    }
+
+    .washi-strip {
+      position: absolute;
+      width: 90px;
+      height: 18px;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(248, 207, 160, 0.9),
+        rgba(248, 207, 160, 0.9) 6px,
+        rgba(249, 227, 198, 0.9) 6px,
+        rgba(249, 227, 198, 0.9) 12px
+      );
+      opacity: 0.9;
+      border-radius: 4px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .doodle-heart {
+      position: absolute;
+      font-size: 13px;
+      color: #e19aa5;
+      opacity: 0.95;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .doodle-star {
+      position: absolute;
+      font-size: 11px;
+      color: #d3a27f;
+      opacity: 0.85;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* only show gutter decor on large screens where gutters actually exist */
+    @media (max-width: 1023px) {
+      .gutter-decor {
+        display: none;
+      }
+    }
   </style>
   <style>@view-transition { navigation: auto; }</style>
 </head>
 
 <!-- Mood Chatbot -->
-<div id="mood-chatbot" class="fixed bottom-5 right-5 z-50">
-  <button id="chat-toggle" class="w-14 h-14 rounded-full bg-[#3d3a37] text-white text-xl shadow-lg">
+<div id="mood-chatbot" class="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-50">
+  <button id="chat-toggle" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#3d3a37] text-white text-lg sm:text-xl shadow-lg">
     💬
   </button>
 
-  <div id="chat-window" class="hidden w-72 h-96 bg-[#faf8f5] border border-ink rounded-xl shadow-xl flex flex-col overflow-hidden">
-    <div class="p-3 border-b border-ink text-sm ink-text font-semibold">
+  <div id="chat-window" class="hidden w-64 sm:w-72 h-80 sm:h-96 bg-[#faf8f5] border border-ink rounded-xl shadow-xl flex flex-col overflow-hidden">
+    <div class="p-2.5 sm:p-3 border-b border-ink text-xs sm:text-sm ink-text font-semibold">
       Mirror Companion
     </div>
 
-    <div id="chat-messages" class="flex-1 p-3 space-y-2 text-sm overflow-y-auto"></div>
+    <div id="chat-messages" class="flex-1 p-2.5 sm:p-3 space-y-2 text-xs sm:text-sm overflow-y-auto"></div>
 
     <div class="p-2 border-t border-ink">
       <input id="chat-input" type="text" placeholder="Type here..."
-        class="w-full px-2 py-1 border border-ink rounded text-sm focus:outline-none">
+        class="w-full px-2 py-1 border border-ink rounded text-xs sm:text-sm focus:outline-none">
     </div>
   </div>
 </div>
 
-<body class="h-full paper-bg font-body">
+<body class="h-full paper-bg font-body text-[14px] sm:text-[15px]">
   <div id="app-wrapper" class="min-h-screen w-full overflow-auto">
-    <div class="w-full px-4 sm:px-6 lg:px-12 py-6 lg:py-10">
-      <!-- Header -->
-      <header class="mb-8 lg:mb-10">
-        <div class="flex items-center gap-3 mb-3">
-          <button id="back-btn"
-                  class="ink-light hover:ink-text transition-colors text-lg"
-                  aria-label="Go back"
-                  onclick="window.location.href='/dashboard';">←</button>
-          <h1 id="page-title" class="font-journal text-2xl sm:text-3xl ink-text">Mood Tracker</h1>
+    <!-- outer relative wrapper defines gutters; inner max-w-5xl is safe zone -->
+    <div class="relative max-w-6xl mx-auto px-3 sm:px-4 lg:px-12 py-5 lg:py-8">
+      <!-- gutter stickers & doodles (never inside safe zone) -->
+      <div class="gutter-decor">
+        <!-- left side -->
+        <div class="sticker-pill top-16 -left-10">
+          mood log
         </div>
-        <p id="page-subtitle" class="ink-light text-sm sm:text-base ml-7 mb-1">How are you feeling today?</p>
-        <p id="date-display" class="ink-faint text-xs sm:text-sm ml-7 italic"></p>
-      </header>
-
-      <!-- Main layout: stack on mobile, two columns on large -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-        <!-- Left: today's mood + reflection -->
-        <div class="lg:col-span-2 space-y-8">
-          <!-- Today's Mood Section -->
-          <section class="mb-0">
-            <div class="border border-ink rounded-lg p-4 sm:p-6 bg-white/30">
-              <!-- Mood Selection -->
-              <div class="mb-6">
-                <p class="ink-light text-sm mb-4">Select your mood:</p>
-                <div id="mood-grid" class="grid grid-cols-5 sm:grid-cols-5 gap-2">
-                  <!-- Mood buttons will be generated here -->
-                </div>
-              </div>
-              <!-- Selected Mood Display -->
-              <div id="selected-mood-display" class="mb-6 hidden">
-                <p class="ink-light text-sm italic"></p>
-              </div>
-              <!-- Reflection Input -->
-              <div class="mb-6">
-                <label for="reflection-input" id="reflection-label" class="block ink-light text-sm mb-2">
-                  What's on your mind? (optional)
-                </label>
-                <textarea
-                  id="reflection-input"
-                  class="w-full h-24 p-3 border border-ink rounded bg-transparent ink-text text-sm resize-none focus:outline-none focus:border-[#3d3a3
-7]"
-                  placeholder="A few words about your day..."></textarea>
-              </div>
-              <!-- Save Button -->
-              <div class="flex flex-wrap items-center gap-3">
-                <button id="save-btn" class="save-btn px-5 py-2 border border-ink rounded ink-text text-sm" disabled>
-                  Save Today's Mood
-                </button>
-                <span id="success-message" class="ink-light text-sm italic hidden"></span>
-              </div>
-            </div>
-          </section>
-
-          <!-- Daily Reflection Section -->
-          <section class="mb-0">
-            <h2 class="font-journal text-lg ink-text mb-3 sm:mb-4">Daily Reflection</h2>
-            <div class="border-l-2 border-ink pl-3 sm:pl-4">
-              <p id="daily-reflection" class="ink-light text-sm italic leading-relaxed"></p>
-            </div>
-          </section>
+        <div class="sticker-pill sticker-pill-green top-1/2 -left-12">
+          check‑in
+        </div>
+        <div class="sticker-pill bottom-20 -left-10">
+          small truths
         </div>
 
-        <!-- Right: entries + weekly summary -->
-        <div class="space-y-8">
-          <!-- Recent Entries Section -->
-          <section class="mb-0">
-            <div class="flex items-baseline justify-between mb-3 sm:mb-4">
-              <h2 class="font-journal text-lg ink-text">Recent Entries</h2>
-              <span id="entry-count" class="ink-faint text-xs"></span>
-            </div>
-            <div id="entries-container" class="border border-ink rounded-lg bg-white/30 max-h-80 overflow-y-auto">
-              <!-- Entries will be rendered here -->
-            </div>
-          </section>
+        <!-- right side -->
+        <div class="sticker-pill sticker-pill-blue top-24 -right-12">
+          gentle day
+        </div>
+        <div class="sticker-pill top-1/2 -right-11">
+          it’s okay
+        </div>
+        <div class="sticker-pill sticker-pill-blue bottom-24 -right-12">
+          still here
+        </div>
 
-          <!-- Weekly Summary Section -->
-          <section class="mb-0">
-            <h2 class="font-journal text-lg ink-text mb-3 sm:mb-4">Weekly Summary</h2>
-            <div id="weekly-summary" class="border border-ink rounded-lg p-4 sm:p-5 bg-white/30">
-              <!-- Summary will be rendered here -->
-            </div>
-          </section>
+        <!-- bottom center washi + label, below main cards -->
+        <div class="washi-strip bottom-4 left-1/2 -translate-x-1/2 rotate-2"></div>
+        <div class="sticker-pill bottom-4 left-1/2 -translate-x-1/2 translate-y-6 rotate-0">
+          honest feelings
+        </div>
+
+        <!-- hearts & stars hugging the edges -->
+        <div class="doodle-heart top-40 -left-4">
+          ❤
+        </div>
+        <div class="doodle-heart top-56 -left-2">
+          ❤
+        </div>
+        <div class="doodle-heart bottom-32 -left-3">
+          ❤
+        </div>
+
+        <div class="doodle-heart top-38 -right-4">
+          ❤
+        </div>
+        <div class="doodle-heart top-54 -right-2">
+          ❤
+        </div>
+        <div class="doodle-heart bottom-30 -right-3">
+          ❤
+        </div>
+
+        <div class="doodle-star top-48 -left-6">
+          ✶
+        </div>
+        <div class="doodle-star bottom-26 -right-6">
+          ✶
         </div>
       </div>
+
+      <!-- SAFE ZONE: all functional UI lives inside this container -->
+      <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <header class="mb-6 lg:mb-8">
+          <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+            <button id="back-btn"
+                    class="ink-light hover:ink-text transition-colors text-base sm:text-lg"
+                    aria-label="Go back"
+                    onclick="window.location.href='/dashboard';">←</button>
+            <h1 id="page-title" class="font-journal text-xl sm:text-3xl ink-text">Mood Tracker</h1>
+          </div>
+          <p id="page-subtitle" class="ink-light text-[13px] sm:text-sm md:text-base ml-7 mb-1">How are you feeling today?</p>
+          <p id="date-display" class="ink-faint text-[11px] sm:text-xs md:text-sm ml-7 italic"></p>
+        </header>
+
+        <!-- Main layout: stack on mobile, two columns on large -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          <!-- Left: today's mood + reflection -->
+          <div class="lg:col-span-2 space-y-6 sm:space-y-8">
+            <!-- Today's Mood Section -->
+            <section class="mb-0">
+              <div class="border border-ink rounded-lg p-3 sm:p-5 bg-white/30 glass-surface">
+                <!-- Mood Selection -->
+                <div class="mb-5 sm:mb-6">
+                  <p class="ink-light text-[13px] sm:text-sm mb-3 sm:mb-4">Select your mood:</p>
+                  <div id="mood-grid"
+                       class="grid grid-cols-5 gap-1.5 sm:gap-2 justify-items-center">
+                    <!-- Mood buttons will be generated here -->
+                  </div>
+                </div>
+                <!-- Selected Mood Display -->
+                <div id="selected-mood-display" class="mb-5 sm:mb-6 hidden">
+                  <p class="ink-light text-[13px] sm:text-sm italic"></p>
+                </div>
+                <!-- Reflection Input -->
+                <div class="mb-5 sm:mb-6">
+                  <label for="reflection-input" id="reflection-label" class="block ink-light text-[13px] sm:text-sm mb-2">
+                    What's on your mind? (optional)
+                  </label>
+                  <textarea
+                    id="reflection-input"
+                    class="w-full h-24 p-3 border border-ink rounded bg-transparent ink-text text-[13px] sm:text-sm resize-none focus:outline-none focus:border-[#3d3a37]"
+                    placeholder="A few words about your day..."></textarea>
+                </div>
+                <!-- Save Button -->
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <button id="save-btn" class="save-btn px-4 sm:px-5 py-1.5 sm:py-2 border border-ink rounded ink-text text-[13px] sm:text-sm" disabled>
+                    Save Today's Mood
+                  </button>
+                  <span id="success-message" class="ink-light text-[12px] sm:text-sm italic hidden"></span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Daily Reflection Section -->
+            <section class="mb-0">
+              <h2 class="font-journal text-base sm:text-lg ink-text mb-2 sm:mb-3">Daily Reflection</h2>
+              <div class="border-l-2 border-ink pl-3 sm:pl-4">
+                <p id="daily-reflection" class="ink-light text-[13px] sm:text-sm italic leading-relaxed"></p>
+              </div>
+            </section>
+          </div>
+
+          <!-- Right: entries + weekly summary -->
+          <div class="space-y-6 sm:space-y-8">
+            <!-- Recent Entries Section -->
+            <section class="mb-0">
+              <div class="flex items-baseline justify-between mb-2 sm:mb-3">
+                <h2 class="font-journal text-base sm:text-lg ink-text">Recent Entries</h2>
+                <span id="entry-count" class="ink-faint text-[11px] sm:text-xs"></span>
+              </div>
+              <div id="entries-container" class="border border-ink rounded-lg bg-white/30 glass-surface max-h-72 sm:max-h-80 overflow-y-auto">
+                <!-- Entries will be rendered here -->
+              </div>
+            </section>
+
+            <!-- Weekly Summary Section -->
+            <section class="mb-0">
+              <h2 class="font-journal text-base sm:text-lg ink-text mb-2 sm:mb-3">Weekly Summary</h2>
+              <div id="weekly-summary" class="border border-ink rounded-lg p-3 sm:p-5 bg-white/30 glass-surface">
+                <!-- Summary will be rendered here -->
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <!-- end safe zone -->
     </div>
   </div>
 
@@ -266,7 +413,6 @@
     // State
     let selectedMood = null;
     let allEntries = [];
-    
     let isLoading = false;
 
     const moodResponses = {
@@ -359,19 +505,19 @@
       return weekStart;
     }
 
-    // Initialize mood grid
+    // Initialize mood grid – responsive buttons
     function initMoodGrid() {
       const grid = document.getElementById('mood-grid');
       grid.innerHTML = '';
-      
+
       moods.forEach(mood => {
         const btn = document.createElement('button');
-        btn.className = 'mood-btn p-3 border border-ink rounded text-center';
+        btn.className = 'mood-btn flex flex-col items-center justify-center gap-1 p-2 sm:p-3 border border-ink rounded text-center w-14 sm:w-16';
         btn.setAttribute('data-mood', mood.name);
         btn.setAttribute('aria-label', mood.name);
         btn.innerHTML = `
-          <span class="text-xl block mb-1">${mood.emoji}</span>
-          <span class="ink-faint text-xs">${mood.name}</span>
+          <span class="text-xl sm:text-2xl leading-none block">${mood.emoji}</span>
+          <span class="ink-faint text-[10px] sm:text-xs leading-tight break-words">${mood.name}</span>
         `;
         btn.addEventListener('click', () => selectMood(mood));
         grid.appendChild(btn);
@@ -381,18 +527,15 @@
     // Select mood
     function selectMood(mood) {
       selectedMood = mood;
-      
-      // Update UI
+
       document.querySelectorAll('.mood-btn').forEach(btn => {
         btn.classList.toggle('selected', btn.dataset.mood === mood.name);
       });
-      
-      // Show selected mood display
+
       const display = document.getElementById('selected-mood-display');
       display.classList.remove('hidden');
       display.querySelector('p').textContent = `${mood.emoji} Feeling ${mood.name.toLowerCase()}`;
-      
-      // Enable save button
+
       document.getElementById('save-btn').disabled = false;
     }
 
@@ -443,7 +586,7 @@
       msgEl.textContent = text;
       msgEl.classList.remove('hidden');
       msgEl.classList.add('success-msg');
-      
+
       setTimeout(() => {
         msgEl.classList.add('hidden');
         msgEl.classList.remove('success-msg');
@@ -454,30 +597,29 @@
     function renderEntries(entries) {
       const container = document.getElementById('entries-container');
       const countEl = document.getElementById('entry-count');
-      
+
       if (entries.length === 0) {
         container.innerHTML = `
-          <p class="ink-faint text-sm italic p-5 text-center">No moods recorded yet.</p>
+          <p class="ink-faint text-[13px] sm:text-sm italic p-4 sm:p-5 text-center">No moods recorded yet.</p>
         `;
         countEl.textContent = '';
         return;
       }
-      
-      // Sort by timestamp, newest first
+
       const sorted = [...entries].sort((a, b) => b.timestamp - a.timestamp).slice(0, 3);
-      
+
       countEl.textContent = `${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}`;
-      
+
       container.innerHTML = sorted.map(entry => `
-        <div class="entry-card p-4">
-          <div class="flex items-start gap-3">
-            <span class="text-xl">${entry.mood_emoji}</span>
+        <div class="entry-card p-3 sm:p-4">
+          <div class="flex items-start gap-2 sm:gap-3">
+            <span class="text-lg sm:text-xl">${entry.mood_emoji}</span>
             <div class="flex-1 min-w-0">
-              <div class="flex items-baseline justify-between gap-2 mb-1">
-                <span class="ink-text text-sm">${entry.mood_name}</span>
-                <span class="ink-faint text-xs">${formatEntryDate(entry.date)}</span>
+              <div class="flex items-baseline justify-between gap-2 mb-0.5 sm:mb-1">
+                <span class="ink-text text-[13px] sm:text-sm">${entry.mood_name}</span>
+                <span class="ink-faint text-[11px] sm:text-xs">${formatEntryDate(entry.date)}</span>
               </div>
-              ${entry.reflection ? `<p class="ink-light text-sm italic truncate">${entry.reflection}</p>` : ''}
+              ${entry.reflection ? `<p class="ink-light text-[12px] sm:text-sm italic truncate">${entry.reflection}</p>` : ''}
             </div>
           </div>
         </div>
@@ -488,61 +630,58 @@
     function renderWeeklySummary(entries) {
       const container = document.getElementById('weekly-summary');
       const weekStart = getWeekStart();
-      
-      // Filter entries from this week
+
       const weekEntries = entries.filter(e => e.timestamp >= weekStart.getTime());
 
       if (weekEntries.length === 0) {
         container.innerHTML = `
-          <p class="ink-faint text-sm italic">No moods recorded this week yet.</p>
+          <p class="ink-faint text-[13px] sm:text-sm italic">No moods recorded this week yet.</p>
         `;
         return;
       }
-      
-      // Find most common mood
+
       const moodCounts = {};
       weekEntries.forEach(e => {
         const key = `${e.mood_emoji}|${e.mood_name}`;
         moodCounts[key] = (moodCounts[key] || 0) + 1;
       });
-      
+
       const mostCommon = Object.entries(moodCounts)
         .sort((a, b) => b[1] - a[1])[0][0]
         .split('|');
-      
-      // Calculate trend (simple comparison of first half vs second half of week)
+
       let trend = 'Stable';
       if (weekEntries.length >= 3) {
         const positiveNames = ['Happy', 'Calm', 'Excited', 'Grateful'];
         const sorted = [...weekEntries].sort((a, b) => a.timestamp - b.timestamp);
         const midpoint = Math.floor(sorted.length / 2);
-        
+
         const firstHalfPositive = sorted.slice(0, midpoint).filter(e => positiveNames.includes(e.mood_name)).length;
         const secondHalfPositive = sorted.slice(midpoint).filter(e => positiveNames.includes(e.mood_name)).length;
-        
+
         const firstRatio = firstHalfPositive / midpoint;
         const secondRatio = secondHalfPositive / (sorted.length - midpoint);
-        
+
         if (secondRatio > firstRatio + 0.2) {
           trend = 'Improving';
         } else if (secondRatio < firstRatio - 0.2) {
           trend = 'Declining';
         }
       }
-      
+
       container.innerHTML = `
-        <div class="space-y-3">
+        <div class="space-y-2 sm:space-y-3">
           <div class="flex items-baseline justify-between">
-            <span class="ink-light text-sm">Most common mood</span>
-            <span class="ink-text text-sm">${mostCommon[0]} ${mostCommon[1]}</span>
+            <span class="ink-light text-[13px] sm:text-sm">Most common mood</span>
+            <span class="ink-text text-[13px] sm:text-sm">${mostCommon[0]} ${mostCommon[1]}</span>
           </div>
           <div class="flex items-baseline justify-between">
-            <span class="ink-light text-sm">Mood trend</span>
-            <span class="ink-text text-sm italic">${trend}</span>
+            <span class="ink-light text-[13px] sm:text-sm">Mood trend</span>
+            <span class="ink-text text-[13px] sm:text-sm italic">${trend}</span>
           </div>
           <div class="flex items-baseline justify-between">
-            <span class="ink-light text-sm">Entries this week</span>
-            <span class="ink-text text-sm">${weekEntries.length}</span>
+            <span class="ink-light text-[13px] sm:text-sm">Entries this week</span>
+            <span class="ink-text text-[13px] sm:text-sm">${weekEntries.length}</span>
           </div>
         </div>
       `;
@@ -559,19 +698,19 @@
     // Apply config to UI
     async function onConfigChange(cfg) {
       config = { ...defaultConfig, ...cfg };
-      
+
       document.getElementById('page-title').textContent = config.page_title || defaultConfig.page_title;
       document.getElementById('page-subtitle').textContent = config.page_subtitle || defaultConfig.page_subtitle;
       document.getElementById('reflection-label').textContent = config.reflection_label || defaultConfig.reflection_label;
-      
+
       document.documentElement.style.setProperty('--bg-color', config.background_color || defaultConfig.background_color);
       document.documentElement.style.setProperty('--text-color', config.text_color || defaultConfig.text_color);
-      
+
       const fontFamily = config.font_family || defaultConfig.font_family;
       document.querySelectorAll('.font-body').forEach(el => {
         el.style.fontFamily = `${fontFamily}, Georgia, serif`;
       });
-      
+
       const baseSize = config.font_size || defaultConfig.font_size;
       document.body.style.fontSize = `${baseSize}px`;
     }
@@ -628,7 +767,7 @@
       document.getElementById('daily-reflection').textContent = getRandomReflection();
       initMoodGrid();
       document.getElementById('save-btn').addEventListener('click', saveMood);
-      
+
       if (window.elementSdk) {
         window.elementSdk.init({
           defaultConfig,
@@ -637,7 +776,7 @@
           mapToEditPanelValues
         });
       }
-      
+
       if (window.dataSdk) {
         const result = await window.dataSdk.init({
           onDataChanged
@@ -666,8 +805,8 @@
     function addChatMessage(text, from = 'bot') {
       const div = document.createElement('div');
       div.className = from === 'bot'
-        ? 'bg-white/60 p-2 rounded text-ink'
-        : 'text-right text-ink';
+        ? 'bg-white/60 p-2 rounded ink-text text-xs sm:text-sm'
+        : 'text-right ink-text text-xs sm:text-sm';
       div.textContent = text;
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
