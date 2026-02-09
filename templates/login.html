@@ -40,6 +40,7 @@
       min-height: 100%;
       padding: 40px 20px;
       overflow-y: auto;
+      position: relative; /* for stickers */
     }
 
     .page-title {
@@ -50,6 +51,8 @@
       text-align: center;
       opacity: 0;
       animation: fadeIn 0.8s ease-out 0.2s forwards;
+      position: relative;
+      z-index: 2;
     }
 
     @keyframes fadeIn {
@@ -63,6 +66,8 @@
       max-width: 440px;
       opacity: 0;
       animation: fadeInUp 0.8s ease-out 0.4s forwards;
+      position: relative;
+      z-index: 2; /* above stickers */
     }
 
     @keyframes fadeInUp {
@@ -78,7 +83,7 @@
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.9);
       border: 1.5px solid #3a3a3a;
       padding: 48px 44px;
       position: relative;
@@ -282,6 +287,76 @@
       display: block;
     }
 
+    /* Journal stickers */
+    .sticker {
+      position: absolute;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 11px;
+      color: #4b463f;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.08),
+        0 0 0 1px rgba(0, 0, 0, 0.02);
+      transform: rotate(-3deg);
+      pointer-events: none;
+      z-index: 1;
+      white-space: nowrap;
+    }
+
+    .sticker.accent {
+      background: #fbe6d1;
+      color: #5b4332;
+      transform: rotate(4deg);
+    }
+
+    .sticker.small {
+      font-size: 10px;
+      padding: 5px 10px;
+    }
+
+    .sticker-top-left {
+      top: 18%;
+      left: 8%;
+    }
+
+    .sticker-top-right {
+      top: 16%;
+      right: 10%;
+    }
+
+    .sticker-bottom-left {
+      bottom: 14%;
+      left: 6%;
+    }
+
+    .sticker-bottom-right {
+      bottom: 12%;
+      right: 8%;
+    }
+
+    .sticker-mid-left {
+      top: 52%;
+      left: 4%;
+      transform: translateY(-50%) rotate(-6deg);
+    }
+
+    .sticker-mid-right {
+      top: 54%;
+      right: 5%;
+      transform: translateY(-50%) rotate(5deg);
+    }
+
+    @keyframes floatSoft {
+      0%, 100% { transform: translateY(0) rotate(var(--rotate, 0deg)); }
+      50% { transform: translateY(-3px) rotate(var(--rotate, 0deg)); }
+    }
+
+    .sticker.float {
+      animation: floatSoft 5.2s ease-in-out infinite;
+    }
+
     @media (max-width: 480px) {
       .page-title {
         font-size: 28px;
@@ -301,6 +376,37 @@
         align-items: flex-start;
         gap: 12px;
       }
+
+      .sticker {
+        font-size: 9px;
+        padding: 4px 8px;
+        opacity: 0.9;
+      }
+
+      .sticker-mid-left,
+      .sticker-mid-right {
+        display: none; /* keep sides cleaner on tiny screens */
+      }
+
+      .sticker-top-left {
+        top: 10%;
+        left: 6%;
+      }
+
+      .sticker-top-right {
+        top: 10%;
+        right: 6%;
+      }
+
+      .sticker-bottom-left {
+        bottom: 10%;
+        left: 6%;
+      }
+
+      .sticker-bottom-right {
+        bottom: 8%;
+        right: 6%;
+      }
     }
   </style>
   <style>
@@ -311,6 +417,14 @@
 </head>
 
 <body>
+  <!-- Stickers around the auth card -->
+  <div class="sticker sticker-top-left float" style="--rotate:-6deg;">📓 new page, same you</div>
+  <div class="sticker sticker-top-right small">for your eyes only 🤍</div>
+  <div class="sticker sticker-mid-left small accent" style="--rotate:-3deg;">soft start →</div>
+  <div class="sticker sticker-mid-right small">tiny step, real courage</div>
+  <div class="sticker sticker-bottom-left small">log in, check in</div>
+  <div class="sticker sticker-bottom-right accent float" style="--rotate:5deg;">🌙 you showed up today</div>
+
   <h1 class="page-title" id="page-title">The Mirror</h1>
   <div class="card-container">
     <div class="card">
@@ -319,24 +433,35 @@
         <h2 class="form-heading" id="signin-heading">Welcome back</h2>
         <form id="signin-form" method="POST" action="/login">
           <div id="signin-message" class="message"></div>
-          <div class="form-group"><label for="signin-email">Email</label> <input type="email" id="signin-email"
-              name="username" placeholder="you@example.com" required></div>
-          <div class="form-group"><label for="signin-password">Password</label> <input type="password"
-              id="signin-password" name="password" placeholder="••••••••" required></div>
+          <div class="form-group">
+            <label for="signin-email">Email</label>
+            <input type="email" id="signin-email"
+              name="username" placeholder="you@example.com" required>
+          </div>
+          <div class="form-group">
+            <label for="signin-password">Password</label>
+            <input type="password"
+              id="signin-password" name="password" placeholder="••••••••" required>
+          </div>
           <div class="remember-forgot">
-            <div class="checkbox-wrapper"><input type="checkbox" id="remember-me"> <label for="remember-me"
-                id="remember-label">Remember me</label></div>
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="remember-me">
+              <label for="remember-me" id="remember-label">Remember me</label>
+            </div>
             <a class="forgot-link" id="forgot-link">Forgot password?</a>
           </div>
           <button type="submit" class="submit-btn" id="signin-btn">Sign in</button>
         </form>
-        <div class="toggle-section"><span id="no-account-text">Don't have an account?</span> <a class="toggle-link"
-            id="show-signup">Sign up</a></div>
+        <div class="toggle-section">
+          <span id="no-account-text">Don't have an account?</span>
+          <a class="toggle-link" id="show-signup">Sign up</a>
+        </div>
       </div>
       <!-- Sign Up View -->
       <div id="signup-view" class="view">
         <h2 class="form-heading" id="signup-heading">Begin your journey</h2>
         <form id="signup-form" method="POST" action="/register">
+          <div id="signup-message" class="message"></div>
           <div class="form-group">
             <label for="signup-name">Name</label>
             <input type="text" name="fullname" id="signup-name" placeholder="Your name" required>
@@ -353,24 +478,30 @@
             <label for="signup-confirm">Confirm password</label>
             <input type="password" id="signup-confirm" placeholder="••••••••" required>
           </div>
-          <button type="submit" class="submit-btn">Create account</button>
+          <button type="submit" class="submit-btn" id="signup-btn">Create account</button>
         </form>
 
-        <div class="toggle-section"><span id="have-account-text">Already have an account?</span> <a class="toggle-link"
-            id="show-signin">Sign in</a></div>
+        <div class="toggle-section">
+          <span id="have-account-text">Already have an account?</span>
+          <a class="toggle-link" id="show-signin">Sign in</a>
+        </div>
       </div>
       <!-- Forgot Password View -->
       <div id="forgot-view" class="view">
         <a class="back-link" id="back-to-signin">
           <svg width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg><span id="back-text">Back to sign in</span>
+          </svg>
+          <span id="back-text">Back to sign in</span>
         </a>
         <h2 class="form-heading" id="forgot-heading">Reset your password</h2>
         <form id="forgot-form">
           <div id="forgot-message" class="message"></div>
-          <div class="form-group"><label for="forgot-email">Email</label> <input type="email" id="forgot-email"
-              placeholder="you@example.com" required></div>
+          <div class="form-group">
+            <label for="forgot-email">Email</label>
+            <input type="email" id="forgot-email"
+              placeholder="you@example.com" required>
+          </div>
           <button type="submit" class="submit-btn" id="reset-btn">Send reset link</button>
         </form>
       </div>
@@ -526,34 +657,29 @@
       showView('signin');
     });
 
-    // Social login handlers
+    // Social login handlers (if you add buttons back later)
     function handleSocialLogin(provider) {
       const message = `${provider} authentication would connect here`;
       showMessage('signin-message', message, 'success');
       setTimeout(() => hideMessage('signin-message'), 3000);
     }
 
-    document.getElementById('google-signin').addEventListener('click', () => handleSocialLogin('Google'));
-    document.getElementById('apple-signin').addEventListener('click', () => handleSocialLogin('Apple'));
-    document.getElementById('google-signup').addEventListener('click', () => handleSocialLogin('Google'));
-    document.getElementById('apple-signup').addEventListener('click', () => handleSocialLogin('Apple'));
-
     // Message helpers
     function showMessage(elementId, text, type) {
       const message = document.getElementById(elementId);
+      if (!message) return;
       message.textContent = text;
       message.className = `message ${type}`;
     }
 
     function hideMessage(elementId) {
       const message = document.getElementById(elementId);
+      if (!message) return;
       message.className = 'message';
     }
 
     // Sign in form
-    // Sign in form
     document.getElementById('signin-form').addEventListener('submit', async e => {
-      // Standard submission, let browser handle POST
       const button = document.getElementById('signin-btn');
       button.textContent = 'Signing in...';
     });
@@ -569,7 +695,6 @@
         return;
       }
 
-      // Standard submission
       const button = document.getElementById('signup-btn');
       button.textContent = 'Creating account...';
     });
@@ -577,7 +702,6 @@
     // Forgot password form
     document.getElementById('forgot-form').addEventListener('submit', async e => {
       e.preventDefault();
-      // Keep fake behavior for forgot password as backend might not support it yet
       const button = document.getElementById('reset-btn');
       const config = window.elementSdk?.config || defaultConfig;
       const originalText = config.reset_button || defaultConfig.reset_button;
