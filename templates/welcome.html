@@ -12,7 +12,6 @@
     body {
       background: linear-gradient(135deg, #faf8f5 0%, #f5f1ea 100%);
       overflow: hidden;
-      cursor: pointer; /* shows it's clickable */
       position: relative;
     }
     body::before {
@@ -62,18 +61,11 @@
       align-items: center;
     }
 
-    /* Individual letter animation */
+    /* Base letter style; animation attached via JS */
     .animated-text span {
       display: inline-block;
       opacity: 0;
-      animation: writeIn 0.3s ease-out forwards;
     }
-    .animated-text span:nth-child(1) { animation-delay: 0s; }
-    .animated-text span:nth-child(2) { animation-delay: 0.3s; }
-    .animated-text span:nth-child(3) { animation-delay: 0.6s; }
-    .animated-text span:nth-child(4) { animation-delay: 0.9s; }
-    .animated-text span:nth-child(5) { animation-delay: 1.2s; }
-    .animated-text span:nth-child(6) { animation-delay: 1.5s; }
 
     @keyframes writeIn {
       0% { opacity: 0; transform: translateX(-5px); }
@@ -81,7 +73,7 @@
     }
   </style>
 </head>
-<body onclick="window.location.href='login.html'">
+<body>
   <div class="container">
     <div class="text-wrapper">
       <div class="animated-text" id="animatedText">
@@ -97,11 +89,34 @@
     function renderText(textContent) {
       const lettersWrapper = document.getElementById('lettersWrapper');
       lettersWrapper.innerHTML = '';
+
       const text = textContent.toLowerCase();
+      const baseDelay = 0.3; // seconds between letters
+      const animDuration = 0.3; // each letter's animation duration (matches CSS)
+
       for (let i = 0; i < text.length; i++) {
         const span = document.createElement('span');
         span.textContent = text[i];
+
+        // apply animation via inline style so it only starts after DOM is ready
+        span.style.animation = `writeIn ${animDuration}s ease-out forwards`;
+        span.style.animationDelay = `${i * baseDelay}s`;
+
         lettersWrapper.appendChild(span);
+      }
+
+      // auto-redirect after last letter finishes + extra delay
+      if (text.length > 0) {
+        const lastSpan = lettersWrapper.lastElementChild;
+        const totalTime = (text.length - 1) * baseDelay + animDuration;
+
+        // safety: use setTimeout instead of relying on animationend vendor variations
+        setTimeout(() => {
+          // small extra pause (1s) to let them "see" the full word
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 1000);
+        }, totalTime * 1000);
       }
     }
 
@@ -111,6 +126,7 @@
       renderText(textToDisplay);
     }
 
+    // Initial render on first load
     renderText(defaultConfig.display_text);
   </script>
 </body>
