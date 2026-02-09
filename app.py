@@ -24,8 +24,6 @@ def get_db_connection():
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        
-        
         if "user_id" not in session:
             if request.path.startswith('/api/'):
                 return jsonify({"error": "Unauthorized"}), 401
@@ -183,7 +181,10 @@ def dashboard():
     todos_list, habits_list, mood_list = [], [], []
 
     # --- Fetch todos ---
-    cursor.execute("SELECT * FROM todo WHERE user_id=%s ORDER BY created_at DESC LIMIT 3", (user_id,))
+    cursor.execute(
+        "SELECT * FROM todo WHERE user_id=%s ORDER BY created_at DESC LIMIT 3",
+        (user_id,)
+    )
     for t in cursor.fetchall():
         todos_list.append({
             "id": t["id"],
@@ -192,7 +193,7 @@ def dashboard():
             "completed": bool(t["completed"])
         })
 
-
+    # --- Fetch habits ---
     cursor.execute("SELECT * FROM habit WHERE user_id=%s", (user_id,))
     today = datetime.now().strftime("%Y-%m-%d")
     for h in cursor.fetchall():
@@ -213,17 +214,25 @@ def dashboard():
         })
 
     # --- Fetch moods ---
-    cursor.execute("SELECT * FROM mood WHERE user_id=%s ORDER BY id DESC LIMIT 3", (user_id,))
+    cursor.execute(
+        "SELECT * FROM mood WHERE user_id=%s ORDER BY id DESC LIMIT 3",
+        (user_id,)
+    )
     for m in cursor.fetchall():
         mood_list.append({
             "id": m["id"],
             "type": "mood",
-            "content": m["mood_name"].lower()
+            # keep exact mood_name (e.g. "Happy") to match dashboard buttons
+            "content": m["mood_name"]
         })
 
     cursor.close()
     conn.close()
-    return render_template("dashboard.html", initial_data=todos_list + habits_list + mood_list)
+    return render_template(
+        "dashboard.html",
+        initial_data=todos_list + habits_list + mood_list
+    )
+
 # ----------------------------
 # PAGE ROUTES
 # ----------------------------
@@ -231,7 +240,6 @@ def dashboard():
 @app.route("/todo/")
 @login_required
 def todo_page():
-    
     return render_template("todo.html")
 
 @app.route("/habit")
@@ -263,7 +271,7 @@ def api_todos():
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
         """, (
             data["id"], user_id, data["text"],
-            data.get("category",""), data.get("priority",""),
+            data.get("category", ""), data.get("priority", ""),
             datetime.strptime(data["dueDate"], "%Y-%m-%d") if data.get("dueDate") else None,
             False,
             datetime.fromisoformat(data["createdAt"]) if data.get("createdAt") else datetime.now()
@@ -292,8 +300,10 @@ def api_todo_item(id):
     if request.method == "DELETE":
         cursor.execute("DELETE FROM todo WHERE id=%s AND user_id=%s", (id, user_id))
     else:
-        cursor.execute("UPDATE todo SET completed=%s WHERE id=%s AND user_id=%s",
-                       (request.json.get("completed", False), id, user_id))
+        cursor.execute(
+            "UPDATE todo SET completed=%s WHERE id=%s AND user_id=%s",
+            (request.json.get("completed", False), id, user_id)
+        )
 
     conn.commit()
     cursor.close()
@@ -306,17 +316,14 @@ def clear_completed():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-    "DELETE FROM todo WHERE completed=TRUE AND user_id=%s",
-    (session["user_id"],)
-)
+        "DELETE FROM todo WHERE completed=TRUE AND user_id=%s",
+        (session["user_id"],)
+    )
     conn.commit()
     cursor.close()
     conn.close()
     return jsonify({"isOk": True})
 
-# ----------------------------
-# API: HABITS
-# ----------------------------
 # ----------------------------
 # API: HABITS
 # ----------------------------
@@ -335,8 +342,8 @@ def api_habits():
             INSERT INTO habit (id, user_id, name, icon, category, frequency, completion_history, created_at)
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
         """, (
-            data["id"], user_id, data["name"], data.get("icon",""),
-            data.get("category",""), data.get("frequency",""), history, datetime.now()
+            data["id"], user_id, data["name"], data.get("icon", ""),
+            data.get("category", ""), data.get("frequency", ""), history, datetime.now()
         ))
         conn.commit()
 
@@ -394,7 +401,6 @@ def update_habit(id):
 
     return jsonify({"isOk": True})
 
-
 @app.route("/api/habits/<id>", methods=["DELETE"])
 @login_required
 def delete_habit(id):
@@ -409,7 +415,6 @@ def delete_habit(id):
     cursor.close()
     conn.close()
     return jsonify({"isOk": True})
-
 
 # ----------------------------
 # API: MOODS
@@ -432,7 +437,10 @@ def api_moods():
         ))
         conn.commit()
 
-    cursor.execute("SELECT * FROM mood WHERE user_id=%s ORDER BY timestamp DESC", (user_id,))
+    cursor.execute(
+        "SELECT * FROM mood WHERE user_id=%s ORDER BY timestamp DESC",
+        (user_id,)
+    )
     rows = cursor.fetchall()
     cursor.close()
     conn.close()
