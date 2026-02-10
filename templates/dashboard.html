@@ -153,6 +153,15 @@
       @view-transition {
         navigation: auto;
       }
+      .section-card {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.section-card:hover {
+  transform: translateY(-2px);
+}
+
     </style>
   </head>
 
@@ -1288,24 +1297,27 @@
         }
       });
 
-      // ----- DOUBLE-CLICK NAVIGATION -----
-      document
-        .getElementById('todo-list')
-        .parentElement.addEventListener('dblclick', () => {
-          window.location = '/todo';
-        });
+      // ----- SINGLE-CLICK NAVIGATION -----
+document
+  .getElementById('todo-list')
+  .parentElement.addEventListener(
+    'click',
+    () => (window.location = '/todo')
+  );
 
-      document
-        .getElementById('habit-list')
-        .parentElement.addEventListener('dblclick', () => {
-          window.location = '/habit';
-        });
+document
+  .getElementById('habit-list')
+  .parentElement.addEventListener(
+    'click',
+    () => (window.location = '/habit')
+  );
 
-      document
-        .getElementById('mood-selector')
-        .parentElement.addEventListener('dblclick', () => {
-          window.location = '/mood';
-        });
+document
+  .getElementById('mood-selector')
+  .parentElement.addEventListener(
+    'click',
+    () => (window.location = '/mood')
+  );
 
       // ----- INIT APP -----
       renderTodos();
@@ -1360,3 +1372,4 @@
     </script>
   </body>
 </html>
+
