@@ -337,6 +337,8 @@ def reset_password():
 # ----------------------------
 # DASHBOARD
 # ----------------------------
+# in app.py, inside dashboard()
+
 @app.route("/dashboard")
 @app.route("/dashboard.html")
 @login_required
@@ -348,25 +350,34 @@ def dashboard():
     todos_list, habits_list, mood_list = [], [], []
 
     # --- Fetch todos ---
-    cursor.execute(
-        "SELECT * FROM todo WHERE user_id=%s ORDER BY created_at DESC LIMIT 5",
-        (user_id,)
-    )
+    cursor.execute("""
+        SELECT
+            id,
+            text,
+            completed,
+            COALESCE(due_date::date, created_at::date) AS effective_date
+        FROM todo
+        WHERE user_id=%s
+        ORDER BY created_at DESC
+        LIMIT 5
+    """, (user_id,))
+
     for t in cursor.fetchall():
         todos_list.append({
             "id": t["id"],
             "type": "todo",
             "content": t["text"],
-            "completed": bool(t["completed"])
+            "completed": bool(t["completed"]),
+            # NEW: date field used by the chatbot summaries
+            "date": t["effective_date"].isoformat()
         })
 
-        # --- Fetch habits ---
+    # --- Fetch habits ---
     cursor.execute("SELECT * FROM habit WHERE user_id=%s", (user_id,))
     today_date = datetime.now().date()
     today_str = today_date.strftime("%Y-%m-%d")
 
     for h in cursor.fetchall():
-        # Safe JSON parsing
         try:
             history = json.loads(h["completion_history"] or "{}")
             if not isinstance(history, dict):
@@ -374,7 +385,6 @@ def dashboard():
         except (json.JSONDecodeError, TypeError):
             history = {}
 
-        # compute current streak ending today
         streak = 0
         d = today_date
         while True:
@@ -402,7 +412,6 @@ def dashboard():
         mood_list.append({
             "id": m["id"],
             "type": "mood",
-            # keep exact mood_name (e.g. "Happy") to match dashboard buttons
             "content": m["mood_name"]
         })
 
@@ -861,3 +870,4 @@ def api_reminders():
         reminders["habits_not_done"] = habits_not_done_today
 
     return jsonify({"isOk": True, "reminders": reminders, "serverTime": now.isoformat()})
+
