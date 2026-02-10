@@ -459,6 +459,43 @@
                   
                 </div>
               </div>
+              <!-- Reminders Section -->
+              <section class="mt-8 sm:mt-10 max-w-6xl mx-auto">
+                <div class="text-center mb-4 sm:mb-6">
+                  <h2 class="text-xl sm:text-2xl text-[#2d2d2d] font-light">
+                    Gentle Reminders
+                  </h2>
+                  <p class="text-xs sm:text-sm text-[#8b8982] mt-1">
+                    Little nudges from your day
+                  </p>
+                </div>
+
+                <div
+                  id="reminder-card"
+                  class="section-card rounded-3xl border border-[#e8e5dc]/70 px-5 py-4 sm:px-6 sm:py-5 shadow-lg bg-white/40 backdrop-blur-xl"
+                >
+                  <div class="flex items-center gap-3 mb-3">
+                    <div
+                      class="w-8 h-8 rounded-2xl bg-white/60 flex items-center justify-center shadow-sm breathing-icon"
+                    >
+                      <span class="text-lg">⏰</span>
+                    </div>
+                    <div>
+                      <p class="text-sm sm:text-base text-[#2d2d2d]">
+                        Today’s reminders
+                      </p>
+                      <p class="text-[11px] sm:text-xs text-[#9b9b9b]">
+                        Updates softly as you move through your day
+                      </p>
+                    </div>
+                  </div>
+
+                  <div id="reminder-list" class="space-y-2 text-sm text-[#4a4a4a]">
+                    <p class="text-xs text-[#9b9b9b] italic">
+                      No reminders right now. You’re all caught up.
+                    </p>
+                  </div>
+                </div>
             </section>
           </div>
         </main>
@@ -606,6 +643,112 @@
             btn.classList.remove('mood-selected', 'mood-unselected')
           );
           moodDisplay.textContent = "Select how you're feeling";
+        }
+      }
+      function renderReminders(data) {
+        const container = document.getElementById('reminder-list');
+        if (!data || !data.reminders) {
+          container.innerHTML = `
+            <p class="text-xs text-[#9b9b9b] italic">
+              No reminders right now. You’re all caught up.
+            </p>
+          `;
+          return;
+        }
+
+        const r = data.reminders;
+        const items = [];
+
+        // 6 a.m. – 10 p.m.: "This task is due today"
+        if (r.todo_due_today && r.todo_due_today.length) {
+          r.todo_due_today.forEach(name => {
+            items.push(`
+              <div class="flex items-start gap-2">
+                <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#f0eee6] text-[#6b6b6b]">To‑Do</span>
+                <p class="flex-1">
+                  This task is due today: <span class="font-medium">${name}</span>.
+                </p>
+              </div>
+            `);
+          });
+        }
+
+        // After 10 p.m.: pending today
+        if (r.todo_pending_today && r.todo_pending_today.length) {
+          const list = r.todo_pending_today
+            .map(n => `<span class="font-medium">${n}</span>`)
+            .join(', ');
+          items.push(`
+            <div class="flex items-start gap-2">
+              <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#fbe7e3] text-[#8b5b68]">To‑Do</span>
+              <p class="flex-1">
+                You have pending tasks for today: ${list}.
+              </p>
+            </div>
+          `);
+        }
+
+        // After 10 p.m.: tomorrow’s tasks
+        if (r.todo_tomorrow && r.todo_tomorrow.length) {
+          const list = r.todo_tomorrow
+            .map(n => `<span class="font-medium">${n}</span>`)
+            .join(', ');
+          items.push(`
+            <div class="flex items-start gap-2">
+              <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#e4f0ff] text-[#4b607e]">To‑Do</span>
+              <p class="flex-1">
+                You have tasks due tomorrow: ${list}.
+              </p>
+            </div>
+          `);
+        }
+
+        // Habits after 10 p.m.
+        if (r.habits_not_done && r.habits_not_done.length) {
+          r.habits_not_done.forEach(name => {
+            items.push(`
+              <div class="flex items-start gap-2">
+                <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#e9f7ec] text-[#4a6b54]">Habit</span>
+                <p class="flex-1">
+                  You haven’t checked in your habit today: <span class="font-medium">${name}</span>.
+                </p>
+              </div>
+            `);
+          });
+        }
+
+        // Mood after 10 p.m.
+        if (r.show_mood_missing) {
+          items.push(`
+            <div class="flex items-start gap-2">
+              <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#fdf1d8] text-[#8b6b3a]">Mood</span>
+              <p class="flex-1">
+                You haven’t logged your mood today.
+              </p>
+            </div>
+          `);
+        }
+
+        if (!items.length) {
+          container.innerHTML = `
+            <p class="text-xs text-[#9b9b9b] italic">
+              No reminders right now. You’re all caught up.
+            </p>
+          `;
+        } else {
+          container.innerHTML = items.join('');
+        }
+      }
+
+      async function fetchReminders() {
+        try {
+          const res = await fetch('/api/reminders');
+          if (!res.ok) return;
+          const data = await res.json();
+          if (!data.isOk) return;
+          renderReminders(data);
+        } catch (e) {
+          // silent fail – keep last state
         }
       }
 
@@ -854,6 +997,8 @@
       renderTodos();
       renderHabits();
       renderMood();
+       fetchReminders();
+      setInterval(fetchReminders, 60000); 
     </script>
 
     <script>
