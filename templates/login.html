@@ -475,16 +475,16 @@
       <div id="signin-view" class="view active">
         <h2 class="form-heading" id="signin-heading">Welcome back</h2>
         <form id="signin-form" method="POST" action="/login">
-          <div id="signin-message" class="message"></div>
+          <div id="signin-message" class="message" aria-live="polite"></div>
           <div class="form-group">
             <label for="signin-email">Email</label>
             <input type="email" id="signin-email"
-              name="username" placeholder="you@example.com" required>
+              name="username" placeholder="you@example.com" required autocomplete="email">
           </div>
           <div class="form-group">
             <label for="signin-password">Password</label>
             <input type="password"
-              id="signin-password" name="password" placeholder="••••••••" required>
+              id="signin-password" name="password" placeholder="••••••••" required autocomplete="current-password">
           </div>
           <div class="remember-forgot">
             <div class="checkbox-wrapper">
@@ -505,22 +505,22 @@
       <div id="signup-view" class="view">
         <h2 class="form-heading" id="signup-heading">Begin your journey</h2>
         <form id="signup-form" method="POST" action="/register">
-          <div id="signup-message" class="message"></div>
+          <div id="signup-message" class="message" aria-live="polite"></div>
           <div class="form-group">
             <label for="signup-name">Name</label>
-            <input type="text" name="fullname" id="signup-name" placeholder="Your name" required>
+            <input type="text" name="fullname" id="signup-name" placeholder="Your name" required autocomplete="name">
           </div>
           <div class="form-group">
             <label for="signup-email">Email</label>
-            <input type="email" name="username" id="signup-email" placeholder="you@example.com" required>
+            <input type="email" name="username" id="signup-email" placeholder="you@example.com" required autocomplete="email">
           </div>
           <div class="form-group">
             <label for="signup-password">Password</label>
-            <input type="password" name="password" id="signup-password" placeholder="••••••••" required>
+            <input type="password" name="password" id="signup-password" placeholder="••••••••" required autocomplete="new-password">
           </div>
           <div class="form-group">
             <label for="signup-confirm">Confirm password</label>
-            <input type="password" id="signup-confirm" placeholder="••••••••" required>
+            <input type="password" id="signup-confirm" placeholder="••••••••" required autocomplete="new-password">
           </div>
           <button type="submit" class="submit-btn" id="signup-btn">Create account</button>
         </form>
@@ -541,11 +541,11 @@
         </a>
         <h2 class="form-heading" id="forgot-heading">Reset your password</h2>
         <form id="forgot-form">
-          <div id="forgot-message" class="message"></div>
+          <div id="forgot-message" class="message" aria-live="polite"></div>
           <div class="form-group">
             <label for="forgot-email">Email</label>
             <input type="email" id="forgot-email"
-              placeholder="you@example.com" required>
+              placeholder="you@example.com" required autocomplete="email">
           </div>
           <button type="submit" class="submit-btn" id="reset-btn">Send reset link</button>
         </form>
@@ -735,29 +735,55 @@
       button.textContent = 'Creating account...';
     });
 
-    document.getElementById('forgot-form').addEventListener('submit', async e => {
-      e.preventDefault();
-      const button = document.getElementById('reset-btn');
-      const config = window.elementSdk?.config || defaultConfig;
-      const originalText = config.reset_button || defaultConfig.reset_button;
+   document.getElementById('forgot-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const button = document.getElementById('reset-btn');
+  const emailInput = document.getElementById('forgot-email');
+  const config = window.elementSdk?.config || defaultConfig;
+  const originalText = config.reset_button || defaultConfig.reset_button;
 
-      button.textContent = 'Sending...';
-      button.disabled = true;
+  const email = emailInput.value.trim();
+  if (!email) {
+    showMessage('forgot-message', 'Please enter your email.', 'error');
+    return;
+  }
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
+  button.textContent = 'Sending...';
+  button.disabled = true;
+  hideMessage('forgot-message');
 
-      showMessage('forgot-message', 'Password reset link sent! Check your email.', 'success');
-
-      setTimeout(() => {
-        button.textContent = originalText;
-        button.disabled = false;
-        document.getElementById('forgot-form').reset();
-        hideMessage('forgot-message');
-      }, 2000);
+  try {
+    const res = await fetch('/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
     });
-  </script>
 
+    const data = await res.json();
+
+    if (res.ok && data.isOk) {
+      showMessage(
+        'forgot-message',
+        data.message || 'If an account exists, a reset link has been sent.',
+        'success'
+      );
+      document.getElementById('forgot-form').reset();
+    } else {
+      showMessage(
+        'forgot-message',
+        data.message || 'Something went wrong. Please try again.',
+        'error'
+      );
+    }
+  } catch (err) {
+    showMessage('forgot-message', 'Network error. Please try again.', 'error');
+  } finally {
+    button.textContent = originalText;
+    button.disabled = false;
+  }
+});
+
+  </script>
   <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'9c894c1ae1d09d00',t:'MTc3MDE5ODk3OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
 </body>
-
 </html>
