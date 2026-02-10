@@ -193,9 +193,11 @@ def dashboard():
             "completed": bool(t["completed"])
         })
 
-    # --- Fetch habits ---
+        # --- Fetch habits ---
     cursor.execute("SELECT * FROM habit WHERE user_id=%s", (user_id,))
-    today = datetime.now().strftime("%Y-%m-%d")
+    today_date = datetime.now().date()
+    today_str = today_date.strftime("%Y-%m-%d")
+
     for h in cursor.fetchall():
         # Safe JSON parsing
         try:
@@ -205,6 +207,7 @@ def dashboard():
         except (json.JSONDecodeError, TypeError):
             history = {}
 
+        # compute current streak ending today
         streak = 0
         d = today_date
         while True:
@@ -220,7 +223,7 @@ def dashboard():
             "type": "habit",
             "content": h["name"],
             "streak": streak,
-            "completed": history.get(today_date.strftime("%Y-%m-%d"), False)
+            "completed": history.get(today_str, False)
         })
 
     # --- Fetch moods ---
@@ -594,5 +597,6 @@ def summary_recent_moods():
         "entries": rows,
         "counts": mood_counts
     })
+
 
 
