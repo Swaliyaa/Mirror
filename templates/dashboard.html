@@ -1,159 +1,162 @@
-<!doctype html>
+here is the code to help <!doctype html>
 <html lang="en" class="h-full">
   <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Mirror - Self-Reflection &amp; Wellness</title>
-
+   
     <link
       href="https://fonts.googleapis.com/css2?family=Homemade+Apple&amp;family=Newsreader:wght@300;400&amp;display=swap"
       rel="stylesheet"
-    />
+    >
     <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
-      body {
-        box-sizing: border-box;
-      }
-      .handwritten {
-        font-family: 'Homemade Apple', cursive;
-        letter-spacing: 1px;
-      }
-      .body-text {
-        font-family: 'Newsreader', serif;
-        font-weight: 300;
-      }
-      .paper-texture {
-        background: linear-gradient(
-            0deg,
-            rgba(0, 0, 0, 0.008) 1px,
-            transparent 1px
-          ),
-          linear-gradient(
-            90deg,
-            rgba(0, 0, 0, 0.008) 1px,
-            transparent 1px
-          );
-        background-size: 24px 24px;
-      }
-      .chat-message {
-        animation: fadeIn 0.4s ease-in;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(12px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .task-complete {
-        text-decoration: line-through;
-        opacity: 0.45;
-      }
-      .habit-complete {
-        background: #3a3a3a;
-        color: #f5f1e8;
-        border-color: #3a3a3a;
-      }
-      .mood-selected {
-        transform: scale(1.15);
-        opacity: 1;
-      }
-      .mood-unselected {
-        opacity: 0.25;
-      }
-      .section-card {
-        background: rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(14px) saturate(150%);
-        -webkit-backdrop-filter: blur(14px) saturate(150%);
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
-      }
-      @keyframes breathe {
-        0%,
-        100% {
-          opacity: 0.4;
-        }
-        50% {
-          opacity: 0.8;
-        }
-      }
-      .breathing-icon {
-        animation: breathe 3s ease-in-out infinite;
-      }
-      .sticker {
-        position: absolute;
-        border-radius: 999px;
-        font-size: 10px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        padding: 4px 10px;
-        background: #ffe6ec;
-        color: #8b5b68;
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-        transform: rotate(-6deg);
-        pointer-events: none;
-        z-index: 5;
-        border: 1px dashed rgba(139, 91, 104, 0.35);
-        white-space: nowrap;
-      }
-      .sticker-blue {
-        background: #e4f0ff;
-        color: #4b607e;
-        border-color: rgba(75, 96, 126, 0.35);
-        transform: rotate(4deg);
-      }
-      .sticker-green {
-        background: #e9f7ec;
-        color: #4a6b54;
-        border-color: rgba(74, 107, 84, 0.35);
-        transform: rotate(-3deg);
-      }
-      .washi-strip {
-        position: absolute;
-        width: 90px;
-        height: 18px;
-        background: repeating-linear-gradient(
-          -45deg,
-          rgba(248, 207, 160, 0.9),
-          rgba(248, 207, 160, 0.9) 6px,
-          rgba(249, 227, 198, 0.9) 6px,
-          rgba(249, 227, 198, 0.9) 12px
-        );
-        opacity: 0.9;
-        border-radius: 4px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-        pointer-events: none;
-        z-index: 4;
-      }
-      .doodle-star {
-        position: absolute;
-        font-size: 11px;
-        color: #d3a27f;
-        opacity: 0.8;
-        pointer-events: none;
-        z-index: 3;
-      }
-      .doodle-heart {
-        position: absolute;
-        font-size: 13px;
-        color: #e19aa5;
-        opacity: 0.95;
-        pointer-events: none;
-        z-index: 3;
-      }
-    </style>
+  body {
+    box-sizing: border-box;
+  }
 
-    <style>
-      @view-transition {
-        navigation: auto;
-      }
-      .section-card {
+  .handwritten {
+    font-family: 'Homemade Apple', cursive;
+    letter-spacing: 1px;
+  }
+
+  .body-text {
+    font-family: 'Newsreader', serif;
+    font-weight: 300;
+  }
+
+  .paper-texture {
+    background:
+      linear-gradient(0deg, rgba(0, 0, 0, 0.008) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.008) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .chat-message {
+    animation: fadeIn 0.4s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .task-complete {
+    text-decoration: line-through;
+    opacity: 0.45;
+  }
+
+  .habit-complete {
+    background: #3a3a3a;
+    color: #f5f1e8;
+    border-color: #3a3a3a;
+  }
+
+  .mood-selected {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+
+  .mood-unselected {
+    opacity: 0.25;
+  }
+
+  /* slightly more glassy cards */
+  .section-card {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  @keyframes breathe {
+    0%,
+    100% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  .breathing-icon {
+    animation: breathe 3s ease-in-out infinite;
+  }
+
+  /* journal stickers + doodles */
+  .sticker {
+    position: absolute;
+    border-radius: 999px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    background: #ffe6ec;
+    color: #8b5b68;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    transform: rotate(-6deg);
+    pointer-events: none;
+    z-index: 5;
+    border: 1px dashed rgba(139, 91, 104, 0.35);
+    white-space: nowrap;
+  }
+
+  .sticker-blue {
+    background: #e4f0ff;
+    color: #4b607e;
+    border-color: rgba(75, 96, 126, 0.35);
+    transform: rotate(4deg);
+  }
+
+  .sticker-green {
+    background: #e9f7ec;
+    color: #4a6b54;
+    border-color: rgba(74, 107, 84, 0.35);
+    transform: rotate(-3deg);
+  }
+
+  .washi-strip {
+    position: absolute;
+    width: 90px;
+    height: 18px;
+    background: repeating-linear-gradient(
+      -45deg,
+      rgba(248, 207, 160, 0.9),
+      rgba(248, 207, 160, 0.9) 6px,
+      rgba(249, 227, 198, 0.9) 6px,
+      rgba(249, 227, 198, 0.9) 12px
+    );
+    opacity: 0.9;
+    border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  .doodle-star {
+    position: absolute;
+    font-size: 11px;
+    color: #d3a27f;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .doodle-heart {
+    position: absolute;
+    font-size: 13px;
+    color: #e19aa5;
+    opacity: 0.95;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .section-card {
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -162,66 +165,83 @@
   transform: translateY(-2px);
 }
 
+</style>
+
+    <style>
+      @view-transition {
+        navigation: auto;
+      }
     </style>
   </head>
-
   <body class="h-full body-text">
     <div class="h-full w-full overflow-auto bg-[#f5f1e8] paper-texture">
       <div class="relative max-w-6xl mx-auto">
         <!-- margin stickers & doodles – desktop gutters only -->
-        <!-- top-left margin -->
-        <div class="sticker top-6 -left-3 sm:-left-8 hidden sm:block">
-          today’s note
-        </div>
-        <!-- mid-left margin -->
-        <div class="sticker sticker-green top-1/2 -left-6 hidden lg:block">
-          tiny steps
-        </div>
-        <!-- bottom-left margin -->
-        <div class="sticker bottom-28 -left-4 hidden md:block">
-          gentle check-in
-        </div>
-        <!-- top-right margin -->
-        <div class="sticker sticker-blue top-24 -right-6 hidden md:block">
-          soft focus
-        </div>
-        <!-- mid-right margin -->
-        <div class="sticker top-1/2 -right-5 hidden lg:block">
-          you’re doing fine
-        </div>
-        <!-- bottom-right margin -->
-        <div class="sticker sticker-blue bottom-28 -right-6 hidden sm:block">
-          slow day
-        </div>
-        <!-- bottom center washi with label -->
-        <div
-          class="washi-strip bottom-10 left-1/2 -translate-x-1/2 rotate-2 hidden sm:block"
-        ></div>
-        <div
-          class="sticker bottom-10 left-1/2 -translate-x-1/2 translate-y-6 rotate-0 hidden sm:inline-flex"
-        >
-          little moments
-        </div>
-        <!-- hearts & star in side gutters -->
-        <div class="doodle-heart top-32 left-3 sm:left-10">❤</div>
-        <div class="doodle-heart top-44 left-6 sm:left-16">❤</div>
-        <div class="doodle-heart bottom-36 left-4 sm:left-10 hidden md:block">
-          ❤
-        </div>
-        <div class="doodle-heart top-32 right-4 sm:right-10">❤</div>
-        <div class="doodle-heart top-48 right-6 sm:right-16 hidden md:block">
-          ❤
-        </div>
-        <div class="doodle-heart bottom-36 right-5 sm:right-10 hidden md:block">
-          ❤
-        </div>
-        <div class="doodle-star top-40 left-8 sm:left-18">✶</div>
-        <div class="doodle-star bottom-32 right-8 sm:right-16">✶</div>
+      <!-- top-left margin -->
+      <div class="sticker top-6 -left-3 sm:-left-8 hidden sm:block">
+        today’s note
+      </div>
 
+      <!-- mid-left margin -->
+      <div class="sticker sticker-green top-1/2 -left-6 hidden lg:block">
+        tiny steps
+      </div>
+
+      <!-- bottom-left margin -->
+      <div class="sticker bottom-28 -left-4 hidden md:block">
+        gentle check-in
+      </div>
+
+      <!-- top-right margin (well away from logout) -->
+      <div class="sticker sticker-blue top-24 -right-6 hidden md:block">
+        soft focus
+      </div>
+
+      <!-- mid-right margin -->
+      <div class="sticker top-1/2 -right-5 hidden lg:block">
+        you’re doing fine
+      </div>
+
+      <!-- bottom-right margin -->
+      <div class="sticker sticker-blue bottom-28 -right-6 hidden sm:block">
+        slow day
+      </div>
+
+      <!-- bottom center washi with label -->
+      <div class="washi-strip bottom-10 left-1/2 -translate-x-1/2 rotate-2 hidden sm:block"></div>
+      <div class="sticker bottom-10 left-1/2 -translate-x-1/2 translate-y-6 rotate-0 hidden sm:inline-flex">
+        little moments
+      </div>
+
+      <!-- hearts & star in side gutters -->
+      <div class="doodle-heart top-32 left-3 sm:left-10">
+        ❤
+      </div>
+      <div class="doodle-heart top-44 left-6 sm:left-16">
+        ❤
+      </div>
+      <div class="doodle-heart bottom-36 left-4 sm:left-10 hidden md:block">
+        ❤
+      </div>
+
+      <div class="doodle-heart top-32 right-4 sm:right-10">
+        ❤
+      </div>
+      <div class="doodle-heart top-48 right-6 sm:right-16 hidden md:block">
+        ❤
+      </div>
+      <div class="doodle-heart bottom-36 right-5 sm:right-10 hidden md:block">
+        ❤
+      </div>
+
+      <div class="doodle-star top-40 left-8 sm:left-18">
+        ✶
+      </div>
+      <div class="doodle-star bottom-32 right-8 sm:right-16">
+        ✶
+      </div>
         <!-- Hero Section -->
-        <header
-          class="w-full pt-10 pb-14 px-4 sm:px-6 md:px-8 lg:px-12 relative"
-        >
+        <header class="w-full pt-10 pb-14 px-4 sm:px-6 md:px-8 lg:px-12 relative">
           <div class="max-w-4xl mx-auto text-center px-2">
             <h1
               id="site-title"
@@ -239,12 +259,11 @@
               id="hero-description"
               class="text-sm sm:text-base text-[#6b6b6b] max-w-xl mx-auto leading-relaxed px-2"
             >
-              Check in with yourself. Track what matters. Reflect with
-              intention.
+              Check in with yourself. Track what matters. Reflect with intention.
             </p>
           </div>
 
-          <!-- Logout Button -->
+          <!-- Logout Button: Top-Right (clear area) -->
           <div class="absolute top-4 right-4 sm:top-6 sm:right-6">
             <a
               href="/logout"
@@ -257,9 +276,7 @@
         </header>
 
         <!-- Main Content Container -->
-        <main
-          class="w-full px-4 sm:px-6 md:px-8 lg:px-12 pb-16 -mt-4 sm:-mt-8"
-        >
+        <main class="w-full px-4 sm:px-6 md:px-8 lg:px-12 pb-16 -mt-4 sm:-mt-8">
           <div class="max-w-6xl mx-auto space-y-12 sm:space-y-16">
             <!-- Reflection Space Section -->
             <section class="w-full">
@@ -277,7 +294,6 @@
                   A gentle conversation with yourself
                 </p>
               </div>
-
               <div
                 class="section-card rounded-3xl shadow-lg px-4 py-6 sm:px-6 sm:py-8 md:p-10 max-w-4xl mx-auto border border-[#e8e5dc]"
               >
@@ -289,23 +305,19 @@
                     <div
                       class="bg-white rounded-3xl px-4 py-3 sm:px-6 sm:py-4 max-w-md shadow-sm border border-[#e8e5dc]"
                     >
-                      <p
-                        class="text-sm text-[#2d2d2d] leading-relaxed"
-                      >
-                        Hello. I'm here to listen. How are you feeling
-                        today?
+                      <p class="text-sm text-[#2d2d2d] leading-relaxed">
+                        Hello. I'm here to listen. How are you feeling today?
                       </p>
                     </div>
                   </div>
                 </div>
-
                 <div class="flex flex-col sm:flex-row gap-3">
                   <input
                     type="text"
                     id="chat-input"
                     placeholder="Share what's on your mind..."
                     class="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-full border border-[#d4d1c8] bg-white text-[#2d2d2d] text-sm focus:outline-none focus:border-[#8b8982] transition-colors"
-                  />
+                  >
                   <button
                     id="send-btn"
                     class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-[#2d2d2d] text-[#f5f1e8] rounded-full text-sm hover:bg-[#1a1a1a] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
@@ -325,9 +337,7 @@
                 >
                   Daily Practices
                 </h2>
-                <div
-                  class="w-12 sm:w-16 h-px bg-[#d4d1c8] mx-auto mt-3 sm:mt-4"
-                ></div>
+                <div class="w-12 sm:w-16 h-px bg-[#d4d1c8] mx-auto mt-3 sm:mt-4"></div>
               </div>
 
               <div
@@ -349,6 +359,7 @@
                   >
                     <!-- Tasks will be rendered here -->
                   </div>
+                  
                 </div>
 
                 <!-- Habit Tracker -->
@@ -369,7 +380,7 @@
                   </div>
                 </div>
 
-                <!-- Mood Tracker -->
+                <!-- Mood Tracker + side quote -->
                 <div class="flex flex-col gap-3">
                   <div
                     class="section-card rounded-3xl shadow-lg p-5 sm:p-6 border border-[#e8e5dc]"
@@ -445,6 +456,7 @@
                         😢
                       </button>
                     </div>
+
                     <div
                       id="mood-display"
                       class="text-center text-xs sm:text-sm text-[#6b6b6b] min-h-[64px] sm:min-h-[80px] flex items-center justify-center px-2"
@@ -452,18 +464,17 @@
                       Select how you're feeling
                     </div>
                   </div>
+
+                  
                 </div>
               </div>
-
               <!-- Reminders Section -->
               <section class="mt-8 sm:mt-10 max-w-6xl mx-auto">
                 <div class="text-center mb-4 sm:mb-6">
                   <h2 class="text-xl sm:text-2xl text-[#2d2d2d] font-light">
                     Gentle Reminders
                   </h2>
-                  <p
-                    class="text-xs sm:text-sm text-[#8b8982] mt-1"
-                  >
+                  <p class="text-xs sm:text-sm text-[#8b8982] mt-1">
                     Little nudges from your day
                   </p>
                 </div>
@@ -482,26 +493,18 @@
                       <p class="text-sm sm:text-base text-[#2d2d2d]">
                         Today’s reminders
                       </p>
-                      <p
-                        class="text-[11px] sm:text-xs text-[#9b9b9b]"
-                      >
+                      <p class="text-[11px] sm:text-xs text-[#9b9b9b]">
                         Updates softly as you move through your day
                       </p>
                     </div>
                   </div>
 
-                  <div
-                    id="reminder-list"
-                    class="space-y-2 text-sm text-[#4a4a4a]"
-                  >
-                    <p
-                      class="text-xs text-[#9b9b9b] italic"
-                    >
+                  <div id="reminder-list" class="space-y-2 text-sm text-[#4a4a4a]">
+                    <p class="text-xs text-[#9b9b9b] italic">
                       No reminders right now. You’re all caught up.
                     </p>
                   </div>
                 </div>
-              </section>
             </section>
           </div>
         </main>
@@ -527,777 +530,714 @@
       </div>
     </div>
 
-    <script>
-      let currentData = {{ initial_data | tojson }};
+   <script>
+  let currentData = {{ initial_data | tojson }};
 
-      // ----- RENDER FUNCTIONS -----
-      function renderTodos() {
-        const todoList = document.getElementById('todo-list');
-        const todos = currentData.filter(d => d.type === 'todo');
+  // ----- RENDER FUNCTIONS -----
+  function renderTodos() {
+    const todoList = document.getElementById('todo-list');
+    const todos = currentData.filter(d => d.type === 'todo');
 
-        if (!todos.length) {
-          todoList.innerHTML =
-            '<p class="text-sm text-[#9b9b9b] italic text-center py-6 sm:py-8">No intentions set yet</p>';
-          return;
-        }
+    if (!todos.length) {
+      todoList.innerHTML =
+        '<p class="text-sm text-[#9b9b9b] italic text-center py-6 sm:py-8">No intentions set yet</p>';
+      return;
+    }
 
-        todoList.innerHTML = todos
-          .map(
-            todo => `
-            <div class="flex items-start gap-3 group">
-              <div
-                class="mt-1 w-2 h-2 rounded-full ${
-                  todo.completed ? 'bg-[#9b9b9b]' : 'bg-[#2d2d2d]'
-                }"
-              ></div>
-              <div class="flex-1">
-                <p
-                  class="text-sm text-[#2d2d2d] leading-snug ${
-                    todo.completed ? 'opacity-60 line-through' : ''
-                  }"
-                >
-                  ${todo.content}
-                </p>
-                <p class="text-[11px] text-[#9b9b9b] mt-0.5">
-                  ${todo.completed ? 'Completed' : 'Not completed yet'}
-                </p>
-              </div>
-            </div>
-          `
-          )
-          .join('');
-      }
+    // Read-only, visually appealing preview
+    todoList.innerHTML = todos
+      .map(
+        todo => `
+      <div class="flex items-start gap-3 group">
+        <div class="mt-1 w-2 h-2 rounded-full ${
+          todo.completed ? 'bg-[#9b9b9b]' : 'bg-[#2d2d2d]'
+        }"></div>
+        <div class="flex-1">
+          <p class="text-sm text-[#2d2d2d] leading-snug ${
+            todo.completed ? 'opacity-60 line-through' : ''
+          }">
+            ${todo.content}
+          </p>
+          <p class="text-[11px] text-[#9b9b9b] mt-0.5">
+            ${todo.completed ? 'Completed' : 'Not completed yet'}
+          </p>
+        </div>
+      </div>
+    `
+      )
+      .join('');
+  }
 
-      function renderHabits() {
-        const habitList = document.getElementById('habit-list');
-        const habits = currentData.filter(d => d.type === 'habit');
+  function renderHabits() {
+    const habitList = document.getElementById('habit-list');
+    const habits = currentData.filter(d => d.type === 'habit');
 
-        if (!habits.length) {
-          habitList.innerHTML =
-            '<p class="text-sm text-[#9b9b9b] italic text-center py-6 sm:py-8">No rituals tracked</p>';
-          return;
-        }
+    if (!habits.length) {
+      habitList.innerHTML =
+        '<p class="text-sm text-[#9b9b9b] italic text-center py-6 sm:py-8">No rituals tracked</p>';
+      return;
+    }
 
-        habitList.innerHTML = habits
-          .map(
-            habit => `
-            <div
-              class="w-full px-4 py-3 rounded-2xl border border-[#d4d1c8] bg-white/70 backdrop-blur-sm"
-            >
-              <div class="flex items-center justify-between">
-                <p class="text-sm text-[#2d2d2d]">
-                  ${habit.content}
-                </p>
-                <span
-                  class="text-[11px] px-2 py-0.5 rounded-full ${
-                    habit.completed
-                      ? 'bg-[#2d2d2d] text-[#f5f1e8]'
-                      : 'bg-[#f0eee6] text-[#6b6b6b]'
-                  }"
-                >
-                  ${habit.completed ? 'Done today' : 'Not yet'}
-                </span>
-              </div>
-              <p class="text-[11px] text-[#9b9b9b] mt-1">
-                🔥 ${habit.streak || 0} day streak
-              </p>
-            </div>
-          `
-          )
-          .join('');
-      }
+    // Read-only, compact preview of habits + streak
+    habitList.innerHTML = habits
+      .map(
+        habit => `
+      <div class="w-full px-4 py-3 rounded-2xl border border-[#d4d1c8] bg-white/70 backdrop-blur-sm">
+        <div class="flex items-center justify-between">
+          <p class="text-sm text-[#2d2d2d]">
+            ${habit.content}
+          </p>
+          <span class="text-[11px] px-2 py-0.5 rounded-full ${
+            habit.completed
+              ? 'bg-[#2d2d2d] text-[#f5f1e8]'
+              : 'bg-[#f0eee6] text-[#6b6b6b]'
+          }">
+            ${habit.completed ? 'Done today' : 'Not yet'}
+          </span>
+        </div>
+        <p class="text-[11px] text-[#9b9b9b] mt-1">
+          🔥 ${habit.streak || 0} day streak
+        </p>
+      </div>
+    `
+      )
+      .join('');
+  }
 
-      function renderMood() {
-        const moods = currentData.filter(d => d.type === 'mood');
-        const moodRecord = moods.length ? moods[0] : null;
+  function renderMood() {
+    const moods = currentData.filter(d => d.type === 'mood');
+    const moodRecord = moods.length ? moods[0] : null;
 
-        const moodBtns = document.querySelectorAll('.mood-btn');
-        const moodDisplay = document.getElementById('mood-display');
+    const moodBtns = document.querySelectorAll('.mood-btn');
+    const moodDisplay = document.getElementById('mood-display');
 
-        const moodLabels = {
-          Happy: 'joyful',
-          Calm: 'peaceful',
-          Neutral: 'in‑between',
-          Tired: 'low on energy',
-          Anxious: 'on edge',
-          Sad: 'tender',
-          Frustrated: 'fiery',
-          Excited: 'energised',
-          Grateful: 'thankful',
-          Stressed: 'under pressure'
-        };
+    const moodLabels = {
+      Happy: 'joyful',
+      Calm: 'peaceful',
+      Neutral: 'in‑between',
+      Tired: 'low on energy',
+      Anxious: 'on edge',
+      Sad: 'tender',
+      Frustrated: 'fiery',
+      Excited: 'energised',
+      Grateful: 'thankful',
+      Stressed: 'under pressure'
+    };
 
-        if (moodRecord) {
-          moodBtns.forEach(btn => {
-            if (btn.dataset.mood === moodRecord.content) {
-              btn.classList.add('mood-selected');
-              btn.classList.remove('mood-unselected');
-            } else {
-              btn.classList.add('mood-unselected');
-              btn.classList.remove('mood-selected');
-            }
-          });
-
-          const label = moodLabels[moodRecord.content] || moodRecord.content;
-
-          moodDisplay.innerHTML = `
-            <div>
-              <p class="text-sm sm:text-base mb-1 sm:mb-2">
-                Feeling <strong>${label}</strong>
-              </p>
-              <p class="text-[11px] sm:text-xs text-[#9b9b9b]">
-                Recently checked in.
-              </p>
-            </div>
-          `;
+    if (moodRecord) {
+      moodBtns.forEach(btn => {
+        if (btn.dataset.mood === moodRecord.content) {
+          btn.classList.add('mood-selected');
+          btn.classList.remove('mood-unselected');
         } else {
-          moodBtns.forEach(btn => {
-            btn.classList.remove('mood-selected', 'mood-unselected');
-          });
-          moodDisplay.textContent = "Select how you're feeling";
+          btn.classList.add('mood-unselected');
+          btn.classList.remove('mood-selected');
         }
-      }
+      });
 
-      // ----- REMINDERS (ONLY NOT-DONE ITEMS) -----
-      function renderReminders(data) {
-        const container = document.getElementById('reminder-list');
+      const label = moodLabels[moodRecord.content] || moodRecord.content;
 
-        if (!data || !data.reminders) {
-          container.innerHTML = `
-            <p class="text-xs text-[#9b9b9b] italic">
-              No reminders right now. You’re all caught up.
+      moodDisplay.innerHTML = `
+      <div>
+        <p class="text-sm sm:text-base mb-1 sm:mb-2">
+          Feeling <strong>${label}</strong>
+        </p>
+        <p class="text-[11px] sm:text-xs text-[#9b9b9b]">
+          Recently checked in.
+        </p>
+      </div>
+    `;
+    } else {
+      moodBtns.forEach(btn =>
+        btn.classList.remove('mood-selected', 'mood-unselected')
+      );
+      moodDisplay.textContent = "Select how you're feeling";
+    }
+  }
+
+  // ----- REMINDERS (ONLY NOT-DONE ITEMS) -----
+  function renderReminders(data) {
+    const container = document.getElementById('reminder-list');
+    if (!data || !data.reminders) {
+      container.innerHTML = `
+        <p class="text-xs text-[#9b9b9b] italic">
+          No reminders right now. You’re all caught up.
+        </p>
+      `;
+      return;
+    }
+
+    const r = data.reminders;
+    const items = [];
+
+    // Only show tasks that are not checked yet
+    // API already sends text for pending / due; we just render what backend gives.
+
+    // Due today (not completed, per /api/reminders logic)
+    if (r.todo_due_today && r.todo_due_today.length) {
+      r.todo_due_today.forEach(name => {
+        items.push(`
+          <div class="flex items-start gap-2">
+            <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#f0eee6] text-[#6b6b6b]">To‑Do</span>
+            <p class="flex-1">
+              This task is due today: <span class="font-medium">${name}</span>.
             </p>
-          `;
-          return;
-        }
-
-        const r = data.reminders;
-        const items = [];
-
-        if (r.todo_due_today && r.todo_due_today.length) {
-          r.todo_due_today.forEach(name => {
-            items.push(`
-              <div class="flex items-start gap-2">
-                <span
-                  class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#f0eee6] text-[#6b6b6b]"
-                  >To‑Do</span
-                >
-                <p class="flex-1">
-                  This task is due today:
-                  <span class="font-medium">${name}</span>.
-                </p>
-              </div>
-            `);
-          });
-        }
-
-        if (r.todo_pending_today && r.todo_pending_today.length) {
-          const list = r.todo_pending_today
-            .map(n => `<span class="font-medium">${n}</span>`)
-            .join(', ');
-
-          items.push(`
-            <div class="flex items-start gap-2">
-              <span
-                class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#fbe7e3] text-[#8b5b68]"
-                >To‑Do</span
-              >
-              <p class="flex-1">
-                You have pending tasks for today: ${list}.
-              </p>
-            </div>
-          `);
-        }
-
-        if (r.todo_tomorrow && r.todo_tomorrow.length) {
-          const list = r.todo_tomorrow
-            .map(n => `<span class="font-medium">${n}</span>`)
-            .join(', ');
-
-          items.push(`
-            <div class="flex items-start gap-2">
-              <span
-                class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#e4f0ff] text-[#4b607e]"
-                >To‑Do</span
-              >
-              <p class="flex-1">
-                You have tasks due tomorrow: ${list}.
-              </p>
-            </div>
-          `);
-        }
-
-        if (r.habits_not_done && r.habits_not_done.length) {
-          r.habits_not_done.forEach(name => {
-            items.push(`
-              <div class="flex items-start gap-2">
-                <span
-                  class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#e9f7ec] text-[#4a6b54]"
-                  >Habit</span
-                >
-                <p class="flex-1">
-                  You haven’t checked in your habit today:
-                  <span class="font-medium">${name}</span>.
-                </p>
-              </div>
-            `);
-          });
-        }
-
-        if (r.show_mood_missing) {
-          items.push(`
-            <div class="flex items-start gap-2">
-              <span
-                class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#fdf1d8] text-[#8b6b3a]"
-                >Mood</span
-              >
-              <p class="flex-1">
-                You haven’t logged your mood today.
-              </p>
-            </div>
-          `);
-        }
-
-        if (!items.length) {
-          container.innerHTML = `
-            <p class="text-xs text-[#9b9b9b] italic">
-              No reminders right now. You’re all caught up.
-            </p>
-          `;
-        } else {
-          container.innerHTML = items.join('');
-        }
-      }
-
-      async function fetchReminders() {
-        try {
-          const res = await fetch('/api/reminders');
-          if (!res.ok) return;
-          const data = await res.json();
-          if (!data.isOk) return;
-          renderReminders(data);
-        } catch (e) {
-          // silent fail
-        }
-      }
-
-      // ----- EVENT HANDLERS -----
-      function handleTodoToggle(e) {
-        const id = e.target.dataset.id;
-        const todo = currentData.find(d => d.id === id);
-        if (todo) {
-          todo.completed = !todo.completed;
-          renderTodos();
-        }
-      }
-
-      function handleHabitToggle(e) {
-        const btn = e.currentTarget;
-        const id = btn.dataset.id;
-        const habit = currentData.find(d => d.id === id);
-        if (habit) {
-          habit.completed = !habit.completed;
-          if (habit.completed) habit.streak++;
-          renderHabits();
-        }
-      }
-
-      // ----- REFLECTION CHAT -----
-      const chatMessagesEl = document.getElementById('chat-messages');
-      const chatInput = document.getElementById('chat-input');
-      const sendBtn = document.getElementById('send-btn');
-
-      const emotionResponses = {
-        happy: [
-          "That happiness sounds genuine 🌱 What do you think sparked it?",
-          'I love noticing joy with you. How can you carry this feeling forward?',
-          'Hold onto that lightness. What does this happiness remind you of?'
-        ],
-        sad: [
-          'I hear the heaviness in that 💙 Do you want to talk more about it?',
-          "It's okay to feel low sometimes. What feels hardest right now?",
-          'You don’t have to rush feeling better. I’m here with you.'
-        ],
-        overwhelmed: [
-          "That sounds like a lot to hold at once. Let’s slow this down together.",
-          'You’re carrying many things right now. What’s one thing you can release?',
-          "Pause with me for a second. You’re not alone in this."
-        ],
-        stressed: [
-          "Stress can make everything feel louder. What’s the main pressure point?",
-          'Your body might be asking for gentleness right now.',
-          "Let’s breathe for a moment. What’s within your control today?"
-        ],
-        calm: [
-          'That calm feels grounding. What helped you arrive here?',
-          'Peace is precious. How does your body feel in this moment?',
-          'Notice this stillness — it’s a form of strength.'
-        ]
-      };
-
-      const genericResponses = [
-        'That sounds meaningful. What does that bring up for you?',
-        'I hear you. How does that make you feel?',
-        'Thank you for sharing that. What else is on your mind?',
-        'That’s worth exploring. What would help you feel steadier?',
-        'I’m listening. What feels most important right now?'
-      ];
-
-      const greetingResponses = [
-        'Hey, I’m glad you reached out. What’s on your mind today?',
-        'Hi there, I’m here with you. How are you feeling right now?',
-        'Hello 🌿 How are you doing, honestly?'
-      ];
-
-      const thanksResponses = [
-        'You’re welcome. I’m glad I could be here with you.',
-        'Thank you for trusting me with that.',
-        'Anytime. You don’t have to go through this alone.'
-      ];
-
-      const goodbyeResponses = [
-        'I’m glad we talked today. Take gentle care of yourself.',
-        'Thank you for spending this time with me. You can always come back.',
-        'I’m rooting for you, even between our chats.'
-      ];
-
-      const aboutBotResponses = [
-        'I’m here to listen, reflect, and support you as you sort through your thoughts.',
-        'I’m a chatbot designed to offer emotional support and gentle prompts.'
-      ];
-
-      const botFeelingResponses = [
-        'I don’t have feelings like humans do, but I’m here and focused on you.',
-        'I’m here for you, that’s what matters most to me right now.'
-      ];
-
-      const smallTalkResponses = [
-        'We can talk about anything—from big feelings to small everyday stuff. What’s on your mind?',
-        'If your day had a title right now, what would you call it?'
-      ];
-
-      const groundingResponses = [
-        'Let’s try something simple: can you name 3 things you can see around you?',
-        'Take one slow breath in and out. What’s one thing in this moment that feels even a little bit safe?'
-      ];
-
-      function detectEmotion(text) {
-        const t = text.toLowerCase();
-
-        if (t.includes('happy') || t.includes('excited') || t.includes('good'))
-          return 'happy';
-        if (t.includes('sad') || t.includes('down') || t.includes('low'))
-          return 'sad';
-        if (t.includes('overwhelmed') || t.includes('too much'))
-          return 'overwhelmed';
-        if (
-          t.includes('stressed') ||
-          t.includes('anxious') ||
-          t.includes('pressure')
-        )
-          return 'stressed';
-        if (
-          t.includes('calm') ||
-          t.includes('peaceful') ||
-          t.includes('relaxed')
-        )
-          return 'calm';
-
-        return null;
-      }
-
-      function detectIntent(text) {
-        const t = text.toLowerCase();
-
-        if (
-          /(^|\s)(hi|hello|hey|good morning|good night|good evening)(\W|$)/.test(
-            t
-          )
-        ) {
-          return 'greeting';
-        }
-        if (t.includes('thank you') || t.includes('thanks') || t.includes('thx')) {
-          return 'thanks';
-        }
-        if (
-          t.includes('bye') ||
-          t.includes('goodnight') ||
-          t.includes('good night') ||
-          t.includes('see you')
-        ) {
-          return 'goodbye';
-        }
-        if (
-          t.includes('who are you') ||
-          t.includes('what are you') ||
-          t.includes('what can you do')
-        ) {
-          return 'about_bot';
-        }
-        if (
-          (t.includes('how are you') || t.includes('hru')) &&
-          !t.includes('how am i')
-        ) {
-          return 'bot_feeling';
-        }
-        if (
-          t.includes('what are you doing') ||
-          t.includes('bored') ||
-          t.includes('talk to me')
-        ) {
-          return 'small_talk';
-        }
-        if (
-          t.includes('panic') ||
-          t.includes("can't breathe") ||
-          t.includes('freaking out')
-        ) {
-          return 'grounding';
-        }
-
-        return 'generic';
-      }
-
-      function chooseRandom(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
-      }
-
-      function addMessage(text, isUser = false) {
-        const div = document.createElement('div');
-        div.className = `chat-message flex ${
-          isUser ? 'justify-end' : 'justify-start'
-        }`;
-        div.innerHTML = `
-          <div
-            class="${
-              isUser
-                ? 'bg-[#2d2d2d] text-white'
-                : 'bg-white border border-[#e8e5dc]'
-            } rounded-3xl px-4 py-3 sm:px-6 sm:py-4 max-w-md shadow-sm"
-          >
-            <p class="text-sm leading-relaxed">${text}</p>
           </div>
-        `;
-        chatMessagesEl.appendChild(div);
-        chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
-      }
-
-      // ---------- TRACKER SUMMARY HELPERS ----------
-      function getTodayISO() {
-        return new Date().toISOString().split('T')[0];
-      }
-
-      function getRelativeDateISO(daysAgo) {
-        const d = new Date();
-        d.setDate(d.getDate() - daysAgo);
-        return d.toISOString().split('T')[0];
-      }
-
-      function summarizeTodosToday() {
-        const today = getTodayISO();
-        const todos = currentData.filter(
-          d => d.type === 'todo' && d.date === today
-        );
-
-        if (!todos.length) {
-          return 'You don’t have any to‑dos set for today.';
-        }
-
-        const done = todos.filter(t => t.completed);
-        const pending = todos.filter(t => !t.completed);
-
-        if (!pending.length) {
-          return `You’ve completed all ${todos.length} of your to‑dos for today.`;
-        }
-
-        if (!done.length) {
-          return `You have ${pending.length} to‑dos waiting for you today.`;
-        }
-
-        return `You’ve finished ${done.length} out of ${todos.length} to‑dos today, with ${pending.length} still open.`;
-      }
-
-      function summarizeTodosDue() {
-        const today = getTodayISO();
-        const tomorrow = getRelativeDateISO(-1);
-      }
-
-      function getTomorrowISO() {
-        const d = new Date();
-        d.setDate(d.getDate() + 1);
-        return d.toISOString().split('T')[0];
-      }
-
-      function summarizeTodosDueTodayTomorrow() {
-        const today = getTodayISO();
-        const tomorrow = getTomorrowISO();
-
-        const todosToday = currentData.filter(
-          d =>
-            d.type === 'todo' &&
-            d.effective_date === today &&
-            !d.completed
-        );
-        const todosTomorrow = currentData.filter(
-          d =>
-            d.type === 'todo' &&
-            d.effective_date === tomorrow &&
-            !d.completed
-        );
-
-        const namesToday = todosToday.map(t => t.content);
-        const namesTomorrow = todosTomorrow.map(t => t.content);
-
-        if (!namesToday.length && !namesTomorrow.length) {
-          return 'You don’t have anything due today or tomorrow.';
-        }
-
-        if (namesToday.length && namesTomorrow.length) {
-          return `Due today: ${namesToday.join(
-            ', '
-          )}. Due tomorrow: ${namesTomorrow.join(', ')}.`;
-        }
-
-        if (namesToday.length) {
-          return `You have these due today: ${namesToday.join(
-            ', '
-          )}. Nothing is due tomorrow yet.`;
-        }
-
-        return `Nothing is due today. Tomorrow you have: ${namesTomorrow.join(
-          ', '
-        )}.`;
-      }
-
-      function summarizeHabitsToday() {
-        const habits = currentData.filter(d => d.type === 'habit');
-        if (!habits.length) {
-          return 'You haven’t added any habits yet.';
-        }
-
-        const done = habits.filter(h => h.completed);
-        const pending = habits.filter(h => !h.completed);
-
-        if (!pending.length) {
-          return `All your habits are checked in for today (${done.length}/${habits.length}).`;
-        }
-
-        if (!done.length) {
-          return `None of your habits are checked in yet today (${habits.length} in total).`;
-        }
-
-        return `You’ve done ${done.length} out of ${
-          habits.length
-        } habits today. Still open: ${pending
-          .map(h => h.content)
-          .join(', ')}.`;
-      }
-
-      function summarizeMoodRecent(range) {
-        const moods = currentData.filter(d => d.type === 'mood');
-        if (!moods.length) {
-          return 'You haven’t logged any moods yet.';
-        }
-
-        const now = new Date();
-        const cutoff = new Date();
-
-        if (range === 'yesterday') {
-          const target = new Date();
-          target.setDate(target.getDate() - 1);
-          const iso = target.toISOString().split('T')[0];
-          const y = moods.filter(m => m.date === iso);
-          if (!y.length) {
-            return 'You didn’t log a mood yesterday.';
-          }
-          const labels = y.map(m => m.content);
-          return `Yesterday you logged: ${labels.join(', ')}.`;
-        }
-
-        if (range === '3days') {
-          cutoff.setDate(now.getDate() - 3);
-        } else if (range === 'week') {
-          cutoff.setDate(now.getDate() - 7);
-        } else {
-          cutoff.setDate(now.getDate() - 5);
-        }
-
-        const filtered = moods.filter(m => {
-          const d = new Date(m.date);
-          return d >= cutoff && d <= now;
-        });
-
-        if (!filtered.length) {
-          return 'There aren’t any mood entries in that period yet.';
-        }
-
-        const counts = {};
-        filtered.forEach(m => {
-          counts[m.content] = (counts[m.content] || 0) + 1;
-        });
-
-        const summary = Object.entries(counts)
-          .map(([name, count]) => `${name} (${count})`)
-          .join(', ');
-
-        if (range === '3days') {
-          return `In the last 3 days, your moods have been: ${summary}.`;
-        }
-        if (range === 'week') {
-          return `In the last week, your moods have been: ${summary}.`;
-        }
-        return `In the last few days, your moods have been: ${summary}.`;
-      }
-
-      function isTodoStatusQuestion(text) {
-        const t = text.toLowerCase();
-        return (
-          t.includes('what are my to do') ||
-          t.includes('what are my to-do') ||
-          t.includes('what do i have to do today') ||
-          t.includes('my tasks today') ||
-          t.includes('what is going on in my to do') ||
-          t.includes('how is my to do') ||
-          t.includes('how is my to-do')
-        );
-      }
-
-      function isTodoProgressQuestion(text) {
-        const t = text.toLowerCase();
-        return (
-          t.includes('what is my progress') ||
-          t.includes('progress of to-do') ||
-          t.includes('progress of to do') ||
-          t.includes('how much have i done today')
-        );
-      }
-
-      function isDueQuestion(text) {
-        const t = text.toLowerCase();
-        return (
-          t.includes('due today') ||
-          t.includes('due tomorrow') ||
-          t.includes('anything due today') ||
-          t.includes('anything due tomorrow') ||
-          t.includes('what is due today') ||
-          t.includes('what is due tomorrow')
-        );
-      }
-
-      function isHabitQuestion(text) {
-        const t = text.toLowerCase();
-        return (
-          t.includes('how are my habits') ||
-          t.includes('how is my habit') ||
-          t.includes('habit going') ||
-          t.includes('habits going')
-        );
-      }
-
-      function isMoodHistoryQuestion(text) {
-        const t = text.toLowerCase();
-        return (
-          t.includes('how has my mood been') ||
-          t.includes('how has been my mood') ||
-          t.includes('how is my mood going') ||
-          t.includes('my mood these days') ||
-          t.includes('mood last few days') ||
-          t.includes('mood last week') ||
-          t.includes('mood yesterday') ||
-          t.includes("yesterday's mood")
-        );
-      }
-
-      function resolveMoodRange(text) {
-        const t = text.toLowerCase();
-        if (t.includes('yesterday')) return 'yesterday';
-        if (
-          t.includes('three days') ||
-          t.includes('3 days') ||
-          t.includes('three days ago')
-        )
-          return '3days';
-        if (
-          t.includes('last week') ||
-          t.includes('one week') ||
-          t.includes('1 week')
-        )
-          return 'week';
-        return 'few';
-      }
-
-      // ------- CHATBOT REPLY -------
-      async function generateReply(message) {
-        const emotion = detectEmotion(message);
-        const intent = detectIntent(message);
-
-        if (isTodoStatusQuestion(message) || isTodoProgressQuestion(message)) {
-          return summarizeTodosToday();
-        }
-
-        if (isDueQuestion(message)) {
-          return summarizeTodosDueTodayTomorrow();
-        }
-
-        if (isHabitQuestion(message)) {
-          return summarizeHabitsToday();
-        }
-
-        if (isMoodHistoryQuestion(message)) {
-          const range = resolveMoodRange(message);
-          return summarizeMoodRecent(range);
-        }
-
-        if (intent === 'grounding') {
-          return chooseRandom(groundingResponses);
-        }
-        if (intent === 'greeting') {
-          return chooseRandom(greetingResponses);
-        }
-        if (intent === 'thanks') {
-          return chooseRandom(thanksResponses);
-        }
-        if (intent === 'goodbye') {
-          return chooseRandom(goodbyeResponses);
-        }
-        if (intent === 'about_bot') {
-          return chooseRandom(aboutBotResponses);
-        }
-        if (intent === 'bot_feeling') {
-          return chooseRandom(botFeelingResponses);
-        }
-        if (intent === 'small_talk') {
-          return chooseRandom(smallTalkResponses);
-        }
-
-        if (emotion && emotionResponses[emotion]) {
-          return chooseRandom(emotionResponses[emotion]);
-        }
-
-        return chooseRandom(genericResponses);
-      }
-
-      sendBtn.addEventListener('click', async () => {
-        const message = chatInput.value.trim();
-        if (!message) return;
-
-        addMessage(message, true);
-        chatInput.value = '';
-
-        setTimeout(async () => {
-          const reply = await generateReply(message);
-          addMessage(reply);
-        }, 800);
+        `);
       });
+    }
 
-      chatInput.addEventListener('keypress', e => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          sendBtn.click();
-        }
+    // Pending today (after 10 p.m.)
+    if (r.todo_pending_today && r.todo_pending_today.length) {
+      const list = r.todo_pending_today
+        .map(n => `<span class="font-medium">${n}</span>`)
+        .join(', ');
+      items.push(`
+          <div class="flex items-start gap-2">
+            <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#fbe7e3] text-[#8b5b68]">To‑Do</span>
+            <p class="flex-1">
+              You have pending tasks for today: ${list}.
+            </p>
+          </div>
+        `);
+    }
+
+    // Tomorrow’s tasks (all not completed for tomorrow)
+    if (r.todo_tomorrow && r.todo_tomorrow.length) {
+      const list = r.todo_tomorrow
+        .map(n => `<span class="font-medium">${n}</span>`)
+        .join(', ');
+      items.push(`
+          <div class="flex items-start gap-2">
+            <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#e4f0ff] text-[#4b607e]">To‑Do</span>
+            <p class="flex-1">
+              You have tasks due tomorrow: ${list}.
+            </p>
+          </div>
+        `);
+    }
+
+    // Habits not done
+    if (r.habits_not_done && r.habits_not_done.length) {
+      r.habits_not_done.forEach(name => {
+        items.push(`
+          <div class="flex items-start gap-2">
+            <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#e9f7ec] text-[#4a6b54]">Habit</span>
+            <p class="flex-1">
+              You haven’t checked in your habit today: <span class="font-medium">${name}</span>.
+            </p>
+          </div>
+        `);
       });
+    }
 
-      // ----- SINGLE-CLICK NAVIGATION -----
+    // Mood missing
+    if (r.show_mood_missing) {
+      items.push(`
+        <div class="flex items-start gap-2">
+          <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#fdf1d8] text-[#8b6b3a]">Mood</span>
+          <p class="flex-1">
+            You haven’t logged your mood today.
+          </p>
+        </div>
+      `);
+    }
+
+    if (!items.length) {
+      container.innerHTML = `
+        <p class="text-xs text-[#9b9b9b] italic">
+          No reminders right now. You’re all caught up.
+        </p>
+      `;
+    } else {
+      container.innerHTML = items.join('');
+    }
+  }
+
+  async function fetchReminders() {
+    try {
+      const res = await fetch('/api/reminders');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.isOk) return;
+      renderReminders(data);
+    } catch (e) {
+      // silent fail – keep last state
+    }
+  }
+
+  // ----- EVENT HANDLERS (kept but no longer used by dashboard previews) -----
+  function handleTodoToggle(e) {
+    const id = e.target.dataset.id;
+    const todo = currentData.find(d => d.id === id);
+    if (todo) {
+      todo.completed = !todo.completed;
+      renderTodos();
+    }
+  }
+
+  function handleHabitToggle(e) {
+    const btn = e.currentTarget;
+    const id = btn.dataset.id;
+    const habit = currentData.find(d => d.id === id);
+    if (habit) {
+      habit.completed = !habit.completed;
+      if (habit.completed) habit.streak++;
+      renderHabits();
+    }
+  }
+
+  // ----- REFLECTION CHAT -----
+  const chatMessagesEl = document.getElementById('chat-messages');
+  const chatInput = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('send-btn');
+
+  const emotionResponses = {
+    happy: [
+      "That happiness sounds genuine 🌱 What do you think sparked it?",
+      "I love noticing joy with you. How can you carry this feeling forward?",
+      "Hold onto that lightness. What does this happiness remind you of?"
+    ],
+    sad: [
+      "I hear the heaviness in that 💙 Do you want to talk more about it?",
+      "It's okay to feel low sometimes. What feels hardest right now?",
+      "You don’t have to rush feeling better. I’m here with you."
+    ],
+    overwhelmed: [
+      "That sounds like a lot to hold at once. Let’s slow this down together.",
+      "You’re carrying many things right now. What’s one thing you can release?",
+      "Pause with me for a second. You’re not alone in this."
+    ],
+    stressed: [
+      "Stress can make everything feel louder. What’s the main pressure point?",
+      "Your body might be asking for gentleness right now.",
+      "Let’s breathe for a moment. What’s within your control today?"
+    ],
+    calm: [
+      "That calm feels grounding. What helped you arrive here?",
+      "Peace is precious. How does your body feel in this moment?",
+      "Notice this stillness — it’s a form of strength."
+    ]
+  };
+
+  const genericResponses = [
+    "That sounds meaningful. What does that bring up for you?",
+    "I hear you. How does that make you feel?",
+    "Thank you for sharing that. What else is on your mind?",
+    "That’s worth exploring. What would help you feel steadier?",
+    "I’m listening. What feels most important right now?"
+  ];
+
+  const greetingResponses = [
+    "Hey, I’m glad you reached out. What’s on your mind today?",
+    "Hi there, I’m here with you. How are you feeling right now?",
+    "Hello 🌿 How are you doing, honestly?"
+  ];
+
+  const thanksResponses = [
+    "You’re welcome. I’m glad I could be here with you.",
+    "Thank you for trusting me with that.",
+    "Anytime. You don’t have to go through this alone."
+  ];
+
+  const goodbyeResponses = [
+    "I’m glad we talked today. Take gentle care of yourself.",
+    "Thank you for spending this time with me. You can always come back.",
+    "I’m rooting for you, even between our chats."
+  ];
+
+  const aboutBotResponses = [
+    "I’m here to listen, reflect, and support you as you sort through your thoughts.",
+    "I’m a chatbot designed to offer emotional support and gentle prompts."
+  ];
+
+  const botFeelingResponses = [
+    "I don’t have feelings like humans do, but I’m here and focused on you.",
+    "I’m here for you, that’s what matters most to me right now."
+  ];
+
+  const smallTalkResponses = [
+    "We can talk about anything—from big feelings to small everyday stuff. What’s on your mind?",
+    "If your day had a title right now, what would you call it?"
+  ];
+
+  const groundingResponses = [
+    "Let’s try something simple: can you name 3 things you can see around you?",
+    "Take one slow breath in and out. What’s one thing in this moment that feels even a little bit safe?"
+  ];
+
+  function detectEmotion(text) {
+    text = text.toLowerCase();
+
+    if (text.includes('happy') || text.includes('excited') || text.includes('good')) return 'happy';
+    if (text.includes('sad') || text.includes('down') || text.includes('low')) return 'sad';
+    if (text.includes('overwhelmed') || text.includes('too much')) return 'overwhelmed';
+    if (text.includes('stressed') || text.includes('anxious') || text.includes('pressure')) return 'stressed';
+    if (text.includes('calm') || text.includes('peaceful') || text.includes('relaxed')) return 'calm';
+
+    return null;
+  }
+
+  function detectIntent(text) {
+    const t = text.toLowerCase();
+
+    if (/(^|\s)(hi|hello|hey|good morning|good night|good evening)(\W|$)/.test(t)) {
+      return 'greeting';
+    }
+
+    if (t.includes('thank you') || t.includes('thanks') || t.includes('thx')) {
+      return 'thanks';
+    }
+
+    if (t.includes('bye') || t.includes('goodnight') || t.includes('good night') || t.includes('see you')) {
+      return 'goodbye';
+    }
+
+    if (t.includes('who are you') || t.includes('what are you') || t.includes('what can you do')) {
+      return 'about_bot';
+    }
+
+    if ((t.includes('how are you') || t.includes('hru')) && !t.includes('how am i')) {
+      return 'bot_feeling';
+    }
+
+    if (t.includes('what are you doing') || t.includes('bored') || t.includes('talk to me')) {
+      return 'small_talk';
+    }
+
+    if (t.includes('panic') || t.includes("can't breathe") || t.includes('freaking out')) {
+      return 'grounding';
+    }
+
+    return 'generic';
+  }
+
+  function chooseRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function addMessage(text, isUser = false) {
+    const div = document.createElement('div');
+    div.className = `chat-message flex ${isUser ? 'justify-end' : 'justify-start'}`;
+    div.innerHTML = `
+        <div class="${
+          isUser
+            ? 'bg-[#2d2d2d] text-white'
+            : 'bg-white border border-[#e8e5dc]'
+        } rounded-3xl px-4 py-3 sm:px-6 sm:py-4 max-w-md shadow-sm">
+          <p class="text-sm leading-relaxed">${text}</p>
+        </div>
+      `;
+    chatMessagesEl.appendChild(div);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+
+  // ---------- TRACKER SUMMARY HELPERS ----------
+  function getTodayISO() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  function getRelativeDateISO(daysAgo) {
+    const d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    return d.toISOString().split('T')[0];
+  }
+
+  function summarizeTodosToday() {
+    const today = getTodayISO();
+    const todos = currentData.filter(d => d.type === 'todo' && d.date === today);
+    if (!todos.length) {
+      return "You don’t have any to‑dos set for today.";
+    }
+
+    const done = todos.filter(t => t.completed);
+    const pending = todos.filter(t => !t.completed);
+
+    if (!pending.length) {
+      return `You’ve completed all ${todos.length} of your to‑dos for today.`;
+    }
+
+    if (!done.length) {
+      return `You have ${pending.length} to‑dos waiting for you today.`;
+    }
+
+    return `You’ve finished ${done.length} out of ${todos.length} to‑dos today, with ${pending.length} still open.`;
+  }
+
+  function summarizeTodosDue() {
+    const today = getTodayISO();
+    const tomorrow = getRelativeDateISO(-1); // kept for compatibility
+  }
+
+  function getTomorrowISO() {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split('T')[0];
+  }
+
+  function summarizeTodosDueTodayTomorrow() {
+  const today = getTodayISO();
+  const tomorrow = getTomorrowISO();
+
+  const todosToday = currentData.filter(
+    d =>
+      d.type === 'todo' &&
+      d.effective_date === today &&
+      !d.completed
+  );
+
+  const todosTomorrow = currentData.filter(
+    d =>
+      d.type === 'todo' &&
+      d.effective_date === tomorrow &&
+      !d.completed
+  );
+
+  const namesToday = todosToday.map(t => t.content);
+  const namesTomorrow = todosTomorrow.map(t => t.content);
+
+  if (!namesToday.length && !namesTomorrow.length) {
+    return "You don’t have anything due today or tomorrow.";
+  }
+
+  if (namesToday.length && namesTomorrow.length) {
+    return `Due today: ${namesToday.join(
+      ', '
+    )}. Due tomorrow: ${namesTomorrow.join(', ')}.`;
+  }
+
+  if (namesToday.length) {
+    return `You have these due today: ${namesToday.join(
+      ', '
+    )}. Nothing is due tomorrow yet.`;
+  }
+
+  return `Nothing is due today. Tomorrow you have: ${namesTomorrow.join(
+    ', '
+  )}.`;
+}
+
+
+  function summarizeHabitsToday() {
+    const habits = currentData.filter(d => d.type === 'habit');
+    if (!habits.length) {
+      return "You haven’t added any habits yet.";
+    }
+
+    const done = habits.filter(h => h.completed);
+    const pending = habits.filter(h => !h.completed);
+
+    if (!pending.length) {
+      return `All your habits are checked in for today (${done.length}/${habits.length}).`;
+    }
+
+    if (!done.length) {
+      return `None of your habits are checked in yet today (${habits.length} in total).`;
+    }
+
+    return `You’ve done ${done.length} out of ${habits.length} habits today. Still open: ${pending
+      .map(h => h.content)
+      .join(', ')}.`;
+  }
+
+  function summarizeMoodRecent(range) {
+    const moods = currentData.filter(d => d.type === 'mood');
+    if (!moods.length) {
+      return "You haven’t logged any moods yet.";
+    }
+
+    const now = new Date();
+    const cutoff = new Date();
+    if (range === 'yesterday') {
+      const target = new Date();
+      target.setDate(target.getDate() - 1);
+      const iso = target.toISOString().split('T')[0];
+      const y = moods.filter(m => m.date === iso);
+      if (!y.length) {
+        return "You didn’t log a mood yesterday.";
+      }
+      const labels = y.map(m => m.content);
+      return `Yesterday you logged: ${labels.join(', ')}.`;
+    }
+
+    if (range === '3days') {
+      cutoff.setDate(now.getDate() - 3);
+    } else if (range === 'week') {
+      cutoff.setDate(now.getDate() - 7);
+    } else {
+      cutoff.setDate(now.getDate() - 5);
+    }
+
+    const filtered = moods.filter(m => {
+      const d = new Date(m.date);
+      return d >= cutoff && d <= now;
+    });
+
+    if (!filtered.length) {
+      return "There aren’t any mood entries in that period yet.";
+    }
+
+    const counts = {};
+    filtered.forEach(m => {
+      counts[m.content] = (counts[m.content] || 0) + 1;
+    });
+
+    const summary = Object.entries(counts)
+      .map(([name, count]) => `${name} (${count})`)
+      .join(', ');
+
+    if (range === '3days') {
+      return `In the last 3 days, your moods have been: ${summary}.`;
+    }
+    if (range === 'week') {
+      return `In the last week, your moods have been: ${summary}.`;
+    }
+    return `In the last few days, your moods have been: ${summary}.`;
+  }
+
+  function isTodoStatusQuestion(text) {
+    const t = text.toLowerCase();
+    return (
+      t.includes("what are my to do") ||
+      t.includes("what are my to-do") ||
+      t.includes("what do i have to do today") ||
+      t.includes("my tasks today") ||
+      t.includes("what is going on in my to do") ||
+      t.includes("how is my to do") ||
+      t.includes("how is my to-do")
+    );
+  }
+
+  function isTodoProgressQuestion(text) {
+    const t = text.toLowerCase();
+    return (
+      t.includes("what is my progress") ||
+      t.includes("progress of to-do") ||
+      t.includes("progress of to do") ||
+      t.includes("how much have i done today")
+    );
+  }
+
+  function isDueQuestion(text) {
+    const t = text.toLowerCase();
+    return (
+      t.includes("due today") ||
+      t.includes("due tomorrow") ||
+      t.includes("anything due today") ||
+      t.includes("anything due tomorrow") ||
+      t.includes("what is due today") ||
+      t.includes("what is due tomorrow")
+    );
+  }
+
+  function isHabitQuestion(text) {
+    const t = text.toLowerCase();
+    return (
+      t.includes("how are my habits") ||
+      t.includes("how is my habit") ||
+      t.includes("habit going") ||
+      t.includes("habits going")
+    );
+  }
+
+  function isMoodHistoryQuestion(text) {
+    const t = text.toLowerCase();
+    return (
+      t.includes("how has my mood been") ||
+      t.includes("how has been my mood") ||
+      t.includes("how is my mood going") ||
+      t.includes("my mood these days") ||
+      t.includes("mood last few days") ||
+      t.includes("mood last week") ||
+      t.includes("mood yesterday") ||
+      t.includes("yesterday's mood")
+    );
+  }
+
+  function resolveMoodRange(text) {
+    const t = text.toLowerCase();
+    if (t.includes("yesterday")) return "yesterday";
+    if (t.includes("three days") || t.includes("3 days") || t.includes("three days ago")) return "3days";
+    if (t.includes("last week") || t.includes("one week") || t.includes("1 week")) return "week";
+    return "few";
+  }
+
+  // ------- CHATBOT REPLY (NO OVERLAP FOR TRACKER QUERIES) -------
+  async function generateReply(message) {
+    const emotion = detectEmotion(message);
+    const intent = detectIntent(message);
+
+    // tracker‑specific questions first, so they never get overridden by small talk etc.
+    if (isTodoStatusQuestion(message) || isTodoProgressQuestion(message)) {
+      return summarizeTodosToday();
+    }
+
+    if (isDueQuestion(message)) {
+      return summarizeTodosDueTodayTomorrow();
+    }
+
+    if (isHabitQuestion(message)) {
+      return summarizeHabitsToday();
+    }
+
+    if (isMoodHistoryQuestion(message)) {
+      const range = resolveMoodRange(message);
+      return summarizeMoodRecent(range);
+    }
+
+    // then intent-based
+    if (intent === 'grounding') {
+      return chooseRandom(groundingResponses);
+    }
+    if (intent === 'greeting') {
+      return chooseRandom(greetingResponses);
+    }
+    if (intent === 'thanks') {
+      return chooseRandom(thanksResponses);
+    }
+    if (intent === 'goodbye') {
+      return chooseRandom(goodbyeResponses);
+    }
+    if (intent === 'about_bot') {
+      return chooseRandom(aboutBotResponses);
+    }
+    if (intent === 'bot_feeling') {
+      return chooseRandom(botFeelingResponses);
+    }
+    if (intent === 'small_talk') {
+      return chooseRandom(smallTalkResponses);
+    }
+
+    // then emotion-based
+    if (emotion && emotionResponses[emotion]) {
+      return chooseRandom(emotionResponses[emotion]);
+    }
+
+    // fallback
+    return chooseRandom(genericResponses);
+  }
+
+  sendBtn.addEventListener('click', async () => {
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    addMessage(message, true);
+    chatInput.value = '';
+
+    setTimeout(async () => {
+      const reply = await generateReply(message);
+      addMessage(reply);
+    }, 800);
+  });
+
+  chatInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendBtn.click();
+    }
+  });
+
+  // ----- SINGLE-CLICK NAVIGATION -----
 document
   .getElementById('todo-list')
   .parentElement.addEventListener(
@@ -1319,13 +1259,15 @@ document
     () => (window.location = '/mood')
   );
 
-      // ----- INIT APP -----
-      renderTodos();
-      renderHabits();
-      renderMood();
-      fetchReminders();
-      setInterval(fetchReminders, 60000);
-    </script>
+
+  // ----- INIT APP -----
+  renderTodos();
+  renderHabits();
+  renderMood();
+  fetchReminders();
+  setInterval(fetchReminders, 60000);
+</script>
+
 
     <script>
       (function () {
@@ -1334,14 +1276,10 @@ document
           if (b) {
             var d = b.createElement('script');
             d.innerHTML =
-              "window.__CF$cv$params={r:'9c893772027eb2b3',t:'MTc3MDE5ODEzMi4wMDAwMDA='};" +
-              "var a=document.createElement('script');a.nonce='';" +
-              "a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';" +
-              "document.getElementsByTagName('head')[0].appendChild(a);";
-            b.getElementsByTagName('head')[0].appendChild(d);
+              "window.__CF$cv$params={r:'9c893772027eb2b3',t:'MTc3MDE5ODEzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+            b.getElementsByTagsName('head')[0].appendChild(d);
           }
         }
-
         if (document.body) {
           var a = document.createElement('iframe');
           a.height = 1;
@@ -1352,19 +1290,15 @@ document
           a.style.border = 'none';
           a.style.visibility = 'hidden';
           document.body.appendChild(a);
-
-          if (document.readyState !== 'loading') {
-            c();
-          } else if (window.addEventListener) {
+          if ('loading' !== document.readyState) c();
+          else if (window.addEventListener)
             document.addEventListener('DOMContentLoaded', c);
-          } else {
+          else {
             var e = document.onreadystatechange || function () {};
             document.onreadystatechange = function (b) {
               e(b);
-              if (document.readyState !== 'loading') {
-                document.onreadystatechange = e;
-                c();
-              }
+              'loading' !== document.readyState &&
+                ((document.onreadystatechange = e), c());
             };
           }
         }
@@ -1372,4 +1306,3 @@ document
     </script>
   </body>
 </html>
-
