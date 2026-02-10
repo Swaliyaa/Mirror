@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en" class="h-full">
- <head>
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Mirror - To-Do</title>
- 
+
   <link href="https://fonts.googleapis.com/css2?family=Homemade+Apple&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -262,136 +262,284 @@
       background: rgba(0, 0, 0, 0.04);
       color: rgba(0, 0, 0, 0.5);
     }
+
+    .sticker {
+      position: absolute;
+      border-radius: 999px;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      background: #ffe6ec;
+      color: #8b5b68;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+      border: 1px dashed rgba(139, 91, 104, 0.35);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .doodle-heart {
+      position: absolute;
+      font-size: 13px;
+      color: #e19aa5;
+      opacity: 0.85;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    @media (max-width: 768px) {
+      .sticker:not(.sticker-main),
+      .doodle-heart:not(.doodle-main) {
+        opacity: 0.6;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .sticker:not(.sticker-main),
+      .doodle-heart:not(.doodle-main) {
+        display: none;
+      }
+    }
   </style>
   <style>@view-transition { navigation: auto; }</style>
- </head>
- <!-- Chatbot -->
+</head>
+
+<!-- Chatbot -->
 <div id="mood-chatbot" class="fixed bottom-5 right-5 z-50">
-  <button id="chat-toggle" class="w-14 h-14 rounded-full bg-[#3d3a37] text-white text-xl shadow-lg">
+  <button
+    id="chat-toggle"
+    class="w-14 h-14 rounded-full bg-[#3d3a37] text-white text-xl shadow-lg flex items-center justify-center"
+  >
     💬
   </button>
 
-  <div id="chat-window" class="hidden w-72 h-96 bg-[#faf8f5] border border-ink rounded-xl shadow-xl flex flex-col overflow-hidden">
-    <div class="p-3 border-b border-ink text-sm ink-text font-semibold">
-      Mirror Companion
+  <!-- updated glassmorphism chat window -->
+  <div
+    id="chat-window"
+    class="hidden w-80 h-96 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-white/30 bg-white/10 backdrop-blur-xl"
+  >
+    <div class="px-4 py-3 border-b border-white/20 flex items-center justify-between">
+      <div class="text-xs font-semibold tracking-wide uppercase text-white/80">
+        Mirror Companion
+      </div>
+      <span class="text-[10px] text-white/60">soft check-in</span>
     </div>
 
-    <div id="chat-messages" class="flex-1 p-3 space-y-2 text-sm overflow-y-auto"></div>
+    <div
+      id="chat-messages"
+      class="flex-1 p-3 space-y-2 text-sm overflow-y-auto bg-gradient-to-b from-white/40 via-white/20 to-transparent"
+    >
+      <div class="chat-message flex justify-start">
+        <div
+          class="bg-white/80 border border-white/40 rounded-2xl px-3 py-2 text-[13px] text-[#2d2d2d] shadow-sm"
+        >
+          Hello. I'm here to listen. How are you feeling today?
+        </div>
+      </div>
+    </div>
+
+    <div class="px-3 py-3 border-t border-white/20 bg-white/30 backdrop-blur-sm">
+      <div class="flex items-center gap-2">
+        <input
+          id="chat-input"
+          type="text"
+          placeholder="Share what's on your mind..."
+          class="flex-1 text-xs px-3 py-2 rounded-full bg-white/70 border border-white/60 text-[#2d2d2d] focus:outline-none focus:ring-0"
+        >
+        <button
+          id="send-btn"
+          class="px-3 py-2 rounded-full text-xs font-medium bg-[#2d2d2d] text-white hover:bg-black/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Send
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
- <body class="h-full body-text">
+<body class="h-full body-text">
   <div class="paper-bg w-full h-full overflow-auto">
-   <div class="w-full px-12 py-10"><!-- Header -->
-    <div class="mb-8">
-     <div class="flex items-center gap-4 mb-2">
-      <div class="back-arrow text-2xl" style="color: rgba(0,0,0,0.4);" onclick="window.location.href='/dashboard';">
-       ←
+    <div class="w-full px-12 py-10 relative">
+      <div class="sticker sticker-main" style="top: 12px; left: 220px;">
+        today’s list
       </div>
-      <h1 id="page-title" class="handwritten text-3xl" style="color: #000;">To-Do</h1>
-     </div>
-     <p id="page-subtitle" class="text-sm ml-12" style="color: rgba(0,0,0,0.4); font-style: italic;">checking in with today</p>
-     <p class="text-xs ml-12 mt-1" style="color: rgba(0,0,0,0.3);" id="current-date"></p>
-    </div>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><!-- Main Content -->
-     <div class="lg:col-span-2 space-y-6"><!-- Add Task Card -->
-      <div class="journal-card p-6">
-       <h3 class="text-sm font-normal mb-4" style="color: rgba(0,0,0,0.6);">New Task</h3><textarea id="task-input" placeholder="What would you like to accomplish?" class="w-full px-3 py-2 text-sm mb-4 resize-none" rows="2" style="color: #000;"></textarea>
-       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><label class="block text-xs mb-1" style="color: rgba(0,0,0,0.5);">Category</label> <select id="category-select" class="w-full px-3 py-2 text-sm" style="color: #000;"> <option value="">None</option> <option value="work">Work</option> <option value="personal">Personal</option> <option value="health">Health</option> <option value="shopping">Shopping</option> <option value="other">Other</option> </select>
-        </div>
-        <div><label class="block text-xs mb-1" style="color: rgba(0,0,0,0.5);">Priority</label> <select id="priority-select" class="w-full px-3 py-2 text-sm" style="color: #000;"> <option value="">None</option> <option value="low">Low</option> <option value="medium">Medium</option> <option value="high">High</option> </select>
-        </div>
-       </div>
-       <div class="mb-4"><label class="block text-xs mb-1" style="color: rgba(0,0,0,0.5);">Due Date (optional)</label> <input type="date" id="due-date-input" class="w-full px-3 py-2 text-sm" style="color: #000;">
-       </div><button id="add-task-btn" class="btn-soft btn-primary w-full py-3 text-sm"> Add Task </button>
-      </div><!-- Filters -->
-      <div class="flex items-center gap-3 px-2"><span class="filter-btn active" data-filter="all">All</span> <span style="color: rgba(0,0,0,0.2);">·</span> <span class="filter-btn" data-filter="pending">Pending</span> <span style="color: rgba(0,0,0,0.2);">·</span> <span class="filter-btn" data-filter="completed">Completed</span>
-      </div><!-- Task List -->
-      <div id="task-list" class="space-y-3"><!-- Tasks appear here -->
-      </div><!-- Empty State -->
-      <div id="empty-state" class="journal-card p-12 text-center hidden">
-       <p class="text-sm" style="color: rgba(0,0,0,0.3); font-style: italic;">No tasks yet. Add one above to begin.</p>
+      <div class="doodle-heart doodle-main" style="top: 70px; left: 40px;">
+        ❤
       </div>
-     </div><!-- Sidebar -->
-     <div class="space-y-6"><!-- Progress -->
-      <div class="journal-card p-5">
-       <h3 class="text-sm font-normal mb-4" style="color: rgba(0,0,0,0.6);">Today's Progress</h3>
-       <div class="mb-3">
-        <div class="flex justify-between text-xs mb-2" style="color: rgba(0,0,0,0.5);"><span id="progress-text">0 completed / 0 total</span> <span id="progress-percent">0%</span>
-        </div>
-        <div class="progress-bar-bg">
-         <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
-        </div>
-       </div>
-      </div><!-- Quick Stats -->
-      <div class="journal-card p-5">
-       <h3 class="text-sm font-normal mb-4" style="color: rgba(0,0,0,0.6);">Quick Stats</h3>
-       <div class="space-y-3">
-        <div class="stat-card">
-         <div class="text-xs" style="color: rgba(0,0,0,0.5);">
-          High Priority Tasks
-         </div>
-         <div class="text-2xl font-light mt-1" style="color: #000;" id="stat-high-priority">
-          0
-         </div>
-        </div>
-        <div class="stat-card">
-         <div class="text-xs" style="color: rgba(0,0,0,0.5);">
-          Due Today
-         </div>
-         <div class="text-2xl font-light mt-1" style="color: #000;" id="stat-due-today">
-          0
-         </div>
-        </div>
-        <div class="stat-card">
-         <div class="text-xs" style="color: rgba(0,0,0,0.5);">
-          Overdue
-         </div>
-         <div class="text-2xl font-light mt-1" style="color: #000;" id="stat-overdue">
-          0
-         </div>
-        </div>
-       </div>
-      </div><!-- Quick Actions -->
-      <div class="journal-card p-5">
-       <h3 class="text-sm font-normal mb-4" style="color: rgba(0,0,0,0.6);">Quick Actions</h3>
-       <div class="space-y-2"><button id="clear-completed-btn" class="btn-soft w-full py-2 text-xs text-left px-3" style="color: rgba(0,0,0,0.7);"> Clear Completed Tasks </button> <button id="mark-all-btn" class="btn-soft w-full py-2 text-xs text-left px-3" style="color: rgba(0,0,0,0.7);"> Mark All as Complete </button> <button id="export-btn" class="btn-soft w-full py-2 text-xs text-left px-3" style="color: rgba(0,0,0,0.7);"> Export Tasks </button>
-       </div>
-      </div>
-     </div>
-    </div>
-   </div>
-  </div>
-<script>
-  
 
+      <div class="doodle-heart doodle-main" style="top: 80px; right: 60px;">
+        ❤
+      </div>
+
+      <div class="sticker" style="bottom: 40px; left: 260px;">
+        tiny wins
+      </div>
+
+      <div class="sticker" style="bottom: 50px; right: 220px;">
+        soft focus
+      </div>
+
+      <!-- Header -->
+      <div class="mb-8">
+        <div class="flex items-center gap-4 mb-2">
+          <div class="back-arrow text-2xl" style="color: rgba(0,0,0,0.4);" onclick="window.location.href='/dashboard';">
+            ←
+          </div>
+          <h1 id="page-title" class="handwritten text-3xl" style="color: #000;">To-Do</h1>
+        </div>
+        <p id="page-subtitle" class="text-sm ml-12" style="color: rgba(0,0,0,0.4); font-style: italic;">checking in with today</p>
+        <p class="text-xs ml-12 mt-1" style="color: rgba(0,0,0,0.3);" id="current-date"></p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Add Task Card -->
+          <div class="journal-card p-6">
+            <h3 class="text-sm font-normal mb-4" style="color: rgba(0,0,0,0.6);">New Task</h3>
+            <textarea
+              id="task-input"
+              placeholder="What would you like to accomplish?"
+              class="w-full px-3 py-2 text-sm mb-4 resize-none"
+              rows="2"
+              style="color: #000;"
+            ></textarea>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label class="block text-xs mb-1" style="color: rgba(0,0,0,0.5);">Category</label>
+                <select id="category-select" class="w-full px-3 py-2 text-sm" style="color: #000;">
+                  <option value="">None</option>
+                  <option value="work">Work</option>
+                  <option value="personal">Personal</option>
+                  <option value="health">Health</option>
+                  <option value="shopping">Shopping</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs mb-1" style="color: rgba(0,0,0,0.5);">Priority</label>
+                <select id="priority-select" class="w-full px-3 py-2 text-sm" style="color: #000;">
+                  <option value="">None</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="block text-xs mb-1" style="color: rgba(0,0,0,0.5);">Due Date (optional)</label>
+              <input type="date" id="due-date-input" class="w-full px-3 py-2 text-sm" style="color: #000;">
+            </div>
+            <button id="add-task-btn" class="btn-soft btn-primary w-full py-3 text-sm"> Add Task </button>
+          </div>
+
+          <!-- Filters -->
+          <div class="flex items-center gap-3 px-2">
+            <span class="filter-btn active" data-filter="all">All</span>
+            <span style="color: rgba(0,0,0,0.2);">·</span>
+            <span class="filter-btn" data-filter="pending">Pending</span>
+            <span style="color: rgba(0,0,0,0.2);">·</span>
+            <span class="filter-btn" data-filter="completed">Completed</span>
+          </div>
+
+          <!-- Task List -->
+          <div id="task-list" class="space-y-3">
+            <!-- Tasks appear here -->
+          </div>
+
+          <!-- Empty State -->
+          <div id="empty-state" class="journal-card p-12 text-center hidden">
+            <p class="text-sm" style="color: rgba(0,0,0,0.3); font-style: italic;">No tasks yet. Add one above to begin.</p>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+          <!-- Progress -->
+          <div class="journal-card p-5">
+            <h3 class="text-sm font-normal mb-4" style="color: rgba(0,0,0,0.6);">Today's Progress</h3>
+            <div class="mb-3">
+              <div class="flex justify-between text-xs mb-2" style="color: rgba(0,0,0,0.5);">
+                <span id="progress-text">0 completed / 0 total</span>
+                <span id="progress-percent">0%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="journal-card p-5">
+            <h3 class="text-sm font-normal mb-4" style="color: rgba(0,0,0,0.6);">Quick Stats</h3>
+            <div class="space-y-3">
+              <div class="stat-card">
+                <div class="text-xs" style="color: rgba(0,0,0,0.5);">
+                  High Priority Tasks
+                </div>
+                <div class="text-2xl font-light mt-1" style="color: #000;" id="stat-high-priority">
+                  0
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="text-xs" style="color: rgba(0,0,0,0.5);">
+                  Due Today
+                </div>
+                <div class="text-2xl font-light mt-1" style="color: #000;" id="stat-due-today">
+                  0
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="text-xs" style="color: rgba(0,0,0,0.5);">
+                  Overdue
+                </div>
+                <div class="text-2xl font-light mt-1" style="color: #000;" id="stat-overdue">
+                  0
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="journal-card p-5">
+            <h3 class="text-sm font-normal mb-4" style="color: rgba(0,0,0,0.6);">Quick Actions</h3>
+            <div class="space-y-2">
+              <button id="clear-completed-btn" class="btn-soft w-full py-2 text-xs text-left px-3" style="color: rgba(0,0,0,0.7);"> Clear Completed Tasks </button>
+              <button id="mark-all-btn" class="btn-soft w-full py-2 text-xs text-left px-3" style="color: rgba(0,0,0,0.7);"> Mark All as Complete </button>
+              <button id="export-btn" class="btn-soft w-full py-2 text-xs text-left px-3" style="color: rgba(0,0,0,0.7);"> Export Tasks </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
   let tasks = [];
   let currentFilter = "all";
 
   /* ---------- STORAGE ---------- */
-  
   async function loadTasks() {
-  try {
-    const res = await fetch("/api/todos");
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/todos");
+      const data = await res.json();
 
-    if (!data.isOk) throw new Error("Failed to load");
+      if (!data.isOk) throw new Error("Failed to load");
 
-    tasks = data.todos;
-    renderTasks();
-    updateStats();
-  } catch (err) {
-    console.error(err);
-    alert("Error loading tasks");
+      tasks = data.todos;
+      renderTasks();
+      updateStats();
+    } catch (err) {
+      console.error(err);
+      alert("Error loading tasks");
+    }
   }
-}
 
   /* ---------- INIT ---------- */
   function initApp() {
     loadTasks();
     updateCurrentDate();
-   
   }
 
   function updateCurrentDate() {
@@ -407,92 +555,88 @@
 
   /* ---------- TASK CRUD ---------- */
   async function addTask() {
-  const text = taskInput.value.trim();
-  if (!text) return;
+    const text = taskInput.value.trim();
+    if (!text) return;
 
-  const payload = {
-    id: Date.now().toString(),
-    text,
-    category: categorySelect.value || null,
-    priority: prioritySelect.value || null,
-    dueDate: dueDateInput.value || null,
-    createdAt: new Date().toISOString()
-  };
+    const payload = {
+      id: Date.now().toString(),
+      text,
+      category: categorySelect.value || null,
+      priority: prioritySelect.value || null,
+      dueDate: dueDateInput.value || null,
+      createdAt: new Date().toISOString()
+    };
 
-  try {
-    const res = await fetch("/api/todos", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+    try {
+      const res = await fetch("/api/todos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
 
-    const data = await res.json();
-    if (!data.isOk) throw new Error("Save failed");
+      const data = await res.json();
+      if (!data.isOk) throw new Error("Save failed");
 
-    tasks.unshift(payload);
-    renderTasks();
-    updateStats();
+      tasks.unshift(payload);
+      renderTasks();
+      updateStats();
 
-    taskInput.value = "";
-    categorySelect.value = "";
-    prioritySelect.value = "";
-    dueDateInput.value = "";
+      taskInput.value = "";
+      categorySelect.value = "";
+      prioritySelect.value = "";
+      dueDateInput.value = "";
 
-  } catch (err) {
-    console.error(err);
-    alert("Could not save task");
+    } catch (err) {
+      console.error(err);
+      alert("Could not save task");
+    }
   }
-}
 
+  async function toggleTask(id) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
 
- async function toggleTask(id) {
-  const task = tasks.find(t => t.id === id);
-  if (!task) return;
+    const updatedStatus = !task.completed;
 
-  const updatedStatus = !task.completed;
+    try {
+      const res = await fetch(`/api/todos/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed: updatedStatus })
+      });
 
-  try {
-    const res = await fetch(`/api/todos/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completed: updatedStatus })
-    });
+      const data = await res.json();
+      if (!data.isOk) throw new Error("Update failed");
 
-    const data = await res.json();
-    if (!data.isOk) throw new Error("Update failed");
+      task.completed = updatedStatus;
+      renderTasks();
+      updateStats();
+      triggerTodoResponse(updatedStatus ? "completed" : "unchecked");
 
-    task.completed = updatedStatus;
-    renderTasks();
-    updateStats();
-    triggerTodoResponse(updatedStatus ? "completed" : "unchecked");
-
-
-  } catch (err) {
-    console.error(err);
-    alert("Failed to update task");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update task");
+    }
   }
-}
-
 
   async function deleteTask(id) {
-  try {
-    const res = await fetch(`/api/todos/${id}`, {
-      method: "DELETE"
-    });
+    try {
+      const res = await fetch(`/api/todos/${id}`, {
+        method: "DELETE"
+      });
 
-    const data = await res.json();
-    if (!data.isOk) throw new Error("Delete failed");
+      const data = await res.json();
+      if (!data.isOk) throw new Error("Delete failed");
 
-    tasks = tasks.filter(t => t.id !== id);
-    renderTasks();
-    updateStats();
+      tasks = tasks.filter(t => t.id !== id);
+      renderTasks();
+      updateStats();
 
-  } catch (err) {
-    console.error(err);
-    alert("Failed to delete task");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete task");
+    }
   }
-}
-
 
   /* ---------- FILTER ---------- */
   function getFilteredTasks() {
@@ -558,42 +702,40 @@
 
   /* ---------- QUICK ACTIONS ---------- */
   async function clearCompleted() {
-  try {
-    const res = await fetch("/api/todos/clear-completed", {
-      method: "DELETE"
-    });
+    try {
+      const res = await fetch("/api/todos/clear-completed", {
+        method: "DELETE"
+      });
 
-    const data = await res.json();
-    if (!data.isOk) throw new Error();
+      const data = await res.json();
+      if (!data.isOk) throw new Error();
 
-    tasks = tasks.filter(t => !t.completed);
-    renderTasks();
-    updateStats();
+      tasks = tasks.filter(t => !t.completed);
+      renderTasks();
+      updateStats();
 
-  } catch (err) {
-    alert("Failed to clear completed tasks");
+    } catch (err) {
+      alert("Failed to clear completed tasks");
+    }
   }
-}
 
+  async function markAllComplete() {
+    try {
+      const res = await fetch("/api/todos/mark-all", {
+        method: "PUT"
+      });
 
- async function markAllComplete() {
-  try {
-    const res = await fetch("/api/todos/mark-all", {
-      method: "PUT"
-    });
+      const data = await res.json();
+      if (!data.isOk) throw new Error();
 
-    const data = await res.json();
-    if (!data.isOk) throw new Error();
+      tasks.forEach(t => t.completed = true);
+      renderTasks();
+      updateStats();
 
-    tasks.forEach(t => t.completed = true);
-    renderTasks();
-    updateStats();
-
-  } catch (err) {
-    alert("Failed to update tasks");
+    } catch (err) {
+      alert("Failed to update tasks");
+    }
   }
-}
-
 
   function exportTasks() {
     if (!tasks.length) return alert("No tasks to export");
@@ -640,63 +782,242 @@
       renderTasks();
     };
   });
-const todoResponses = {
-  completed: [
-    "Nice, that’s done 💛",
-    "One less thing to worry about.",
-    "That effort counts.",
-    "Progress looks good on you."
-  ],
-  unchecked: [
-    "All good — you can come back to it.",
-    "No pressure. Things shift.",
-    "Want to break it into a smaller step?",
-    "Pausing is allowed."
-  ]
-};
 
-function triggerTodoResponse(type) {
-  const responses = todoResponses[type];
-  if (!responses) return;
+  const todoResponses = {
+    completed: [
+      "Nice, that’s done 💛",
+      "One less thing to worry about.",
+      "That effort counts.",
+      "Progress looks good on you."
+    ],
+    unchecked: [
+      "All good — you can come back to it.",
+      "No pressure. Things shift.",
+      "Want to break it into a smaller step?",
+      "Pausing is allowed."
+    ]
+  };
 
-  const reply = responses[Math.floor(Math.random() * responses.length)];
+  function triggerTodoResponse(type) {
+    const responses = todoResponses[type];
+    if (!responses) return;
 
-  // open chatbot automatically
-  chatWindow.classList.remove('hidden');
-  chatWindow.classList.add('open'); 
+    const reply = responses[Math.floor(Math.random() * responses.length)];
 
-  setTimeout(() => {
-    addChatMessage(reply, 'bot');
-  }, 400);
-}
+    chatWindow.classList.remove('hidden');
+
+    setTimeout(() => {
+      addMessage(reply, false);
+    }, 400);
+  }
+
+  // ----- REFLECTION CHAT -----
+  const chatToggle = document.getElementById('chat-toggle');
+  const chatWindow = document.getElementById('chat-window');
+  const chatMessagesEl = document.getElementById('chat-messages');
+  const chatInputEl = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('send-btn');
+
+  const emotionResponses = {
+    happy: [
+      "That happiness sounds genuine 🌱 What do you think sparked it?",
+      "I love noticing joy with you. How can you carry this feeling forward?",
+      "Hold onto that lightness. What does this happiness remind you of?"
+    ],
+    sad: [
+      "I hear the heaviness in that 💙 Do you want to talk more about it?",
+      "It's okay to feel low sometimes. What feels hardest right now?",
+      "You don’t have to rush feeling better. I’m here with you."
+    ],
+    overwhelmed: [
+      "That sounds like a lot to hold at once. Let’s slow this down together.",
+      "You’re carrying many things right now. What’s one thing you can release?",
+      "Pause with me for a second. You’re not alone in this."
+    ],
+    stressed: [
+      "Stress can make everything feel louder. What’s the main pressure point?",
+      "Your body might be asking for gentleness right now.",
+      "Let’s breathe for a moment. What’s within your control today?"
+    ],
+    calm: [
+      "That calm feels grounding. What helped you arrive here?",
+      "Peace is precious. How does your body feel in this moment?",
+      "Notice this stillness — it’s a form of strength."
+    ]
+  };
+
+  const genericResponses = [
+    "That sounds meaningful. What does that bring up for you?",
+    "I hear you. How does that make you feel?",
+    "Thank you for sharing that. What else is on your mind?",
+    "That’s worth exploring. What would help you feel steadier?",
+    "I’m listening. What feels most important right now?"
+  ];
+
+  const greetingResponses = [
+    "Hey, I’m glad you reached out. What’s on your mind today?",
+    "Hi there, I’m here with you. How are you feeling right now?",
+    "Hello 🌿 How are you doing, honestly?"
+  ];
+
+  const thanksResponses = [
+    "You’re welcome. I’m glad I could be here with you.",
+    "Thank you for trusting me with that.",
+    "Anytime. You don’t have to go through this alone."
+  ];
+
+  const goodbyeResponses = [
+    "I’m glad we talked today. Take gentle care of yourself.",
+    "Thank you for spending this time with me. You can always come back.",
+    "I’m rooting for you, even between our chats."
+  ];
+
+  const aboutBotResponses = [
+    "I’m here to listen, reflect, and support you as you sort through your thoughts.",
+    "I’m a chatbot designed to offer emotional support and gentle prompts."
+  ];
+
+  const botFeelingResponses = [
+    "I don’t have feelings like humans do, but I’m here and focused on you.",
+    "I’m here for you, that’s what matters most to me right now."
+  ];
+
+  const smallTalkResponses = [
+    "We can talk about anything—from big feelings to small everyday stuff. What’s on your mind?",
+    "If your day had a title right now, what would you call it?"
+  ];
+
+  const groundingResponses = [
+    "Let’s try something simple: can you name 3 things you can see around you?",
+    "Take one slow breath in and out. What’s one thing in this moment that feels even a little bit safe?"
+  ];
+
+  function detectEmotion(text) {
+    text = text.toLowerCase();
+
+    if (text.includes('happy') || text.includes('excited') || text.includes('good')) return 'happy';
+    if (text.includes('sad') || text.includes('down') || text.includes('low')) return 'sad';
+    if (text.includes('overwhelmed') || text.includes('too much')) return 'overwhelmed';
+    if (text.includes('stressed') || text.includes('anxious') || text.includes('pressure')) return 'stressed';
+    if (text.includes('calm') || text.includes('peaceful') || text.includes('relaxed')) return 'calm';
+
+    return null;
+  }
+
+  function detectIntent(text) {
+    const t = text.toLowerCase();
+
+    if (/(^|\s)(hi|hello|hey|good morning|good night|good evening)(\W|$)/.test(t)) {
+      return 'greeting';
+    }
+
+    if (t.includes('thank you') || t.includes('thanks') || t.includes('thx')) {
+      return 'thanks';
+    }
+
+    if (t.includes('bye') || t.includes('goodnight') || t.includes('good night') || t.includes('see you')) {
+      return 'goodbye';
+    }
+
+    if (t.includes('who are you') || t.includes('what are you') || t.includes('what can you do')) {
+      return 'about_bot';
+    }
+
+    if ((t.includes('how are you') || t.includes('hru')) && !t.includes('how am i')) {
+      return 'bot_feeling';
+    }
+
+    if (t.includes('what are you doing') || t.includes('bored') || t.includes('talk to me')) {
+      return 'small_talk';
+    }
+
+    if (t.includes('panic') || t.includes("can't breathe") || t.includes('freaking out')) {
+      return 'grounding';
+    }
+
+    return 'generic';
+  }
+
+  function chooseRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function addMessage(text, isUser = false) {
+    const div = document.createElement('div');
+    div.className = `chat-message flex ${isUser ? 'justify-end' : 'justify-start'}`;
+    div.innerHTML = `
+      <div class="${
+        isUser
+          ? 'bg-[#2d2d2d] text-white'
+          : 'bg-white/80 border border-[#e8e5dc]'
+      } rounded-3xl px-4 py-3 max-w-[220px] text-[13px] leading-relaxed shadow-sm">
+        <p>${text}</p>
+      </div>
+    `;
+    chatMessagesEl.appendChild(div);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+
+  async function generateReply(message) {
+    const emotion = detectEmotion(message);
+    const intent = detectIntent(message);
+
+    if (intent === 'grounding') {
+      return chooseRandom(groundingResponses);
+    }
+    if (intent === 'greeting') {
+      return chooseRandom(greetingResponses);
+    }
+    if (intent === 'thanks') {
+      return chooseRandom(thanksResponses);
+    }
+    if (intent === 'goodbye') {
+      return chooseRandom(goodbyeResponses);
+    }
+    if (intent === 'about_bot') {
+      return chooseRandom(aboutBotResponses);
+    }
+    if (intent === 'bot_feeling') {
+      return chooseRandom(botFeelingResponses);
+    }
+    if (intent === 'small_talk') {
+      return chooseRandom(smallTalkResponses);
+    }
+
+    if (emotion && emotionResponses[emotion]) {
+      return chooseRandom(emotionResponses[emotion]);
+    }
+
+    return chooseRandom(genericResponses);
+  }
+
+  chatToggle.addEventListener('click', () => {
+    chatWindow.classList.toggle('hidden');
+  });
+
+  sendBtn.addEventListener('click', async () => {
+    const message = chatInputEl.value.trim();
+    if (!message) return;
+
+    addMessage(message, true);
+    chatInputEl.value = '';
+
+    setTimeout(async () => {
+      const reply = await generateReply(message);
+      addMessage(reply, false);
+    }, 800);
+  });
+
+  chatInputEl.addEventListener('keypress', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendBtn.click();
+    }
+  });
 
   initApp();
-const chatToggle = document.getElementById('chat-toggle');
-const chatWindow = document.getElementById('chat-window');
-const chatMessages = document.getElementById('chat-messages');
-
-chatToggle.addEventListener('click', () => {
-  chatWindow.classList.toggle('hidden');
-
-  if (!chatWindow.classList.contains('hidden') && chatMessages.children.length === 0) {
-    addChatMessage("I’m here if you need me 💬", 'bot');
-  }
-});
-
-function addChatMessage(text, from = 'bot') {
-  const div = document.createElement('div');
-  div.className =
-    from === 'bot'
-      ? 'bg-white/60 p-2 rounded ink-text'
-      : 'text-right ink-text';
-  div.textContent = text;
-  chatMessages.appendChild(div);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-
 </script>
 
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c88e72cc66ab2b3',t:'MTc3MDE5NDg0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c88e72cc66ab2b3',t:'MTc3MDE5NDg0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body>
 </html>
