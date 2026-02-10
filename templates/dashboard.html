@@ -350,22 +350,7 @@
                   >
                     <!-- Tasks will be rendered here -->
                   </div>
-                  <div class="pt-3 sm:pt-4 border-t border-[#e8e5dc]">
-                    <div class="flex flex-col sm:flex-row gap-2">
-                      <input
-                        type="text"
-                        id="todo-input"
-                        placeholder="Add intention..."
-                        class="flex-1 px-4 py-2 rounded-full border border-[#d4d1c8] bg-white text-[#2d2d2d] text-sm focus:outline-none focus:border-[#8b8982]"
-                      >
-                      <button
-                        id="add-todo-btn"
-                        class="w-full sm:w-auto px-5 py-2 bg-[#2d2d2d] text-[#f5f1e8] rounded-full text-sm hover:bg-[#1a1a1a] transition-colors"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
+                  
                 </div>
 
                 <!-- Habit Tracker -->
@@ -528,7 +513,7 @@
             ${todo.content}
           </p>
           <p class="text-[11px] text-[#9b9b9b] mt-0.5">
-            ${todo.completed ? 'Completed' : 'Still open'}
+            ${todo.completed ? 'Completed' : 'Not completed yet'}
           </p>
         </div>
       </div>
@@ -645,30 +630,7 @@
         }
       }
 
-      // ----- ADD NEW TODOS (local only, as before) -----
-      document
-        .getElementById('add-todo-btn')
-        .addEventListener('click', () => {
-          const input = document.getElementById('todo-input');
-          const content = input.value.trim();
-          if (!content) return;
-
-          currentData.push({
-            id: `todo-${Date.now()}`,
-            type: 'todo',
-            content,
-            completed: false
-          });
-          input.value = '';
-          renderTodos();
-        });
-
-      document
-        .getElementById('todo-input')
-        .addEventListener('keypress', e => {
-          if (e.key === 'Enter')
-            document.getElementById('add-todo-btn').click();
-        });
+      // (add-todo JS removed because add controls were removed from UI)
 
       // ----- REFLECTION CHAT -----
       const chatMessagesEl = document.getElementById('chat-messages');
@@ -902,7 +864,7 @@
             var d = b.createElement('script');
             d.innerHTML =
               "window.__CF$cv$params={r:'9c893772027eb2b3',t:'MTc3MDE5ODEzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
-            b.getElementsByTagName('head')[0].appendChild(d);
+            b.getElementsByTagsName('head')[0].appendChild(d);
           }
         }
         if (document.body) {
@@ -931,5 +893,3 @@
     </script>
   </body>
 </html>
-
-
