@@ -475,7 +475,6 @@
   ]
 };
 
-
   const genericResponses = [
     "I’m here with you 🤍",
     "Thank you for checking in.",
@@ -974,6 +973,92 @@
     chatWindow.classList.toggle('hidden');
   });
 
+  // 1️⃣ Mood-based advice mapping
+  const moodAdvices = {
+    Happy: [
+      "Celebrate your wins: write down 3 things that made you happy today.",
+      "Share your joy with someone you care about.",
+      "Keep this energy by doing a small act of kindness."
+    ],
+    Calm: [
+      "Spend 10 minutes in mindful breathing or meditation.",
+      "Write down what is giving you peace to reinforce it.",
+      "Take a slow walk outside to stay grounded."
+    ],
+    Sad: [
+      "Allow yourself to feel it, but also try journaling one thing you’re grateful for.",
+      "Reach out to a trusted friend or family member and talk.",
+      "Do a small self-care activity: shower, music, or tea."
+    ],
+    Anxious: [
+      "Try 4-7-8 breathing: inhale 4s, hold 7s, exhale 8s.",
+      "Write down what's on your mind to release it.",
+      "Break tasks into tiny steps—focus on one small thing first."
+    ],
+    Stressed: [
+      "Stretch or move your body for 5–10 minutes.",
+      "Make a tiny to-do list and prioritize 1–2 things.",
+      "Listen to calming music or a guided meditation."
+    ],
+    Frustrated: [
+      "Take a short break and walk away from the trigger.",
+      "Write down what’s bothering you to release tension.",
+      "Do a physical release: punch a pillow or do push-ups."
+    ],
+    Tired: [
+      "Allow yourself a nap or rest without guilt.",
+      "Hydrate and eat a light snack to restore energy.",
+      "Do a 5-minute gentle stretch to wake up body and mind."
+    ],
+    Grateful: [
+      "Write a thank-you note or message to someone you appreciate.",
+      "Reflect on the things you’re grateful for before sleep.",
+      "Share your gratitude with someone—it multiplies the feeling."
+    ],
+    Excited: [
+      "Channel energy into a small productive task.",
+      "Plan the next step for whatever excites you.",
+      "Write down what you’re looking forward to so you can track it."
+    ],
+    Neutral: [
+      "Take a mindful pause and notice your surroundings.",
+      "Check in with your body—maybe a stretch or walk.",
+      "Use this calm state to plan or organize small tasks."
+    ]
+  };
+
+  // 2️⃣ Detect trigger phrases for advice
+  function isAskingForAdvice(input) {
+    const phrases = [
+      "what do i do",
+      "how to handle",
+      "advice for this",
+      "how to deal"
+    ];
+    const lower = input.toLowerCase();
+    return phrases.some(p => lower.includes(p));
+  }
+
+  // 3️⃣ Provide advice based on latest mood entry
+  function giveMoodAdvice() {
+    if (!allEntries || allEntries.length === 0) {
+      return "I need to know your mood first!";
+    }
+
+    const latest = allEntries
+      .slice()
+      .sort((a, b) => b.timestamp - a.timestamp)[0];
+
+    const latestMood = latest.mood_name;
+    const advices = moodAdvices[latestMood];
+
+    if (!advices) {
+      return "Hmm, I don't have specific advice for this mood yet.";
+    }
+
+    return advices[Math.floor(Math.random() * advices.length)];
+  }
+
   sendBtn.addEventListener('click', async () => {
     const userText = chatInput.value.trim();
     if (!userText) return;
@@ -981,7 +1066,12 @@
     addChatMessage(userText, 'user');
 
     setTimeout(async () => {
-      const reply = await generateReplyFromFreeText(userText);
+      let reply;
+      if (isAskingForAdvice(userText)) {
+        reply = giveMoodAdvice();
+      } else {
+        reply = await generateReplyFromFreeText(userText);
+      }
       addChatMessage(reply, 'bot');
     }, 700);
   });
