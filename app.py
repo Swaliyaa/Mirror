@@ -182,7 +182,7 @@ def dashboard():
 
     # --- Fetch todos ---
     cursor.execute(
-        "SELECT * FROM todo WHERE user_id=%s ORDER BY created_at DESC LIMIT 3",
+        "SELECT * FROM todo WHERE user_id=%s ORDER BY created_at DESC LIMIT 5",
         (user_id,)
     )
     for t in cursor.fetchall():
@@ -205,12 +205,22 @@ def dashboard():
         except (json.JSONDecodeError, TypeError):
             history = {}
 
+        streak = 0
+        d = today_date
+        while True:
+            key = d.strftime("%Y-%m-%d")
+            if history.get(key):
+                streak += 1
+                d = d - timedelta(days=1)
+            else:
+                break
+
         habits_list.append({
             "id": h["id"],
             "type": "habit",
             "content": h["name"],
-            "streak": 0,  # can calculate later if you add streak logic
-            "completed": history.get(today, False)
+            "streak": streak,
+            "completed": history.get(today_date.strftime("%Y-%m-%d"), False)
         })
 
     # --- Fetch moods ---
@@ -584,4 +594,5 @@ def summary_recent_moods():
         "entries": rows,
         "counts": mood_counts
     })
+
 
