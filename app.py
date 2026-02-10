@@ -28,7 +28,10 @@ BASE_URL = os.environ.get("BASE_URL", "http://localhost:5000")
 # DATABASE CONNECTION
 # ----------------------------
 def get_db_connection():
-    return psycopg2.connect(os.environ["DATABASE_URL"])
+    return psycopg2.connect(
+    os.environ["DATABASE_URL"],
+    sslmode="require"
+)
 
 
 # ----------------------------
@@ -348,16 +351,22 @@ def dashboard():
     todos_list, habits_list, mood_list = [], [], []
 
     # --- Fetch todos ---
-    cursor.execute(
-        "SELECT * FROM todo WHERE user_id=%s ORDER BY created_at DESC LIMIT 5",
-        (user_id,)
-    )
+    cursor.execute("""
+    SELECT id, text, completed,
+           COALESCE(due_date::date, created_at::date, CURRENT_DATE) AS effective_date
+    FROM todo
+    WHERE user_id=%s
+    ORDER BY created_at DESC
+    LIMIT 5
+""", (user_id,))
+
     for t in cursor.fetchall():
         todos_list.append({
             "id": t["id"],
             "type": "todo",
             "content": t["text"],
-            "completed": bool(t["completed"])
+            "completed": bool(t["completed"]),
+            "date": t["effective_date"].isoformat()
         })
 
         # --- Fetch habits ---
@@ -403,7 +412,8 @@ def dashboard():
             "id": m["id"],
             "type": "mood",
             # keep exact mood_name (e.g. "Happy") to match dashboard buttons
-            "content": m["mood_name"]
+            "content": m["mood_name"],
+            "date": m["date"].isoformat()
         })
 
     cursor.close()
@@ -803,10 +813,13 @@ def api_reminders():
     todos = cursor.fetchall()
 
     # tasks due today/tomorrow
-    due_today = [t for t in todos if t["effective_date"] == today]
-    due_tomorrow = [t for t in todos if t["effective_date"] == tomorrow]
+    due_today = [t for t in todos if t["effective_date"] == today and not t["completed"]]
+    due_tomorrow = [t for t in todos if t["effective_date"] == tomorrow and not t["completed"]]
 
-    pending_today = [t for t in due_today if not t["completed"]]
+    pending_today = due_today
+
+
+
 
     # --- Habit data ---
     cursor.execute("SELECT id, name, completion_history FROM habit WHERE user_id = %s", (user_id,))
