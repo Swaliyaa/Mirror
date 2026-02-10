@@ -123,11 +123,8 @@ with app.app_context():
 # EMAIL HELPER
 # ----------------------------
 def send_reset_email(to_email, reset_link):
-    """
-    Send a password reset email via Gmail SMTP using an App Password.
-    """
     if not GMAIL_USER or not GMAIL_APP_PASSWORD:
-        print("Gmail env vars not set; cannot send email.")
+        print("Gmail env vars not set; cannot send email.", flush=True)
         return
 
     subject = "Reset your password - The Mirror"
@@ -135,7 +132,7 @@ def send_reset_email(to_email, reset_link):
 
 We received a request to reset the password for your account on The Mirror.
 
-To reset your password, click this link (or paste it into your browser):
+To reset your password, click this link:
 
 {reset_link}
 
@@ -149,10 +146,16 @@ If you did not request this, you can safely ignore this email.
     msg["From"] = GMAIL_USER
     msg["To"] = to_email
 
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=10)
+        server.starttls()
         server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
         server.sendmail(GMAIL_USER, [to_email], msg.as_string())
+        server.quit()
+        print("Reset email sent successfully", flush=True)
 
+    except Exception as e:
+        print("SMTP ERROR:", e, flush=True)
 
 # ----------------------------
 # STATIC ROUTES
@@ -772,3 +775,4 @@ def summary_recent_moods():
         "entries": rows,
         "counts": mood_counts
     })
+
