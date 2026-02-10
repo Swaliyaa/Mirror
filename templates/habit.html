@@ -7,7 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Homemade+Apple&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    /* your existing CSS exactly as-is */
     body { box-sizing: border-box; }
     .handwritten { font-family: 'Homemade Apple', cursive; }
     .body-text { font-family: 'Inter', sans-serif; font-weight: 300; }
@@ -156,6 +155,38 @@
       animation: spin 0.6s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    .sticker {
+      position: absolute;
+      border-radius: 999px;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      background-color: #ffe6ec;
+      color: #8b5b68;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+      border: 1px dashed rgba(139, 91, 104, 0.35);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .doodle-heart {
+      position: absolute;
+      font-size: 13px;
+      color: #e19aa5;
+      opacity: 0.9;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    @media (max-width: 640px) {
+      .sticker:not(.sticker-main),
+      .doodle-heart:not(.doodle-main) {
+        display: none;
+      }
+    }
   </style>
   <style>@view-transition { navigation: auto; }</style>
 </head>
@@ -163,26 +194,108 @@
 <body class="h-full body-text overflow-auto">
   <!-- Chatbot -->
   <div id="habit-chatbot" class="fixed bottom-5 right-5 z-50">
-    <button id="chat-toggle" class="w-14 h-14 rounded-full bg-[#3d3a37] text-white text-xl shadow-lg">
+    <button
+      id="chat-toggle"
+      class="w-14 h-14 rounded-full bg-[#3d3a37] text-white text-xl shadow-lg flex items-center justify-center"
+    >
       💬
     </button>
 
-    <div id="chat-window"
-      class="hidden w-72 h-96 bg-[#faf8f5] border border-gray-700 rounded-xl shadow-xl flex flex-col overflow-hidden">
-      <div class="p-3 border-b border-gray-700 text-sm font-semibold">
-        Mirror Companion
+    <div
+      id="chat-window"
+      class="hidden w-80 h-96 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-white/30 bg-white/10 backdrop-blur-xl"
+    >
+      <div class="px-4 py-3 border-b border-white/20 flex items-center justify-between">
+        <div class="text-xs font-semibold tracking-wide uppercase text-white/80">
+          Mirror Companion
+        </div>
+        <span class="text-[10px] text-white/60">habit check-in</span>
       </div>
-      <div id="chat-messages" class="flex-1 p-3 space-y-2 text-sm overflow-y-auto"></div>
-      <div class="p-2 border-t border-gray-700">
-        <input id="chat-input" type="text" placeholder="Type here..."
-          class="w-full px-2 py-1 border border-gray-700 rounded text-sm focus:outline-none">
+
+      <div
+        id="chat-messages"
+        class="flex-1 p-3 space-y-2 text-sm overflow-y-auto bg-gradient-to-b from-white/40 via-white/20 to-transparent"
+      >
+        <div class="chat-message flex justify-start">
+          <div
+            class="bg-white/80 border border-white/40 rounded-2xl px-3 py-2 text-[13px] text-[#2d2d2d] shadow-sm"
+          >
+            Hey, I’m here with you while you build these habits. How are you feeling about today?
+          </div>
+        </div>
+      </div>
+
+      <div class="px-3 py-3 border-t border-white/20 bg-white/30 backdrop-blur-sm">
+        <div class="flex items-center gap-2">
+          <input
+            id="chat-input"
+            type="text"
+            placeholder="Share how your habits feel today..."
+            class="flex-1 text-xs px-3 py-2 rounded-full bg-white/70 border border-white/60 text-[#2d2d2d] focus:outline-none focus:ring-0"
+          >
+          <button
+            id="send-btn"
+            class="px-3 py-2 rounded-full text-xs font-medium bg-[#2d2d2d] text-white hover:bg-black/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Send
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Main content (unchanged markup) -->
+  <!-- Main content -->
   <div class="paper-texture min-h-full w-full">
-    <div class="w-full px-4 sm:px-6 py-8">
+    <div class="w-full px-4 sm:px-6 py-8 relative">
+      <!-- stickers + hearts -->
+      <div class="sticker sticker-main" style="top: 10px; left: 200px;">
+        today’s habits
+      </div>
+
+      <div class="doodle-heart doodle-main" style="top: 70px; left: 24px;">
+        ❤
+      </div>
+
+      <div class="doodle-heart doodle-main" style="top: 80px; right: 32px;">
+        ❤
+      </div>
+
+      <div class="sticker" style="bottom: -400px; left: 18px;">
+        tiny streak
+      </div>
+
+      <div class="sticker" style="top: 25px; right: 200px;">
+        keep showing up
+      </div>
+
+      <div class="doodle-heart" style="top: 190px; left: 60px;">
+        ❤
+      </div>
+
+      <div class="doodle-heart" style="top: 210px; right: 80px;">
+        ❤
+      </div>
+
+      <div class="doodle-heart" style="bottom: 40px; left: 900px;">
+        ❤
+      </div>
+
+      <div class="sticker" style="bottom: -200px; right: 48px;">
+        gentle effort
+      </div>
+
+      <div class="doodle-heart" style="bottom: -300px; left: 500px;">
+        ❤
+      </div>
+
+      <div class="doodle-heart" style="bottom: -150px; right: 90px;">
+        ❤
+      </div>
+
+      <div class="doodle-heart" style="bottom: -250px; right: 120px;">
+        ❤
+      </div>
+
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center gap-3 mb-2">
@@ -268,7 +381,7 @@
     </div>
   </div>
 
-  <!-- Add Habit Modal (unchanged layout) -->
+  <!-- Add Habit Modal -->
   <div id="modal-overlay" class="modal-overlay items-center justify-center">
     <div class="modal-content">
       <h2 class="handwritten text-2xl text-gray-900 mb-6">New Habit</h2>
@@ -318,500 +431,654 @@
     </div>
   </div>
 
-  <script>
-    const defaultConfig = {
-      page_title: 'Habits',
-      page_subtitle: 'showing up, one day at a time',
-      today_section_title: "Today's Habits",
-      progress_title: "Today's Progress",
-      weekly_title: 'Weekly Overview',
-      streaks_title: 'Current Streaks',
-      insights_title: 'Insights'
-    };
+<script>
+  const defaultConfig = {
+    page_title: 'Habits',
+    page_subtitle: 'showing up, one day at a time',
+    today_section_title: "Today's Habits",
+    progress_title: "Today's Progress",
+    weekly_title: 'Weekly Overview',
+    streaks_title: 'Current Streaks',
+    insights_title: 'Insights'
+  };
 
-    let habits = [];
-    let selectedIcon = '🌱';
+  let habits = [];
+  let selectedIcon = '🌱';
 
-    function getTodayString() {
-      return new Date().toISOString().split('T')[0];
+  function getTodayString() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  function parseCompletionHistory(history) {
+    if (!history) return {};
+    if (typeof history === 'object') return history;
+    try {
+      const parsed = JSON.parse(history);
+      return typeof parsed === 'object' ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function isCompletedToday(habit) {
+    const history = parseCompletionHistory(habit.completion_history);
+    return history[getTodayString()] === true;
+  }
+
+  function calculateStreak(habit) {
+    const history = parseCompletionHistory(habit.completion_history);
+    const dates = Object.keys(history).filter(d => history[d]).sort().reverse();
+    if (dates.length === 0) return 0;
+
+    const today = getTodayString();
+    let streak = 0;
+    let currentDate = new Date();
+
+    if (history[today]) {
+      streak = 1;
+      currentDate.setDate(currentDate.getDate() - 1);
+    } else {
+      const mostRecent = dates[0];
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayString = yesterday.toISOString().split('T')[0];
+      if (mostRecent !== yesterdayString) return 0;
+      streak = 1;
+      currentDate = yesterday;
+      currentDate.setDate(currentDate.getDate() - 1);
     }
 
-    function parseCompletionHistory(history) {
-      if (!history) return {};
-      if (typeof history === 'object') return history;
-      try {
-        const parsed = JSON.parse(history);
-        return typeof parsed === 'object' ? parsed : {};
-      } catch {
-        return {};
-      }
-    }
-
-    function isCompletedToday(habit) {
-      const history = parseCompletionHistory(habit.completion_history);
-      return history[getTodayString()] === true;
-    }
-
-    function calculateStreak(habit) {
-      const history = parseCompletionHistory(habit.completion_history);
-      const dates = Object.keys(history).filter(d => history[d]).sort().reverse();
-      if (dates.length === 0) return 0;
-
-      const today = getTodayString();
-      let streak = 0;
-      let currentDate = new Date();
-
-      if (history[today]) {
-        streak = 1;
+    while (true) {
+      const dateString = currentDate.toISOString().split('T')[0];
+      if (history[dateString]) {
+        streak++;
         currentDate.setDate(currentDate.getDate() - 1);
       } else {
-        const mostRecent = dates[0];
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayString = yesterday.toISOString().split('T')[0];
-        if (mostRecent !== yesterdayString) return 0;
-        streak = 1;
-        currentDate = yesterday;
-        currentDate.setDate(currentDate.getDate() - 1);
+        break;
       }
-
-      while (true) {
-        const dateString = currentDate.toISOString().split('T')[0];
-        if (history[dateString]) {
-          streak++;
-          currentDate.setDate(currentDate.getDate() - 1);
-        } else {
-          break;
-        }
-      }
-      return streak;
     }
+    return streak;
+  }
 
-    function getLast7Days() {
-      const days = [];
-      for (let i = 0; i < 7; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        days.push(date.toISOString().split('T')[0]);
-      }
-      return days;
+  function getLast7Days() {
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      days.push(date.toISOString().split('T')[0]);
     }
+    return days;
+  }
 
-    function calculateWeeklyRate(habits) {
-      if (habits.length === 0) return 0;
-      const last7 = getLast7Days();
-      let totalPossible = 0;
-      let totalCompleted = 0;
-      habits.forEach(h => {
-        const history = parseCompletionHistory(h.completion_history);
-        last7.forEach(day => {
-          totalPossible++;
-          if (history[day]) totalCompleted++;
-        });
+  function calculateWeeklyRate(habits) {
+    if (habits.length === 0) return 0;
+    const last7 = getLast7Days();
+    let totalPossible = 0;
+    let totalCompleted = 0;
+    habits.forEach(h => {
+      const history = parseCompletionHistory(h.completion_history);
+      last7.forEach(day => {
+        totalPossible++;
+        if (history[day]) totalCompleted++;
       });
-      return totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
+    });
+    return totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
+  }
+
+  function calculateCompletionRate(habit) {
+    const history = parseCompletionHistory(habit.completion_history);
+    const dates = Object.keys(history);
+    if (dates.length === 0) return 0;
+    const completedDays = dates.filter(d => history[d]).length;
+    return Math.round((completedDays / dates.length) * 100);
+  }
+
+  async function loadHabits() {
+    try {
+      const res = await fetch("/api/habits");
+      if (!res.ok) throw new Error("Failed to fetch habits");
+      habits = await res.json();
+      renderHabits();
+      updateProgress();
+      updateWeeklyOverview();
+      updateStreaks();
+      updateInsights();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function updateDateDisplay() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('date-display').textContent = now.toLocaleDateString('en-US', options);
+  }
+
+  function renderHabits() {
+    const container = document.getElementById('habits-container');
+
+    if (habits.length === 0) {
+      container.innerHTML = '<p class="text-sm text-gray-500 italic text-center py-8">No habits yet. Add your first one below.</p>';
+      return;
     }
 
-    function calculateCompletionRate(habit) {
-      const history = parseCompletionHistory(habit.completion_history);
-      const dates = Object.keys(history);
-      if (dates.length === 0) return 0;
-      const completedDays = dates.filter(d => history[d]).length;
-      return Math.round((completedDays / dates.length) * 100);
-    }
+    const existing = new Map();
+    container.querySelectorAll('.habit-row').forEach(el => {
+      existing.set(el.dataset.id, el);
+    });
 
-    async function loadHabits() {
-      try {
-        const res = await fetch("/api/habits");
-        if (!res.ok) throw new Error("Failed to fetch habits");
-        habits = await res.json();
-        renderHabits();
-        updateProgress();
-        updateWeeklyOverview();
-        updateStreaks();
-        updateInsights();
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    habits.forEach(habit => {
+      const completedToday = isCompletedToday(habit);
+      const streak = calculateStreak(habit);
+      const completionRate = calculateCompletionRate(habit);
 
-    function updateDateDisplay() {
-      const now = new Date();
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      document.getElementById('date-display').textContent = now.toLocaleDateString('en-US', options);
-    }
+      const existingEl = existing.get(habit.id);
+      if (existingEl) {
+        const checkbox = existingEl.querySelector('.habit-checkbox');
+        const row = existingEl;
+        const streakText = existingEl.querySelector('.text-xs');
 
-    function renderHabits() {
-      const container = document.getElementById('habits-container');
-
-      if (habits.length === 0) {
-        container.innerHTML = '<p class="text-sm text-gray-500 italic text-center py-8">No habits yet. Add your first one below.</p>';
-        return;
-      }
-
-      const existing = new Map();
-      container.querySelectorAll('.habit-row').forEach(el => {
-        existing.set(el.dataset.id, el);
-      });
-
-      habits.forEach(habit => {
-        const completedToday = isCompletedToday(habit);
-        const streak = calculateStreak(habit);
-        const completionRate = calculateCompletionRate(habit);
-
-        const existingEl = existing.get(habit.id);
-        if (existingEl) {
-          const checkbox = existingEl.querySelector('.habit-checkbox');
-          const row = existingEl;
-          const streakText = existingEl.querySelector('.text-xs');
-
-          if (completedToday) {
-            checkbox.classList.add('completed');
-            row.classList.add('completed');
-          } else {
-            checkbox.classList.remove('completed');
-            row.classList.remove('completed');
-          }
-
-          streakText.textContent = `${streak > 0 ? `${streak}-day streak` : 'No streak yet'} · ${completionRate}% completion`;
-          existing.delete(habit.id);
-        } else {
-          const el = document.createElement('div');
-          el.className = `habit-row ${completedToday ? 'completed' : ''} flex items-center gap-4 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors`;
-          el.dataset.id = habit.id;
-          el.innerHTML = `
-            <div class="habit-checkbox ${completedToday ? 'completed' : ''}"></div>
-            <span class="text-2xl flex-shrink-0">${habit.icon}</span>
-            <div class="flex-1 min-w-0">
-              <p class="habit-name text-base text-gray-900">${habit.name}</p>
-              <p class="text-xs text-gray-500 mt-1">
-                ${streak > 0 ? `${streak}-day streak` : 'No streak yet'} · ${completionRate}% completion
-              </p>
-            </div>
-            <button class="delete-btn" aria-label="Delete habit">❌</button>
-          `;
-          container.appendChild(el);
-
-          const checkbox = el.querySelector('.habit-checkbox');
-          checkbox.addEventListener('click', () => toggleHabit(habit.id));
-
-          const deleteBtn = el.querySelector('.delete-btn');
-          deleteBtn.addEventListener('click', () => deleteHabit(habit.id));
-        }
-      });
-
-      existing.forEach(el => el.remove());
-    }
-
-    // Toggle: send {completed} to backend (matches app.py)
-    async function toggleHabit(id) {
-      const habit = habits.find(h => h.id === id);
-      if (!habit) return;
-
-      const today = getTodayString();
-      const history = parseCompletionHistory(habit.completion_history);
-      const wasCompletedToday = history[today] === true;
-
-      const row = document.querySelector(`[data-id="${id}"]`);
-      const checkbox = row.querySelector('.habit-checkbox');
-
-      if (wasCompletedToday) {
-        checkbox.classList.remove('completed');
-        row.classList.remove('completed');
-      } else {
-        checkbox.classList.add('completed');
-        row.classList.add('completed');
-      }
-
-      const res = await fetch(`/api/habits/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ completed: !wasCompletedToday })
-      });
-
-      if (!res.ok) {
-        console.error("Failed to update habit");
-        // revert UI
-        if (wasCompletedToday) {
+        if (completedToday) {
           checkbox.classList.add('completed');
           row.classList.add('completed');
         } else {
           checkbox.classList.remove('completed');
           row.classList.remove('completed');
         }
-        return;
-      }
 
-      // For chatbot streaks, approximate from updated state after reload
-      await loadHabits();
-      const updatedHabit = habits.find(h => h.id === id);
-      const currentStreak = updatedHabit ? calculateStreak(updatedHabit) : 0;
-
-      triggerHabitResponse({
-        habit: updatedHabit || habit,
-        wasCompletedToday,
-        currentStreak
-      });
-    }
-
-    async function deleteHabit(id) {
-      const row = document.querySelector(`[data-id="${id}"]`);
-      const deleteBtn = row.querySelector('.delete-btn');
-
-      if (!deleteBtn.classList.contains('confirm-delete')) {
-        deleteBtn.innerHTML = `
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
+        streakText.textContent = `${streak > 0 ? `${streak}-day streak` : 'No streak yet'} · ${completionRate}% completion`;
+        existing.delete(habit.id);
+      } else {
+        const el = document.createElement('div');
+        el.className = `habit-row ${completedToday ? 'completed' : ''} flex items-center gap-4 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors`;
+        el.dataset.id = habit.id;
+        el.innerHTML = `
+          <div class="habit-checkbox ${completedToday ? 'completed' : ''}"></div>
+          <span class="text-2xl flex-shrink-0">${habit.icon}</span>
+          <div class="flex-1 min-w-0">
+            <p class="habit-name text-base text-gray-900">${habit.name}</p>
+            <p class="text-xs text-gray-500 mt-1">
+              ${streak > 0 ? `${streak}-day streak` : 'No streak yet'} · ${completionRate}% completion
+            </p>
+          </div>
+          <button class="delete-btn" aria-label="Delete habit">❌</button>
         `;
-        deleteBtn.classList.add('confirm-delete', 'text-red-500', 'hover:text-red-700');
-        setTimeout(() => {
-          deleteBtn.innerHTML = '❌';
-          deleteBtn.classList.remove('confirm-delete', 'text-red-500', 'hover:text-red-700');
-        }, 3000);
-        return;
+        container.appendChild(el);
+
+        const checkbox = el.querySelector('.habit-checkbox');
+        checkbox.addEventListener('click', () => toggleHabit(habit.id));
+
+        const deleteBtn = el.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', () => deleteHabit(habit.id));
       }
-
-      const res = await fetch(`/api/habits/${id}`, { method: "DELETE" });
-      if (!res.ok) {
-        console.error("Failed to delete habit");
-        return;
-      }
-      await loadHabits();
-    }
-
-    function updateProgress() {
-      const completed = habits.filter(h => isCompletedToday(h)).length;
-      const total = habits.length;
-      const percentage = total > 0 ? (completed / total) * 100 : 0;
-      document.getElementById('progress-text').textContent = `${completed} of ${total} habits`;
-      document.getElementById('progress-fill').style.width = `${percentage}%`;
-      const emoji = percentage === 100 ? '🌟' : percentage >= 75 ? '🌻' : percentage >= 50 ? '🌿' : percentage >= 25 ? '🌱' : '🌾';
-      document.getElementById('progress-emoji').textContent = emoji;
-    }
-
-    function updateWeeklyOverview() {
-      const weeklyRate = calculateWeeklyRate(habits);
-      document.getElementById('weekly-percentage').textContent = `${weeklyRate}%`;
-      const circumference = 276.46;
-      const offset = circumference - (weeklyRate / 100) * circumference;
-      document.getElementById('weekly-progress-fill').style.strokeDashoffset = offset;
-      const comparisonText = weeklyRate >= 80 ? 'Excellent consistency' :
-                             weeklyRate >= 60 ? 'Building momentum' :
-                             weeklyRate >= 40 ? 'Making progress' :
-                             weeklyRate > 0 ? 'Just getting started' : 'Start your journey';
-      document.getElementById('weekly-comparison').textContent = comparisonText;
-    }
-
-    function updateStreaks() {
-      const container = document.getElementById('streaks-container');
-      const habitsWithStreaks = habits.map(h => ({
-        ...h,
-        currentStreak: calculateStreak(h)
-      })).filter(h => h.currentStreak > 0)
-        .sort((a, b) => b.currentStreak - a.currentStreak)
-        .slice(0, 3);
-
-      if (habitsWithStreaks.length === 0) {
-        container.innerHTML = '<p class="text-sm text-gray-500 italic">No streaks yet</p>';
-        return;
-      }
-
-      container.innerHTML = habitsWithStreaks.map(habit => `
-        <div class="flex items-center gap-2 text-sm">
-          <span class="text-base">${habit.icon}</span>
-          <span class="text-gray-700">${habit.name}</span>
-          <span class="text-gray-500 ml-auto">${habit.currentStreak} days 🔥</span>
-        </div>
-      `).join('');
-    }
-
-    function updateInsights() {
-      const container = document.getElementById('insights-container');
-      if (habits.length === 0) {
-        container.innerHTML = '<p class="italic">Start tracking habits to see insights</p>';
-        return;
-      }
-      const habitsWithRates = habits.map(h => ({
-        ...h,
-        rate: calculateCompletionRate(h)
-      }));
-      const bestHabit = habitsWithRates.reduce((best, h) => h.rate > best.rate ? h : best, habitsWithRates[0]);
-      const needsAttention = habitsWithRates.reduce((worst, h) => h.rate < worst.rate ? h : worst, habitsWithRates[0]);
-      const tips = [
-        'Consistency beats perfection. Small steps add up.',
-        'Your habits shape your identity. Choose wisely.',
-        'Progress is progress, no matter how small.',
-        'Every day is a new opportunity to show up.',
-        'The secret is to never miss twice in a row.'
-      ];
-      const randomTip = tips[Math.floor(Math.random() * tips.length)];
-      container.innerHTML = `
-        <p><span class="text-gray-900">Best performing:</span> ${bestHabit.icon} ${bestHabit.name}</p>
-        <p><span class="text-gray-900">Needs attention:</span> ${needsAttention.icon} ${needsAttention.name}</p>
-        <p class="italic text-gray-500">"${randomTip}"</p>
-      `;
-    }
-
-    // Modal handling and form submission
-    document.getElementById('add-habit-btn').addEventListener('click', () => {
-      if (habits.length >= 999) {
-        const container = document.getElementById('habits-container');
-        const warning = document.createElement('div');
-        warning.className = 'text-sm text-red-600 text-center py-2';
-        warning.textContent = 'Maximum limit of 999 habits reached. Please delete some habits first.';
-        container.parentNode.insertBefore(warning, container.nextSibling);
-        setTimeout(() => warning.remove(), 5000);
-        return;
-      }
-      document.getElementById('modal-overlay').classList.add('active');
-      document.getElementById('habit-name').focus();
     });
 
-    document.getElementById('cancel-btn').addEventListener('click', () => {
+    existing.forEach(el => el.remove());
+  }
+
+  async function toggleHabit(id) {
+    const habit = habits.find(h => h.id === id);
+    if (!habit) return;
+
+    const today = getTodayString();
+    const history = parseCompletionHistory(habit.completion_history);
+    const wasCompletedToday = history[today] === true;
+
+    const row = document.querySelector(`[data-id="${id}"]`);
+    const checkbox = row.querySelector('.habit-checkbox');
+
+    if (wasCompletedToday) {
+      checkbox.classList.remove('completed');
+      row.classList.remove('completed');
+    } else {
+      checkbox.classList.add('completed');
+      row.classList.add('completed');
+    }
+
+    const res = await fetch(`/api/habits/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed: !wasCompletedToday })
+    });
+
+    if (!res.ok) {
+      console.error("Failed to update habit");
+      if (wasCompletedToday) {
+        checkbox.classList.add('completed');
+        row.classList.add('completed');
+      } else {
+        checkbox.classList.remove('completed');
+        row.classList.remove('completed');
+      }
+      return;
+    }
+
+    await loadHabits();
+    const updatedHabit = habits.find(h => h.id === id);
+    const currentStreak = updatedHabit ? calculateStreak(updatedHabit) : 0;
+
+    triggerHabitResponse({
+      habit: updatedHabit || habit,
+      wasCompletedToday,
+      currentStreak
+    });
+  }
+
+  async function deleteHabit(id) {
+    const row = document.querySelector(`[data-id="${id}"]`);
+    const deleteBtn = row.querySelector('.delete-btn');
+
+    if (!deleteBtn.classList.contains('confirm-delete')) {
+      deleteBtn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      `;
+      deleteBtn.classList.add('confirm-delete', 'text-red-500', 'hover:text-red-700');
+      setTimeout(() => {
+        deleteBtn.innerHTML = '❌';
+        deleteBtn.classList.remove('confirm-delete', 'text-red-500', 'hover:text-red-700');
+      }, 3000);
+      return;
+    }
+
+    const res = await fetch(`/api/habits/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      console.error("Failed to delete habit");
+      return;
+    }
+    await loadHabits();
+  }
+
+  function updateProgress() {
+    const completed = habits.filter(h => isCompletedToday(h)).length;
+    const total = habits.length;
+    const percentage = total > 0 ? (completed / total) * 100 : 0;
+    document.getElementById('progress-text').textContent = `${completed} of ${total} habits`;
+    document.getElementById('progress-fill').style.width = `${percentage}%`;
+    const emoji = percentage === 100 ? '🌟' : percentage >= 75 ? '🌻' : percentage >= 50 ? '🌿' : percentage >= 25 ? '🌱' : '🌾';
+    document.getElementById('progress-emoji').textContent = emoji;
+  }
+
+  function updateWeeklyOverview() {
+    const weeklyRate = calculateWeeklyRate(habits);
+    document.getElementById('weekly-percentage').textContent = `${weeklyRate}%`;
+    const circumference = 276.46;
+    const offset = circumference - (weeklyRate / 100) * circumference;
+    document.getElementById('weekly-progress-fill').style.strokeDashoffset = offset;
+    const comparisonText = weeklyRate >= 80 ? 'Excellent consistency' :
+                           weeklyRate >= 60 ? 'Building momentum' :
+                           weeklyRate >= 40 ? 'Making progress' :
+                           weeklyRate > 0 ? 'Just getting started' : 'Start your journey';
+    document.getElementById('weekly-comparison').textContent = comparisonText;
+  }
+
+  function updateStreaks() {
+    const container = document.getElementById('streaks-container');
+    const habitsWithStreaks = habits.map(h => ({
+      ...h,
+      currentStreak: calculateStreak(h)
+    })).filter(h => h.currentStreak > 0)
+      .sort((a, b) => b.currentStreak - a.currentStreak)
+      .slice(0, 3);
+
+    if (habitsWithStreaks.length === 0) {
+      container.innerHTML = '<p class="text-sm text-gray-500 italic">No streaks yet</p>';
+      return;
+    }
+
+    container.innerHTML = habitsWithStreaks.map(habit => `
+      <div class="flex items-center gap-2 text-sm">
+        <span class="text-base">${habit.icon}</span>
+        <span class="text-gray-700">${habit.name}</span>
+        <span class="text-gray-500 ml-auto">${habit.currentStreak} days 🔥</span>
+      </div>
+    `).join('');
+  }
+
+  function updateInsights() {
+    const container = document.getElementById('insights-container');
+    if (habits.length === 0) {
+      container.innerHTML = '<p class="italic">Start tracking habits to see insights</p>';
+      return;
+    }
+    const habitsWithRates = habits.map(h => ({
+      ...h,
+      rate: calculateCompletionRate(h)
+    }));
+    const bestHabit = habitsWithRates.reduce((best, h) => h.rate > best.rate ? h : best, habitsWithRates[0]);
+    const needsAttention = habitsWithRates.reduce((worst, h) => h.rate < worst.rate ? h : worst, habitsWithRates[0]);
+    const tips = [
+      'Consistency beats perfection. Small steps add up.',
+      'Your habits shape your identity. Choose wisely.',
+      'Progress is progress, no matter how small.',
+      'Every day is a new opportunity to show up.',
+      'The secret is to never miss twice in a row.'
+    ];
+    const randomTip = tips[Math.floor(Math.random() * tips.length)];
+    container.innerHTML = `
+      <p><span class="text-gray-900">Best performing:</span> ${bestHabit.icon} ${bestHabit.name}</p>
+      <p><span class="text-gray-900">Needs attention:</span> ${needsAttention.icon} ${needsAttention.name}</p>
+      <p class="italic text-gray-500">"${randomTip}"</p>
+    `;
+  }
+
+  // Modal handling and form submission
+  document.getElementById('add-habit-btn').addEventListener('click', () => {
+    if (habits.length >= 999) {
+      const container = document.getElementById('habits-container');
+      const warning = document.createElement('div');
+      warning.className = 'text-sm text-red-600 text-center py-2';
+      warning.textContent = 'Maximum limit of 999 habits reached. Please delete some habits first.';
+      container.parentNode.insertBefore(warning, container.nextSibling);
+      setTimeout(() => warning.remove(), 5000);
+      return;
+    }
+    document.getElementById('modal-overlay').classList.add('active');
+    document.getElementById('habit-name').focus();
+  });
+
+  document.getElementById('cancel-btn').addEventListener('click', () => {
+    document.getElementById('modal-overlay').classList.remove('active');
+    document.getElementById('habit-form').reset();
+    selectedIcon = '🌱';
+    document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+  });
+
+  document.getElementById('modal-overlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
       document.getElementById('modal-overlay').classList.remove('active');
       document.getElementById('habit-form').reset();
       selectedIcon = '🌱';
       document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+    }
+  });
+
+  document.querySelectorAll('.icon-option').forEach(option => {
+    option.addEventListener('click', () => {
+      document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+      selectedIcon = option.dataset.icon;
+    });
+  });
+
+  document.getElementById('habit-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (habits.length >= 999) {
+      const errorMsg = document.createElement('p');
+      errorMsg.className = 'text-sm text-red-600 mt-2';
+      errorMsg.textContent = 'Maximum limit of 999 habits reached. Please delete some habits first.';
+      document.getElementById('habit-form').appendChild(errorMsg);
+      setTimeout(() => errorMsg.remove(), 5000);
+      return;
+    }
+
+    const submitBtn = document.querySelector('button[type="submit"]');
+    const submitText = document.getElementById('submit-text');
+    const submitSpinner = document.getElementById('submit-spinner');
+
+    submitBtn.disabled = true;
+    submitSpinner.classList.remove('hidden');
+    submitText.textContent = 'Adding...';
+
+    const name = document.getElementById('habit-name').value;
+    const category = document.getElementById('habit-category').value;
+    const frequency = document.getElementById('habit-frequency').value;
+
+    function jsonString(obj) { return JSON.stringify(obj); }
+
+    const newHabit = {
+      id: Date.now().toString(),
+      name,
+      category,
+      frequency,
+      icon: selectedIcon,
+      streak: 0,
+      completion_history: jsonString({}),
+      created_at: new Date().toISOString()
+    };
+
+    const res = await fetch("/api/habits", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newHabit)
     });
 
-    document.getElementById('modal-overlay').addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) {
-        document.getElementById('modal-overlay').classList.remove('active');
-        document.getElementById('habit-form').reset();
-        selectedIcon = '🌱';
-        document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
-      }
-    });
+    if (res.ok) {
+      await loadHabits();
+      document.getElementById('modal-overlay').classList.remove('active');
+      document.getElementById('habit-form').reset();
+      selectedIcon = '🌱';
+      document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+    } else {
+      alert("Failed to add habit");
+    }
 
-    document.querySelectorAll('.icon-option').forEach(option => {
-      option.addEventListener('click', () => {
-        document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
-        option.classList.add('selected');
-        selectedIcon = option.dataset.icon;
-      });
-    });
+    submitBtn.disabled = false;
+    submitSpinner.classList.add('hidden');
+    submitText.textContent = 'Add Habit';
+  });
 
-    document.getElementById('habit-form').addEventListener('submit', async (e) => {
+  updateDateDisplay();
+  loadHabits();
+
+  // ----- CHATBOT (habit-aware, emotion-aware) -----
+  const chatToggle = document.getElementById('chat-toggle');
+  const chatWindow = document.getElementById('chat-window');
+  const chatMessagesEl = document.getElementById('chat-messages');
+  const chatInputEl = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('send-btn');
+
+  const emotionResponses = {
+    happy: [
+      "That joy around your habits matters. What do you think helped today?",
+      "I love that this routine is giving you some light.",
+      "Notice what made it easier today so you can lean on it again."
+    ],
+    sad: [
+      "It’s okay if habits feel heavy right now. What part feels hardest?",
+      "You’re allowed to feel low and still care about your routines.",
+      "Even naming that sadness is a form of showing up."
+    ],
+    overwhelmed: [
+      "That sounds like a lot. Want to shrink today’s version of this habit?",
+      "You don’t have to do the full habit to stay connected to it.",
+      "Let’s make it tiny: what’s the 2-minute version you could manage?"
+    ],
+    stressed: [
+      "Stress can make habits feel like pressure. We can soften them.",
+      "Maybe today your habit is just taking one slow breath with intention.",
+      "You’re allowed to let some habits be lighter on tough days."
+    ],
+    calm: [
+      "That calm is a good place to build from. What tiny habit fits this mood?",
+      "When you feel steady, even one small action can compound nicely.",
+      "This calm is part of your practice too."
+    ]
+  };
+
+  const genericResponses = [
+    "Tell me more about how your habits are feeling today.",
+    "What’s one habit you’re proud of, even a little?",
+    "If today’s habits had a headline, what would it be?",
+    "Where do you feel resistance the most right now?",
+    "We can adjust the habit to fit you today, not the other way around."
+  ];
+
+  const greetingResponses = [
+    "Hey, I’m glad you checked in. How are your habits treating you today?",
+    "Hi, I’m here with you while you build these tiny patterns.",
+    "Hello — what kind of day is it for your habits so far?"
+  ];
+
+  const thanksResponses = [
+    "I’m glad I could sit with you through this.",
+    "Thank you for sharing your process with me.",
+    "You’re welcome. Keep being honest with yourself like this."
+  ];
+
+  const goodbyeResponses = [
+    "I’m proud of the way you’re showing up. Come back anytime.",
+    "We can pick this up again whenever you’re ready.",
+    "Take gentle care of yourself between now and our next check-in."
+  ];
+
+  const aboutBotResponses = [
+    "I’m here to reflect back how you’re feeling about your habits and gently encourage you.",
+    "Think of me as a soft accountability companion for your routines."
+  ];
+
+  const botFeelingResponses = [
+    "I don’t have feelings like you do, but I’m focused on you and your effort.",
+    "I’m right here with you, paying attention to how your habits feel."
+  ];
+
+  const smallTalkResponses = [
+    "We can talk about your day, your habits, or anything in between. What’s on your mind?",
+    "If one habit could feel 10% lighter, which one would you choose?"
+  ];
+
+  const groundingResponses = [
+    "Let’s pause: feel your feet on the ground, take one slow breath in and out.",
+    "Look around and name three small, safe things you can see right now."
+  ];
+
+  function detectEmotion(text) {
+    text = text.toLowerCase();
+    if (text.includes('happy') || text.includes('excited') || text.includes('good')) return 'happy';
+    if (text.includes('sad') || text.includes('down') || text.includes('low')) return 'sad';
+    if (text.includes('overwhelmed') || text.includes('too much')) return 'overwhelmed';
+    if (text.includes('stressed') || text.includes('anxious') || text.includes('pressure')) return 'stressed';
+    if (text.includes('calm') || text.includes('peaceful') || text.includes('relaxed')) return 'calm';
+    return null;
+  }
+
+  function detectIntent(text) {
+    const t = text.toLowerCase();
+
+    if (/(^|\s)(hi|hello|hey|good morning|good night|good evening)(\W|$)/.test(t)) {
+      return 'greeting';
+    }
+    if (t.includes('thank you') || t.includes('thanks') || t.includes('thx')) {
+      return 'thanks';
+    }
+    if (t.includes('bye') || t.includes('goodnight') || t.includes('good night') || t.includes('see you')) {
+      return 'goodbye';
+    }
+    if (t.includes('who are you') || t.includes('what are you') || t.includes('what can you do')) {
+      return 'about_bot';
+    }
+    if ((t.includes('how are you') || t.includes('hru')) && !t.includes('how am i')) {
+      return 'bot_feeling';
+    }
+    if (t.includes('what are you doing') || t.includes('bored') || t.includes('talk to me')) {
+      return 'small_talk';
+    }
+    if (t.includes('panic') || t.includes("can't breathe") || t.includes('freaking out')) {
+      return 'grounding';
+    }
+    return 'generic';
+  }
+
+  function chooseRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function addMessage(text, isUser = false) {
+    const div = document.createElement('div');
+    div.className = `chat-message flex ${isUser ? 'justify-end' : 'justify-start'}`;
+    div.innerHTML = `
+      <div class="${
+        isUser
+          ? 'bg-[#2d2d2d] text-white'
+          : 'bg-white/80 border border-[#e8e5dc]'
+      } rounded-3xl px-4 py-3 max-w-[220px] text-[13px] leading-relaxed shadow-sm">
+        <p>${text}</p>
+      </div>
+    `;
+    chatMessagesEl.appendChild(div);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+
+  async function generateReply(message) {
+    const emotion = detectEmotion(message);
+    const intent = detectIntent(message);
+
+    if (intent === 'grounding') return chooseRandom(groundingResponses);
+    if (intent === 'greeting') return chooseRandom(greetingResponses);
+    if (intent === 'thanks') return chooseRandom(thanksResponses);
+    if (intent === 'goodbye') return chooseRandom(goodbyeResponses);
+    if (intent === 'about_bot') return chooseRandom(aboutBotResponses);
+    if (intent === 'bot_feeling') return chooseRandom(botFeelingResponses);
+    if (intent === 'small_talk') return chooseRandom(smallTalkResponses);
+
+    if (emotion && emotionResponses[emotion]) {
+      return chooseRandom(emotionResponses[emotion]);
+    }
+
+    return chooseRandom(genericResponses);
+  }
+
+  chatToggle.addEventListener('click', () => {
+    chatWindow.classList.toggle('hidden');
+  });
+
+  sendBtn.addEventListener('click', async () => {
+    const message = chatInputEl.value.trim();
+    if (!message) return;
+
+    addMessage(message, true);
+    chatInputEl.value = '';
+
+    setTimeout(async () => {
+      const reply = await generateReply(message);
+      addMessage(reply, false);
+    }, 800);
+  });
+
+  chatInputEl.addEventListener('keypress', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-
-      if (habits.length >= 999) {
-        const errorMsg = document.createElement('p');
-        errorMsg.className = 'text-sm text-red-600 mt-2';
-        errorMsg.textContent = 'Maximum limit of 999 habits reached. Please delete some habits first.';
-        document.getElementById('habit-form').appendChild(errorMsg);
-        setTimeout(() => errorMsg.remove(), 5000);
-        return;
-      }
-
-      const submitBtn = document.querySelector('button[type="submit"]');
-      const submitText = document.getElementById('submit-text');
-      const submitSpinner = document.getElementById('submit-spinner');
-
-      submitBtn.disabled = true;
-      submitSpinner.classList.remove('hidden');
-      submitText.textContent = 'Adding...';
-
-      const name = document.getElementById('habit-name').value;
-      const category = document.getElementById('habit-category').value;
-      const frequency = document.getElementById('habit-frequency').value;
-
-      const newHabit = {
-        id: Date.now().toString(),
-        name,
-        category,
-        frequency,
-        icon: selectedIcon,
-        streak: 0,
-        completion_history: jsonString({}), // note: see below
-        created_at: new Date().toISOString()
-      };
-
-      // helper to avoid referencing undefined jsonString
-      function jsonString(obj) { return JSON.stringify(obj); }
-
-      newHabit.completion_history = jsonString({});
-
-      const res = await fetch("/api/habits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newHabit)
-      });
-
-      if (res.ok) {
-        await loadHabits();
-        document.getElementById('modal-overlay').classList.remove('active');
-        document.getElementById('habit-form').reset();
-        selectedIcon = '🌱';
-        document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
-      } else {
-        alert("Failed to add habit");
-      }
-
-      submitBtn.disabled = false;
-      submitSpinner.classList.add('hidden');
-      submitText.textContent = 'Add Habit';
-    });
-
-    updateDateDisplay();
-    loadHabits();
-
-    // Chatbot
-    const chatToggle = document.getElementById('chat-toggle');
-    const chatWindow = document.getElementById('chat-window');
-    const chatMessages = document.getElementById('chat-messages');
-
-    chatToggle.addEventListener('click', () => {
-      chatWindow.classList.toggle('hidden');
-    });
-
-    function openChatbot() {
-      chatWindow.classList.remove('hidden');
+      sendBtn.click();
     }
+  });
 
-    function addChatMessage(text, sender = 'bot') {
-      const msg = document.createElement('div');
-      msg.className = sender === 'bot'
-        ? 'bg-gray-200 p-2 rounded'
-        : 'bg-[#3d3a37] text-white p-2 rounded self-end';
-      msg.textContent = text;
-      chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+  function openChatbot() {
+    chatWindow.classList.remove('hidden');
+  }
 
-    function triggerHabitResponse({ habit, wasCompletedToday, currentStreak }) {
-      let responses = [];
-      if (!wasCompletedToday) {
+  function triggerHabitResponse({ habit, wasCompletedToday, currentStreak }) {
+    let responses = [];
+    if (!wasCompletedToday) {
+      responses = [
+        "You showed up for this habit today. That’s quietly powerful.",
+        "Tiny repetitions like this are how identities change.",
+        "You kept the thread of this habit alive today."
+      ];
+      if (currentStreak === 3) {
         responses = [
-          "You showed up today. That matters more than perfection.",
-          "Small consistency beats big motivation.",
-          "Allah loves deeds that are consistent, even if small.",
-          "This is how habits become identity."
-        ];
-        if (currentStreak === 3) {
-          responses = [
-            "3 days straight — this is officially a streak 🔥",
-            "You’re building istiqamah. Keep going.",
-            "Three days of consistency? That’s real discipline."
-          ];
-        }
-        if (currentStreak >= 7) {
-          responses.push("This is no longer accidental. This is who you are becoming.");
-        }
-      } else {
-        responses = [
-          "One checkbox doesn’t erase your intention.",
-          "You can return. Progress isn’t cancelled.",
-          "Missing once is human. Missing twice is a choice — and you caught it early."
+          "3 days in a row — this is officially a streak 🔥",
+          "Three days of consistency is a serious signal of who you’re becoming.",
+          "You’ve built a 3-day chain. Let’s see how long you can protect it."
         ];
       }
-      const reply = responses[Math.floor(Math.random() * responses.length)];
-      openChatbot();
-      setTimeout(() => addChatMessage(reply, 'bot'), 400);
+      if (currentStreak >= 7) {
+        responses.push("This doesn’t look accidental anymore. This looks like part of you now.");
+      }
+    } else {
+      responses = [
+        "Missing a day doesn’t erase the days you showed up.",
+        "The habit is still there. You can pick the thread back up tomorrow.",
+        "One slip is human. What matters is the next small step you take."
+      ];
     }
-  </script>
+    const reply = responses[Math.floor(Math.random() * responses.length)];
+    openChatbot();
+    setTimeout(() => addMessage(reply, false), 400);
+  }
+</script>
 </body>
 </html>
-
