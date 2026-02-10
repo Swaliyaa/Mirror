@@ -959,7 +959,7 @@
   function detectIntent(text) {
     const t = text.toLowerCase();
 
-    if (/(^|\s)(hi|hello|hey|good morning|good night|good evening)(\W|$)/.test(t)) {
+    if (/(^|\\s)(hi|hello|hey|good morning|good night|good evening)(\\W|$)/.test(t)) {
       return 'greeting';
     }
     if (t.includes('thank you') || t.includes('thanks') || t.includes('thx')) {
@@ -1003,9 +1003,114 @@
     chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
   }
 
+  // ---------- NEW: tracker-style summaries for habits ----------
+
+  function summarizeHabitsTodayChat() {
+    const total = habits.length;
+    if (!total) {
+      return "You don’t have any habits added yet. Once you add some, I can tell you how they’re going today.";
+    }
+    const done = habits.filter(h => isCompletedToday(h));
+    const pending = total - done.length;
+
+    if (!pending) {
+      return `You’ve checked in on all ${total} of your habits today. That’s a fully tended routine.`;
+    }
+    if (!done.length) {
+      return `You have ${total} habits here, but none are checked in yet today. You could start with the smallest one.`;
+    }
+    return `You’ve done ${done.length} out of ${total} habits so far, with ${pending} still open for today.`;
+  }
+
+  function summarizeWeeklyHabitsChat() {
+    if (!habits.length) {
+      return "Once you’ve had a few days with habits, I can reflect on your week for you.";
+    }
+    const rate = calculateWeeklyRate(habits);
+    if (rate === 0) {
+      return "This week is still a blank page for your habits. You can start as gently as you like.";
+    }
+    if (rate >= 80) {
+      return `This week, you’ve completed about ${rate}% of your possible habit check‑ins. That’s very consistent.`;
+    }
+    if (rate >= 50) {
+      return `This week you’re around ${rate}% of your possible habit check‑ins. There’s real effort here, even if it’s not perfect.`;
+    }
+    return `This week you’re at about ${rate}% of your possible habit check‑ins. It may be a softer week, and that’s okay.`;
+  }
+
+  function summarizeStreaksChat() {
+    if (!habits.length) {
+      return "You don’t have any tracked habits yet, so there are no streaks to talk about.";
+    }
+    const withStreaks = habits
+      .map(h => ({ name: h.name, icon: h.icon, streak: calculateStreak(h) }))
+      .filter(h => h.streak > 0)
+      .sort((a, b) => b.streak - a.streak);
+
+    if (!withStreaks.length) {
+      return "Right now you don’t have active streaks, but every first repeat can start one.";
+    }
+
+    const top = withStreaks[0];
+    if (withStreaks.length === 1) {
+      return `${top.icon} “${top.name}” is on a ${top.streak}-day streak. That’s a thread you’ve kept alive.`;
+    }
+    const second = withStreaks[1];
+    return `${top.icon} “${top.name}” is your longest streak at ${top.streak} days, followed by ${second.icon} “${second.name}” at ${second.streak} days.`;
+  }
+
+  function isHabitStatusQuestion(text) {
+    const t = text.toLowerCase();
+    return (
+      t.includes("how are my habits") ||
+      t.includes("how is my habit") ||
+      t.includes("habits going") ||
+      t.includes("how are habits going") ||
+      t.includes("what is my habit progress") ||
+      t.includes("habit progress today")
+    );
+  }
+
+  function isHabitWeekQuestion(text) {
+    const t = text.toLowerCase();
+    return (
+      t.includes("this week") ||
+      t.includes("past week") ||
+      t.includes("last week") ||
+      t.includes("weekly habits") ||
+      t.includes("week overview")
+    );
+  }
+
+  function isStreakQuestion(text) {
+    const t = text.toLowerCase();
+    return (
+      t.includes("streak") ||
+      t.includes("streaks") ||
+      t.includes("current streak") ||
+      t.includes("how are my streaks")
+    );
+  }
+
+  // --------------------------------------------------------------
+
   async function generateReply(message) {
     const emotion = detectEmotion(message);
     const intent = detectIntent(message);
+
+    // tracker-style answers first
+    if (isHabitStatusQuestion(message)) {
+      return summarizeHabitsTodayChat();
+    }
+
+    if (isHabitWeekQuestion(message)) {
+      return summarizeWeeklyHabitsChat();
+    }
+
+    if (isStreakQuestion(message)) {
+      return summarizeStreaksChat();
+    }
 
     if (intent === 'grounding') return chooseRandom(groundingResponses);
     if (intent === 'greeting') return chooseRandom(greetingResponses);
