@@ -967,28 +967,47 @@
   }
 
   function summarizeTodosDueTodayTomorrow() {
-    const today = getTodayISO();
-    const tomorrow = getTomorrowISO();
-    const todosToday = currentData.filter(d => d.type === 'todo' && d.date === today);
-    const todosTomorrow = currentData.filter(d => d.type === 'todo' && d.date === tomorrow);
+  const today = getTodayISO();
+  const tomorrow = getTomorrowISO();
 
-    const namesToday = todosToday.map(t => t.content);
-    const namesTomorrow = todosTomorrow.map(t => t.content);
+  const todosToday = currentData.filter(
+    d =>
+      d.type === 'todo' &&
+      d.effective_date === today &&
+      !d.completed
+  );
 
-    if (!namesToday.length && !namesTomorrow.length) {
-      return "You don’t have anything due today or tomorrow.";
-    }
+  const todosTomorrow = currentData.filter(
+    d =>
+      d.type === 'todo' &&
+      d.effective_date === tomorrow &&
+      !d.completed
+  );
 
-    if (namesToday.length && namesTomorrow.length) {
-      return `Due today: ${namesToday.join(', ')}. Due tomorrow: ${namesTomorrow.join(', ')}.`;
-    }
+  const namesToday = todosToday.map(t => t.content);
+  const namesTomorrow = todosTomorrow.map(t => t.content);
 
-    if (namesToday.length) {
-      return `You have these due today: ${namesToday.join(', ')}. Nothing is due tomorrow yet.`;
-    }
-
-    return `Nothing is due today. Tomorrow you have: ${namesTomorrow.join(', ')}.`;
+  if (!namesToday.length && !namesTomorrow.length) {
+    return "You don’t have anything due today or tomorrow.";
   }
+
+  if (namesToday.length && namesTomorrow.length) {
+    return `Due today: ${namesToday.join(
+      ', '
+    )}. Due tomorrow: ${namesTomorrow.join(', ')}.`;
+  }
+
+  if (namesToday.length) {
+    return `You have these due today: ${namesToday.join(
+      ', '
+    )}. Nothing is due tomorrow yet.`;
+  }
+
+  return `Nothing is due today. Tomorrow you have: ${namesTomorrow.join(
+    ', '
+  )}.`;
+}
+
 
   function summarizeHabitsToday() {
     const habits = currentData.filter(d => d.type === 'habit');
@@ -1275,3 +1294,4 @@
     </script>
   </body>
 </html>
+
