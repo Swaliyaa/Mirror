@@ -620,7 +620,7 @@
           moodBtns.forEach(btn =>
             btn.classList.remove('mood-selected', 'mood-unselected')
           );
-          moodDisplay.textContent = 'Select how you\\'re feeling';
+          moodDisplay.textContent = "Select how you're feeling";
         }
       }
 
@@ -764,7 +764,7 @@
       function detectIntent(text) {
         const t = text.toLowerCase();
 
-        if (/(^|\\\\s)(hi|hello|hey|good morning|good night|good evening)(\\\\W|$)/.test(t)) {
+        if (/(^|\s)(hi|hello|hey|good morning|good night|good evening)(\W|$)/.test(t)) {
           return 'greeting';
         }
 
@@ -931,4 +931,5 @@
     </script>
   </body>
 </html>
+
 
