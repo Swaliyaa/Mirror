@@ -9,14 +9,27 @@ import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
+# NEW: imports for email + tokens
+import smtplib
+from email.mime.text import MIMEText
+import secrets
+from urllib.parse import urlencode
+
 app = Flask(__name__)
 app.secret_key = "mirror_secret_key_change_later"
+
+# NEW: Gmail + base URL config (via env vars)
+GMAIL_USER = os.environ.get("GMAIL_USER")
+GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
+BASE_URL = os.environ.get("BASE_URL", "http://localhost:5000")
+
 
 # ----------------------------
 # DATABASE CONNECTION
 # ----------------------------
 def get_db_connection():
     return psycopg2.connect(os.environ["DATABASE_URL"])
+
 
 # ----------------------------
 # LOGIN REQUIRED DECORATOR
@@ -30,6 +43,7 @@ def login_required(f):
             return redirect("/login")
         return f(*args, **kwargs)
     return decorated_function
+
 
 # ----------------------------
 # INITIALIZE DATABASE
@@ -85,13 +99,60 @@ def init_db():
         );
     """)
 
+    # NEW: table for password reset tokens
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS password_reset_tokens (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            token VARCHAR(255) UNIQUE NOT NULL,
+            expires_at TIMESTAMP NOT NULL
+        );
+    """)
+
     conn.commit()
     cursor.close()
     conn.close()
 
+
 # Run init on startup (Render-safe)
 with app.app_context():
     init_db()
+
+
+# ----------------------------
+# EMAIL HELPER
+# ----------------------------
+def send_reset_email(to_email, reset_link):
+    """
+    Send a password reset email via Gmail SMTP using an App Password.
+    """
+    if not GMAIL_USER or not GMAIL_APP_PASSWORD:
+        print("Gmail env vars not set; cannot send email.")
+        return
+
+    subject = "Reset your password - The Mirror"
+    body = f"""Hi,
+
+We received a request to reset the password for your account on The Mirror.
+
+To reset your password, click this link (or paste it into your browser):
+
+{reset_link}
+
+If you did not request this, you can safely ignore this email.
+
+– The Mirror
+"""
+
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = GMAIL_USER
+    msg["To"] = to_email
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
+        server.sendmail(GMAIL_USER, [to_email], msg.as_string())
+
 
 # ----------------------------
 # STATIC ROUTES
@@ -99,6 +160,7 @@ with app.app_context():
 @app.route('/_sdk/<path:filename>')
 def serve_sdk(filename):
     return send_from_directory('static/js', filename)
+
 
 # ----------------------------
 # AUTH ROUTES
@@ -108,6 +170,7 @@ def home():
     if "user_id" in session:
         return redirect("/dashboard")
     return render_template("welcome.html")
+
 
 @app.route("/login", methods=["GET", "POST"])
 @app.route("/login.html", methods=["GET", "POST"])
@@ -133,6 +196,7 @@ def login():
     cursor.close()
     conn.close()
     return render_template("login.html", active_view="signin", error=message)
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -161,11 +225,111 @@ def register():
     conn.close()
     return render_template("login.html", active_view="signup", error=message)
 
+
 @app.route("/logout")
 @login_required
 def logout():
     session.clear()
     return redirect("/login")
+
+
+# ----------------------------
+# FORGOT / RESET PASSWORD
+# ----------------------------
+
+@app.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    # support JSON or form
+    email = request.json.get("email") if request.is_json else request.form.get("email")
+    if not email:
+        return jsonify({"isOk": False, "message": "Email is required."}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    # username is the email in your schema
+    cursor.execute("SELECT id FROM users WHERE username=%s", (email,))
+    user = cursor.fetchone()
+
+    # Always respond success-like to avoid leaking whether the email exists
+    if not user:
+        cursor.close()
+        conn.close()
+        return jsonify({"isOk": True, "message": "If an account exists, a reset link has been sent."})
+
+    user_id = user["id"]
+
+    # Create token valid for 1 hour
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.utcnow() + timedelta(hours=1)
+
+    # Remove old tokens for this user
+    cursor.execute("DELETE FROM password_reset_tokens WHERE user_id=%s", (user_id,))
+
+    cursor.execute(
+        "INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (%s, %s, %s)",
+        (user_id, token, expires_at)
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    # Build reset link
+    query = urlencode({"token": token})
+    reset_link = f"{BASE_URL}/reset-password?{query}"
+
+    # Send email
+    send_reset_email(email, reset_link)
+
+    return jsonify({"isOk": True, "message": "If an account exists, a reset link has been sent."})
+
+
+@app.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+    token = request.args.get("token") or request.form.get("token")
+    if not token:
+        return "Invalid reset link.", 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Look up token and ensure not expired
+    cursor.execute(
+        "SELECT pr.user_id FROM password_reset_tokens pr WHERE pr.token=%s AND pr.expires_at > %s",
+        (token, datetime.utcnow())
+    )
+    row = cursor.fetchone()
+
+    if not row:
+        cursor.close()
+        conn.close()
+        return "This reset link is invalid or has expired.", 400
+
+    user_id = row["user_id"]
+
+    if request.method == "GET":
+        cursor.close()
+        conn.close()
+        return render_template("reset_password.html", token=token)
+
+    # POST: update password
+    new_password = request.form.get("password")
+    confirm = request.form.get("confirm")
+
+    if not new_password or new_password != confirm:
+        cursor.close()
+        conn.close()
+        return render_template("reset_password.html", token=token, error="Passwords do not match.")
+
+    hashed = generate_password_hash(new_password)
+    cursor.execute("UPDATE users SET password=%s WHERE id=%s", (hashed, user_id))
+    cursor.execute("DELETE FROM password_reset_tokens WHERE user_id=%s", (user_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect("/login")
+
 
 # ----------------------------
 # DASHBOARD
@@ -246,6 +410,7 @@ def dashboard():
         initial_data=todos_list + habits_list + mood_list
     )
 
+
 # ----------------------------
 # PAGE ROUTES
 # ----------------------------
@@ -255,17 +420,20 @@ def dashboard():
 def todo_page():
     return render_template("todo.html")
 
+
 @app.route("/habit")
 @app.route("/habit/")
 @login_required
 def habit_page():
     return render_template("habit.html")
 
+
 @app.route("/mood")
 @app.route("/mood/")
 @login_required
 def mood_page():
     return render_template("mood.html")
+
 
 # ----------------------------
 # API: TODOS
@@ -300,6 +468,7 @@ def api_todos():
     conn.close()
     return jsonify({"isOk": True, "todos": rows})
 
+
 # ----------------------------
 # API: TOGGLE / CLEAR
 # ----------------------------
@@ -323,6 +492,7 @@ def api_todo_item(id):
     conn.close()
     return jsonify({"isOk": True})
 
+
 @app.route("/api/todos/clear-completed", methods=["DELETE"])
 @login_required
 def clear_completed():
@@ -336,6 +506,7 @@ def clear_completed():
     cursor.close()
     conn.close()
     return jsonify({"isOk": True})
+
 
 # ----------------------------
 # API: HABITS
@@ -365,6 +536,7 @@ def api_habits():
     cursor.close()
     conn.close()
     return jsonify(rows)
+
 
 # ----------------------------
 # API: UPDATE HABIT (TOGGLE)
@@ -414,6 +586,7 @@ def update_habit(id):
 
     return jsonify({"isOk": True})
 
+
 @app.route("/api/habits/<id>", methods=["DELETE"])
 @login_required
 def delete_habit(id):
@@ -428,6 +601,7 @@ def delete_habit(id):
     cursor.close()
     conn.close()
     return jsonify({"isOk": True})
+
 
 # ----------------------------
 # API: MOODS
@@ -458,6 +632,7 @@ def api_moods():
     cursor.close()
     conn.close()
     return jsonify(rows)
+
 
 # ----------------------------
 # API: SUMMARY ENDPOINTS
@@ -597,6 +772,3 @@ def summary_recent_moods():
         "entries": rows,
         "counts": mood_counts
     })
-
-
-
