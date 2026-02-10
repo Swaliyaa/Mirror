@@ -104,7 +104,6 @@
       100% { opacity: 0; }
     }
 
-    /* glassy surfaces (only on inner cards) */
     .glass-surface {
       background: rgba(255, 255, 255, 0.45);
       backdrop-filter: blur(14px) saturate(150%);
@@ -112,7 +111,6 @@
       box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
     }
 
-    /* journal stickers + doodles in OUTER gutters only */
     .sticker-pill {
       position: absolute;
       border-radius: 999px;
@@ -180,9 +178,16 @@
       z-index: 1;
     }
 
-    /* only show gutter decor on large screens where gutters actually exist */
     @media (max-width: 1023px) {
       .gutter-decor {
+        opacity: 0.7;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .sticker-pill:not(.sticker-main),
+      .doodle-heart:not(.doodle-main),
+      .doodle-star:not(.doodle-main) {
         display: none;
       }
     }
@@ -192,89 +197,95 @@
 
 <!-- Mood Chatbot -->
 <div id="mood-chatbot" class="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-50">
-  <button id="chat-toggle" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#3d3a37] text-white text-lg sm:text-xl shadow-lg">
+  <button
+    id="chat-toggle"
+    class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#3d3a37] text-white text-lg sm:text-xl shadow-lg flex items-center justify-center"
+  >
     💬
   </button>
 
-  <div id="chat-window" class="hidden w-64 sm:w-72 h-80 sm:h-96 bg-[#faf8f5] border border-ink rounded-xl shadow-xl flex flex-col overflow-hidden">
-    <div class="p-2.5 sm:p-3 border-b border-ink text-xs sm:text-sm ink-text font-semibold">
-      Mirror Companion
+  <div
+    id="chat-window"
+    class="hidden w-72 sm:w-80 h-80 sm:h-96 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-white/30 bg-white/10 backdrop-blur-xl"
+  >
+    <div class="px-4 py-3 border-b border-white/20 flex items-center justify-between">
+      <div class="text-xs font-semibold tracking-wide uppercase text-white/80">
+        Mirror Companion
+      </div>
+      <span class="text-[10px] text-white/60">mood check-in</span>
     </div>
 
-    <div id="chat-messages" class="flex-1 p-2.5 sm:p-3 space-y-2 text-xs sm:text-sm overflow-y-auto"></div>
+    <div
+      id="chat-messages"
+      class="flex-1 p-3 space-y-2 text-sm overflow-y-auto bg-gradient-to-b from-white/40 via-white/20 to-transparent"
+    >
+      <div class="chat-message flex justify-start">
+        <div
+          class="bg-white/80 border border-white/40 rounded-2xl px-3 py-2 text-[13px] text-[#2d2d2d] shadow-sm"
+        >
+          Hi, I’m here to sit with you while you feel what you’re feeling. How does today feel so far?
+        </div>
+      </div>
+    </div>
 
-    <div class="p-2 border-t border-ink">
-      <input id="chat-input" type="text" placeholder="Type here..."
-        class="w-full px-2 py-1 border border-ink rounded text-xs sm:text-sm focus:outline-none">
+    <div class="px-3 py-3 border-t border-white/20 bg-white/30 backdrop-blur-sm">
+      <div class="flex items-center gap-2">
+        <input
+          id="chat-input"
+          type="text"
+          placeholder="Share what’s on your heart..."
+          class="flex-1 text-xs px-3 py-2 rounded-full bg-white/70 border border-white/60 text-[#2d2d2d] focus:outline-none focus:ring-0"
+        >
+        <button
+          id="send-btn"
+          class="px-3 py-2 rounded-full text-xs font-medium bg-[#2d2d2d] text-white hover:bg-black/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Send
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
 <body class="h-full paper-bg font-body text-[14px] sm:text-[15px]">
   <div id="app-wrapper" class="min-h-screen w-full overflow-auto">
-    <!-- outer relative wrapper defines gutters; inner max-w-5xl is safe zone -->
-    <div class="relative max-w-6xl mx-auto px-3 sm:px-4 lg:px-12 py-5 lg:py-8">
-      <!-- gutter stickers & doodles (never inside safe zone) -->
-      <div class="gutter-decor">
-        <!-- left side -->
-        <div class="sticker-pill top-16 -left-10">
-          mood log
-        </div>
-        <div class="sticker-pill sticker-pill-green top-1/2 -left-12">
-          check‑in
-        </div>
-        <div class="sticker-pill bottom-20 -left-10">
-          small truths
-        </div>
-
-        <!-- right side -->
-        <div class="sticker-pill sticker-pill-blue top-24 -right-12">
-          gentle day
-        </div>
-        <div class="sticker-pill top-1/2 -right-11">
-          it’s okay
-        </div>
-        <div class="sticker-pill sticker-pill-blue bottom-24 -right-12">
-          still here
-        </div>
-
-        <!-- bottom center washi + label, below main cards -->
-        <div class="washi-strip bottom-4 left-1/2 -translate-x-1/2 rotate-2"></div>
-        <div class="sticker-pill bottom-4 left-1/2 -translate-x-1/2 translate-y-6 rotate-0">
-          honest feelings
-        </div>
-
-        <!-- hearts & stars hugging the edges -->
-        <div class="doodle-heart top-40 -left-4">
-          ❤
-        </div>
-        <div class="doodle-heart top-56 -left-2">
-          ❤
-        </div>
-        <div class="doodle-heart bottom-32 -left-3">
-          ❤
-        </div>
-
-        <div class="doodle-heart top-38 -right-4">
-          ❤
-        </div>
-        <div class="doodle-heart top-54 -right-2">
-          ❤
-        </div>
-        <div class="doodle-heart bottom-30 -right-3">
-          ❤
-        </div>
-
-        <div class="doodle-star top-48 -left-6">
-          ✶
-        </div>
-        <div class="doodle-star bottom-26 -right-6">
-          ✶
-        </div>
+    <div class="relative w-full px-4 sm:px-6 lg:px-10 xl:px-16 py-5 lg:py-8">
+      <div class="sticker-pill sticker-main"
+           style="top: 20px; left: 350px;">
+        today’s moods
       </div>
 
-      <!-- SAFE ZONE: all functional UI lives inside this container -->
-      <div class="max-w-5xl mx-auto">
+      <div class="doodle-heart doodle-main"
+           style="top: 60px; left: 26px;">
+        ❤
+      </div>
+
+      <div class="doodle-heart doodle-main"
+           style="top: 70px; right: 34px;">
+        ❤
+      </div>
+
+      <div class="doodle-heart"
+           style="bottom: -150px; left: 300px;">
+        ❤
+      </div>
+
+      <div class="doodle-heart"
+           style="bottom: 20px; left: 12px;">
+        ❤
+      </div>
+
+      <div class="sticker-pill sticker-main"
+           style="bottom: 50px; right: 90px;">
+        check-in
+      </div>
+
+      <div class="doodle-heart"
+           style="bottom: 56px; right: 40px;">
+        ❤
+      </div>
+
+      <div class="w-full">
         <!-- Header -->
         <header class="mb-6 lg:mb-8">
           <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
@@ -288,7 +299,7 @@
           <p id="date-display" class="ink-faint text-[11px] sm:text-xs md:text-sm ml-7 italic"></p>
         </header>
 
-        <!-- Main layout: stack on mobile, two columns on large -->
+        <!-- Main layout -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           <!-- Left: today's mood + reflection -->
           <div class="lg:col-span-2 space-y-6 sm:space-y-8">
@@ -300,7 +311,6 @@
                   <p class="ink-light text-[13px] sm:text-sm mb-3 sm:mb-4">Select your mood:</p>
                   <div id="mood-grid"
                        class="grid grid-cols-5 gap-1.5 sm:gap-2 justify-items-center">
-                    <!-- Mood buttons will be generated here -->
                   </div>
                 </div>
                 <!-- Selected Mood Display -->
@@ -345,7 +355,6 @@
                 <span id="entry-count" class="ink-faint text-[11px] sm:text-xs"></span>
               </div>
               <div id="entries-container" class="border border-ink rounded-lg bg-white/30 glass-surface max-h-72 sm:max-h-80 overflow-y-auto">
-                <!-- Entries will be rendered here -->
               </div>
             </section>
 
@@ -353,636 +362,708 @@
             <section class="mb-0">
               <h2 class="font-journal text-base sm:text-lg ink-text mb-2 sm:mb-3">Weekly Summary</h2>
               <div id="weekly-summary" class="border border-ink rounded-lg p-3 sm:p-5 bg-white/30 glass-surface">
-                <!-- Summary will be rendered here -->
               </div>
             </section>
           </div>
         </div>
       </div>
-      <!-- end safe zone -->
     </div>
   </div>
 
-  <script>
-    // Configuration
-    const defaultConfig = {
-      page_title: 'Mood Tracker',
-      page_subtitle: 'How are you feeling today?',
-      reflection_label: "What's on your mind? (optional)",
-      background_color: '#faf8f5',
-      text_color: '#3d3a37',
-      accent_color: '#6b6560',
-      surface_color: '#ffffff',
-      border_color: '#d4d0cb',
-      font_family: 'Source Serif 4',
-      font_size: 16
-    };
+<script>
+  // Configuration
+  const defaultConfig = {
+    page_title: 'Mood Tracker',
+    page_subtitle: 'How are you feeling today?',
+    reflection_label: "What's on your mind? (optional)",
+    background_color: '#faf8f5',
+    text_color: '#3d3a37',
+    accent_color: '#6b6560',
+    surface_color: '#ffffff',
+    border_color: '#d4d0cb',
+    font_family: 'Source Serif 4',
+    font_size: 16
+  };
 
-    let config = { ...defaultConfig };
+  let config = { ...defaultConfig };
 
-    // Mood definitions
-    const moods = [
-      { emoji: '😊', name: 'Happy' },
-      { emoji: '😌', name: 'Calm' },
-      { emoji: '😐', name: 'Neutral' },
-      { emoji: '😴', name: 'Tired' },
-      { emoji: '😰', name: 'Anxious' },
-      { emoji: '😔', name: 'Sad' },
-      { emoji: '😤', name: 'Frustrated' },
-      { emoji: '🤗', name: 'Excited' },
-      { emoji: '🙏', name: 'Grateful' },
-      { emoji: '😢', name: 'Stressed' }
-    ];
+  // Mood definitions
+  const moods = [
+    { emoji: '😊', name: 'Happy' },
+    { emoji: '😌', name: 'Calm' },
+    { emoji: '😐', name: 'Neutral' },
+    { emoji: '😴', name: 'Tired' },
+    { emoji: '😰', name: 'Anxious' },
+    { emoji: '😔', name: 'Sad' },
+    { emoji: '😤', name: 'Frustrated' },
+    { emoji: '🤗', name: 'Excited' },
+    { emoji: '🙏', name: 'Grateful' },
+    { emoji: '😢', name: 'Stressed' }
+  ];
 
-    // Daily reflections
-    const reflections = [
-      "🌿 Notice what you're feeling without trying to change it.",
-      "🌙 Some days are heavier than others. That's okay.",
-      "☁️ Emotions are visitors. They come and go.",
-      "🍃 What would feel gentle right now?",
-      "🌸 You don't have to have it all figured out today.",
-      "💧 Sometimes rest is the most productive thing.",
-      "🌾 Small moments of peace still count.",
-      "🕊️ It's enough to simply notice how you feel.",
-      "🌿 Be patient with yourself. Growth takes time.",
-      "☀️ Even cloudy days have their own quiet beauty.",
-      "🌊 Let your feelings be what they are.",
-      "🍂 Not every day needs to be remarkable."
-    ];
+  // Daily reflections
+  const reflections = [
+    "🌿 Notice what you're feeling without trying to change it.",
+    "🌙 Some days are heavier than others. That's okay.",
+    "☁️ Emotions are visitors. They come and go.",
+    "🍃 What would feel gentle right now?",
+    "🌸 You don't have to have it all figured out today.",
+    "💧 Sometimes rest is the most productive thing.",
+    "🌾 Small moments of peace still count.",
+    "🕊️ It's enough to simply notice how you feel.",
+    "🌿 Be patient with yourself. Growth takes time.",
+    "☀️ Even cloudy days have their own quiet beauty.",
+    "🌊 Let your feelings be what they are.",
+    "🍂 Not every day needs to be remarkable."
+  ];
 
-    // State
-    let selectedMood = null;
-    let allEntries = [];
-    let isLoading = false;
+  // State
+  let selectedMood = null;
+  let allEntries = [];
+  let isLoading = false;
 
-    const moodResponses = {
-      Happy: [
-        "That glow looks good on you 🌸",
-        "Hold onto this feeling—Allah loves gratitude 💛",
-        "Write one thing you want to remember from today."
-      ],
-      Calm: [
-        "Peace is a gift. Let it settle 🌿",
-        "Moments like this are healing—don’t rush them.",
-        "Stillness is also progress."
-      ],
-      Sad: [
-        "I’m really glad you checked in 🤍",
-        "Allah is Al-Lateef—gentle with hearts that hurt.",
-        "You don’t need to fix everything today."
-      ],
-      Anxious: [
-        "Breathe. You are safe right now.",
-        "Nothing meant for you will miss you—trust Allah.",
-        "One small step is enough for now."
-      ],
-      Stressed: [
-        "You’ve been carrying a lot, haven’t you?",
-        "Pause. Unclench your jaw. Relax your shoulders.",
-        "Allah sees your effort, even when you’re tired."
-      ],
-      Frustrated: [
-        "It’s okay to feel this way—feelings aren’t sins.",
-        "Take a breath before reacting.",
-        "Hard days don’t erase your growth."
-      ],
-      Tired: [
-        "Rest is not laziness 🌙",
-        "Your body is asking for mercy—listen.",
-        "Even prophets needed rest."
-      ],
-      Grateful: [
-        "Alhamdulillah looks beautiful on you 🤲",
-        "Gratitude multiplies barakah.",
-        "This moment matters."
-      ],
-      Excited: [
-        "That spark? Follow it 🔥",
-        "Joy is a sign of life—lean into it.",
-        "Capture this feeling somewhere."
-      ],
-      Neutral: [
-        "Not every day needs a label—and that’s okay.",
-        "Check in with yourself gently.",
-        "Stillness is allowed."
-      ]
-    };
+  const moodResponses = {
+    Happy: [
+      "That glow looks good on you 🌸",
+      "Hold onto this feeling—Allah loves gratitude 💛",
+      "Write one thing you want to remember from today."
+    ],
+    Calm: [
+      "Peace is a gift. Let it settle 🌿",
+      "Moments like this are healing—don’t rush them.",
+      "Stillness is also progress."
+    ],
+    Sad: [
+      "I’m really glad you checked in 🤍",
+      "Allah is Al-Lateef—gentle with hearts that hurt.",
+      "You don’t need to fix everything today."
+    ],
+    Anxious: [
+      "Breathe. You are safe right now.",
+      "Nothing meant for you will miss you—trust Allah.",
+      "One small step is enough for now."
+    ],
+    Stressed: [
+      "You’ve been carrying a lot, haven’t you?",
+      "Pause. Unclench your jaw. Relax your shoulders.",
+      "Allah sees your effort, even when you’re tired."
+    ],
+    Frustrated: [
+      "It’s okay to feel this way—feelings aren’t sins.",
+      "Take a breath before reacting.",
+      "Hard days don’t erase your growth."
+    ],
+    Tired: [
+      "Rest is not laziness 🌙",
+      "Your body is asking for mercy—listen.",
+      "Even prophets needed rest."
+    ],
+    Grateful: [
+      "Alhamdulillah looks beautiful on you 🤲",
+      "Gratitude multiplies barakah.",
+      "This moment matters."
+    ],
+    Excited: [
+      "That spark? Follow it 🔥",
+      "Joy is a sign of life—lean into it.",
+      "Capture this feeling somewhere."
+    ],
+    Neutral: [
+      "Not every day needs a label—and that’s okay.",
+      "Check in with yourself gently.",
+      "Stillness is allowed."
+    ]
+  };
 
-    const genericResponses = [
-      "I’m here with you 🤍",
-      "Thank you for checking in.",
-      "Your feelings make sense.",
-      "Be gentle with yourself today."
-    ];
+  const genericResponses = [
+    "I’m here with you 🤍",
+    "Thank you for checking in.",
+    "Your feelings make sense.",
+    "Be gentle with yourself today."
+  ];
 
-    // Helper functions
-    function getTodayDateString() {
-      const now = new Date();
-      return now.toISOString().split('T')[0];
-    }
+  function getTodayDateString() {
+    const now = new Date();
+    return now.toISOString().split('T')[0];
+  }
 
-    function formatDisplayDate(date) {
-      const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-      return date.toLocaleDateString('en-GB', options);
-    }
+  function formatDisplayDate(date) {
+    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    return date.toLocaleDateString('en-GB', options);
+  }
 
-    function formatEntryDate(dateString) {
-      const date = new Date(dateString);
-      const options = { weekday: 'short', day: 'numeric', month: 'short' };
-      return date.toLocaleDateString('en-GB', options);
-    }
+  function formatEntryDate(dateString) {
+    const date = new Date(dateString);
+    const options = { weekday: 'short', day: 'numeric', month: 'short' };
+    return date.toLocaleDateString('en-GB', options);
+  }
 
-    function getRandomReflection() {
-      return reflections[Math.floor(Math.random() * reflections.length)];
-    }
+  function getRandomReflection() {
+    return reflections[Math.floor(Math.random() * reflections.length)];
+  }
 
-    function getWeekStart() {
-      const now = new Date();
-      const dayOfWeek = now.getDay();
-      const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-      const weekStart = new Date(now.setDate(diff));
-      weekStart.setHours(0, 0, 0, 0);
-      return weekStart;
-    }
+  function getWeekStart() {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+    const weekStart = new Date(now.setDate(diff));
+    weekStart.setHours(0, 0, 0, 0);
+    return weekStart;
+  }
 
-    // Initialize mood grid – responsive buttons
-    function initMoodGrid() {
-      const grid = document.getElementById('mood-grid');
-      grid.innerHTML = '';
+  function initMoodGrid() {
+    const grid = document.getElementById('mood-grid');
+    grid.innerHTML = '';
 
-      moods.forEach(mood => {
-        const btn = document.createElement('button');
-        btn.className = 'mood-btn flex flex-col items-center justify-center gap-1 p-2 sm:p-3 border border-ink rounded text-center w-14 sm:w-16';
-        btn.setAttribute('data-mood', mood.name);
-        btn.setAttribute('aria-label', mood.name);
-        btn.innerHTML = `
-          <span class="text-xl sm:text-2xl leading-none block">${mood.emoji}</span>
-          <span class="ink-faint text-[10px] sm:text-xs leading-tight break-words">${mood.name}</span>
-        `;
-        btn.addEventListener('click', () => selectMood(mood));
-        grid.appendChild(btn);
-      });
-    }
-
-    // Select mood
-    function selectMood(mood) {
-      selectedMood = mood;
-
-      document.querySelectorAll('.mood-btn').forEach(btn => {
-        btn.classList.toggle('selected', btn.dataset.mood === mood.name);
-      });
-
-      const display = document.getElementById('selected-mood-display');
-      display.classList.remove('hidden');
-      display.querySelector('p').textContent = `${mood.emoji} Feeling ${mood.name.toLowerCase()}`;
-
-      document.getElementById('save-btn').disabled = false;
-    }
-
-    // Save mood entry
-    async function saveMood() {
-      if (!selectedMood || isLoading) return;
-
-      isLoading = true;
-      const saveBtn = document.getElementById('save-btn');
-      saveBtn.textContent = 'Saving...';
-      saveBtn.disabled = true;
-
-      const reflection = document.getElementById('reflection-input').value.trim();
-      const today = getTodayDateString();
-
-      try {
-        const newEntry = {
-          mood_emoji: selectedMood.emoji,
-          mood_name: selectedMood.name,
-          reflection: reflection,
-          date: today,
-          timestamp: Date.now()
-        };
-
-        const result = await window.dataSdk.create(newEntry);
-
-        if (!result.isOk) {
-          throw new Error('Failed to save mood');
-        }
-
-        showMessage('Mood saved');
-        document.getElementById('reflection-input').value = '';
-        triggerMoodResponse(newEntry);
-
-      } catch (error) {
-        console.error(error);
-        showMessage('Could not save. Please try again.');
-      } finally {
-        isLoading = false;
-        saveBtn.textContent = 'Save Mood';
-        saveBtn.disabled = !selectedMood;
-      }
-    }
-
-    // Show success/error message
-    function showMessage(text) {
-      const msgEl = document.getElementById('success-message');
-      msgEl.textContent = text;
-      msgEl.classList.remove('hidden');
-      msgEl.classList.add('success-msg');
-
-      setTimeout(() => {
-        msgEl.classList.add('hidden');
-        msgEl.classList.remove('success-msg');
-      }, 2000);
-    }
-
-    // Render entries
-    function renderEntries(entries) {
-      const container = document.getElementById('entries-container');
-      const countEl = document.getElementById('entry-count');
-
-      if (entries.length === 0) {
-        container.innerHTML = `
-          <p class="ink-faint text-[13px] sm:text-sm italic p-4 sm:p-5 text-center">No moods recorded yet.</p>
-        `;
-        countEl.textContent = '';
-        return;
-      }
-
-      const sorted = [...entries].sort((a, b) => b.timestamp - a.timestamp).slice(0, 3);
-
-      countEl.textContent = `${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}`;
-
-      container.innerHTML = sorted.map(entry => `
-        <div class="entry-card p-3 sm:p-4">
-          <div class="flex items-start gap-2 sm:gap-3">
-            <span class="text-lg sm:text-xl">${entry.mood_emoji}</span>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-baseline justify-between gap-2 mb-0.5 sm:mb-1">
-                <span class="ink-text text-[13px] sm:text-sm">${entry.mood_name}</span>
-                <span class="ink-faint text-[11px] sm:text-xs">${formatEntryDate(entry.date)}</span>
-              </div>
-              ${entry.reflection ? `<p class="ink-light text-[12px] sm:text-sm italic truncate">${entry.reflection}</p>` : ''}
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // Render weekly summary
-    function renderWeeklySummary(entries) {
-      const container = document.getElementById('weekly-summary');
-      const weekStart = getWeekStart();
-
-      const weekEntries = entries.filter(e => e.timestamp >= weekStart.getTime());
-
-      if (weekEntries.length === 0) {
-        container.innerHTML = `
-          <p class="ink-faint text-[13px] sm:text-sm italic">No moods recorded this week yet.</p>
-        `;
-        return;
-      }
-
-      const moodCounts = {};
-      weekEntries.forEach(e => {
-        const key = `${e.mood_emoji}|${e.mood_name}`;
-        moodCounts[key] = (moodCounts[key] || 0) + 1;
-      });
-
-      const mostCommon = Object.entries(moodCounts)
-        .sort((a, b) => b[1] - a[1])[0][0]
-        .split('|');
-
-      let trend = 'Stable';
-      if (weekEntries.length >= 3) {
-        const positiveNames = ['Happy', 'Calm', 'Excited', 'Grateful'];
-        const sorted = [...weekEntries].sort((a, b) => a.timestamp - b.timestamp);
-        const midpoint = Math.floor(sorted.length / 2);
-
-        const firstHalfPositive = sorted.slice(0, midpoint).filter(e => positiveNames.includes(e.mood_name)).length;
-        const secondHalfPositive = sorted.slice(midpoint).filter(e => positiveNames.includes(e.mood_name)).length;
-
-        const firstRatio = firstHalfPositive / midpoint;
-        const secondRatio = secondHalfPositive / (sorted.length - midpoint);
-
-        if (secondRatio > firstRatio + 0.2) {
-          trend = 'Improving';
-        } else if (secondRatio < firstRatio - 0.2) {
-          trend = 'Declining';
-        }
-      }
-
-      container.innerHTML = `
-        <div class="space-y-2 sm:space-y-3">
-          <div class="flex items-baseline justify-between">
-            <span class="ink-light text-[13px] sm:text-sm">Most common mood</span>
-            <span class="ink-text text-[13px] sm:text-sm">${mostCommon[0]} ${mostCommon[1]}</span>
-          </div>
-          <div class="flex items-baseline justify-between">
-            <span class="ink-light text-[13px] sm:text-sm">Mood trend</span>
-            <span class="ink-text text-[13px] sm:text-sm italic">${trend}</span>
-          </div>
-          <div class="flex items-baseline justify-between">
-            <span class="ink-light text-[13px] sm:text-sm">Entries this week</span>
-            <span class="ink-text text-[13px] sm:text-sm">${weekEntries.length}</span>
-          </div>
-        </div>
+    moods.forEach(mood => {
+      const btn = document.createElement('button');
+      btn.className = 'mood-btn flex flex-col items-center justify-center gap-1 p-2 sm:p-3 border border-ink rounded text-center w-14 sm:w-16';
+      btn.setAttribute('data-mood', mood.name);
+      btn.setAttribute('aria-label', mood.name);
+      btn.innerHTML = `
+        <span class="text-xl sm:text-2xl leading-none block">${mood.emoji}</span>
+        <span class="ink-faint text-[10px] sm:text-xs leading-tight break-words">${mood.name}</span>
       `;
-    }
+      btn.addEventListener('click', () => selectMood(mood));
+      grid.appendChild(btn);
+    });
+  }
 
-    // Handle data changes
-    function onDataChanged(data) {
-      allEntries = data || [];
-      document.getElementById('save-btn').textContent = 'Save Mood';
-      renderEntries(allEntries);
-      renderWeeklySummary(allEntries);
-    }
+  function selectMood(mood) {
+    selectedMood = mood;
 
-    // Apply config to UI
-    async function onConfigChange(cfg) {
-      config = { ...defaultConfig, ...cfg };
-
-      document.getElementById('page-title').textContent = config.page_title || defaultConfig.page_title;
-      document.getElementById('page-subtitle').textContent = config.page_subtitle || defaultConfig.page_subtitle;
-      document.getElementById('reflection-label').textContent = config.reflection_label || defaultConfig.reflection_label;
-
-      document.documentElement.style.setProperty('--bg-color', config.background_color || defaultConfig.background_color);
-      document.documentElement.style.setProperty('--text-color', config.text_color || defaultConfig.text_color);
-
-      const fontFamily = config.font_family || defaultConfig.font_family;
-      document.querySelectorAll('.font-body').forEach(el => {
-        el.style.fontFamily = `${fontFamily}, Georgia, serif`;
-      });
-
-      const baseSize = config.font_size || defaultConfig.font_size;
-      document.body.style.fontSize = `${baseSize}px`;
-    }
-
-    // Map to capabilities
-    function mapToCapabilities(cfg) {
-      return {
-        recolorables: [
-          {
-            get: () => cfg.background_color || defaultConfig.background_color,
-            set: (v) => { cfg.background_color = v; window.elementSdk.setConfig({ background_color: v }); }
-          },
-          {
-            get: () => cfg.surface_color || defaultConfig.surface_color,
-            set: (v) => { cfg.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); }
-          },
-          {
-            get: () => cfg.text_color || defaultConfig.text_color,
-            set: (v) => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
-          },
-          {
-            get: () => cfg.accent_color || defaultConfig.accent_color,
-            set: (v) => { cfg.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }
-          },
-          {
-            get: () => cfg.border_color || defaultConfig.border_color,
-            set: (v) => { cfg.border_color = v; window.elementSdk.setConfig({ border_color: v }); }
-          }
-        ],
-        borderables: [],
-        fontEditable: {
-          get: () => cfg.font_family || defaultConfig.font_family,
-          set: (v) => { cfg.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
-        },
-        fontSizeable: {
-          get: () => cfg.font_size || defaultConfig.font_size,
-          set: (v) => { cfg.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
-        }
-      };
-    }
-
-    // Map to edit panel values
-    function mapToEditPanelValues(cfg) {
-      return new Map([
-        ['page_title', cfg.page_title || defaultConfig.page_title],
-        ['page_subtitle', cfg.page_subtitle || defaultConfig.page_subtitle],
-        ['reflection_label', cfg.reflection_label || defaultConfig.reflection_label]
-      ]);
-    }
-
-    // Initialize
-    async function init() {
-      document.getElementById('date-display').textContent = formatDisplayDate(new Date());
-      document.getElementById('daily-reflection').textContent = getRandomReflection();
-      initMoodGrid();
-      document.getElementById('save-btn').addEventListener('click', saveMood);
-
-      if (window.elementSdk) {
-        window.elementSdk.init({
-          defaultConfig,
-          onConfigChange,
-          mapToCapabilities,
-          mapToEditPanelValues
-        });
-      }
-
-      if (window.dataSdk) {
-        const result = await window.dataSdk.init({
-          onDataChanged
-        });
-        if (!result.isOk) {
-          console.error('Failed to initialize Data SDK');
-        }
-      }
-    }
-
-    init();
-
-    const chatToggle = document.getElementById('chat-toggle');
-    const chatWindow = document.getElementById('chat-window');
-    const chatInput = document.getElementById('chat-input');
-    const chatMessages = document.getElementById('chat-messages');
-
-    chatToggle.addEventListener('click', () => {
-      chatWindow.classList.toggle('hidden');
-
-      if (!chatWindow.classList.contains('hidden') && chatMessages.children.length === 0) {
-        addChatMessage("Hey, I’m here with you 💬", 'bot');
-      }
+    document.querySelectorAll('.mood-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.mood === mood.name);
     });
 
-    function addChatMessage(text, from = 'bot') {
-      const div = document.createElement('div');
-      div.className = from === 'bot'
-        ? 'bg-white/60 p-2 rounded ink-text text-xs sm:text-sm'
-        : 'text-right ink-text text-xs sm:text-sm';
-      div.textContent = text;
-      chatMessages.appendChild(div);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+    const display = document.getElementById('selected-mood-display');
+    display.classList.remove('hidden');
+    display.querySelector('p').textContent = `${mood.emoji} Feeling ${mood.name.toLowerCase()}`;
 
-    function triggerMoodResponse(entry) {
-      const moodName = entry.mood_name;
-      const reflection = entry.reflection?.toLowerCase();
+    document.getElementById('save-btn').disabled = false;
+  }
 
-      let responses = moodResponses[moodName] || genericResponses;
+  async function saveMood() {
+    if (!selectedMood || isLoading) return;
 
-      if (reflection) {
-        if (reflection.includes('tired') || reflection.includes('exhaust')) {
-          responses = moodResponses.Tired || responses;
-        }
-        if (reflection.includes('stress') || reflection.includes('pressure')) {
-          responses = moodResponses.Stressed || responses;
-        }
-        if (reflection.includes('happy') || reflection.includes('good')) {
-          responses = moodResponses.Happy || responses;
-        }
+    isLoading = true;
+    const saveBtn = document.getElementById('save-btn');
+    saveBtn.textContent = 'Saving...';
+    saveBtn.disabled = true;
+
+    const reflection = document.getElementById('reflection-input').value.trim();
+    const today = getTodayDateString();
+
+    try {
+      const newEntry = {
+        mood_emoji: selectedMood.emoji,
+        mood_name: selectedMood.name,
+        reflection: reflection,
+        date: today,
+        timestamp: Date.now()
+      };
+
+      const result = await window.dataSdk.create(newEntry);
+
+      if (!result.isOk) {
+        throw new Error('Failed to save mood');
       }
 
-      const reply = responses[Math.floor(Math.random() * responses.length)];
+      showMessage('Mood saved');
+      document.getElementById('reflection-input').value = '';
+      triggerMoodResponse(newEntry);
 
-      chatWindow.classList.remove('hidden');
+    } catch (error) {
+      console.error(error);
+      showMessage('Could not save. Please try again.');
+    } finally {
+      isLoading = false;
+      saveBtn.textContent = 'Save Mood';
+      saveBtn.disabled = !selectedMood;
+    }
+  }
+
+  function showMessage(text) {
+    const msgEl = document.getElementById('success-message');
+    msgEl.textContent = text;
+    msgEl.classList.remove('hidden');
+    msgEl.classList.add('success-msg');
+
+    setTimeout(() => {
+      msgEl.classList.add('hidden');
+      msgEl.classList.remove('success-msg');
+    }, 2000);
+  }
+
+  function renderEntries(entries) {
+    const container = document.getElementById('entries-container');
+    const countEl = document.getElementById('entry-count');
+
+    if (entries.length === 0) {
+      container.innerHTML = `
+        <p class="ink-faint text-[13px] sm:text-sm italic p-4 sm:p-5 text-center">No moods recorded yet.</p>
+      `;
+      countEl.textContent = '';
+      return;
+    }
+
+    const sorted = [...entries].sort((a, b) => b.timestamp - a.timestamp).slice(0, 3);
+    countEl.textContent = `${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}`;
+
+    container.innerHTML = sorted.map(entry => `
+      <div class="entry-card p-3 sm:p-4">
+        <div class="flex items-start gap-2 sm:gap-3">
+          <span class="text-lg sm:text-xl">${entry.mood_emoji}</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-baseline justify-between gap-2 mb-0.5 sm:mb-1">
+              <span class="ink-text text-[13px] sm:text-sm">${entry.mood_name}</span>
+              <span class="ink-faint text-[11px] sm:text-xs">${formatEntryDate(entry.date)}</span>
+            </div>
+            ${entry.reflection ? `<p class="ink-light text-[12px] sm:text-sm italic truncate">${entry.reflection}</p>` : ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderWeeklySummary(entries) {
+    const container = document.getElementById('weekly-summary');
+    const weekStart = getWeekStart();
+
+    const weekEntries = entries.filter(e => e.timestamp >= weekStart.getTime());
+
+    if (weekEntries.length === 0) {
+      container.innerHTML = `
+        <p class="ink-faint text-[13px] sm:text-sm italic">No moods recorded this week yet.</p>
+      `;
+      return;
+    }
+
+    const moodCounts = {};
+    weekEntries.forEach(e => {
+      const key = `${e.mood_emoji}|${e.mood_name}`;
+      moodCounts[key] = (moodCounts[key] || 0) + 1;
+    });
+
+    const mostCommon = Object.entries(moodCounts)
+      .sort((a, b) => b[1] - a[1])[0][0]
+      .split('|');
+
+    let trend = 'Stable';
+    if (weekEntries.length >= 3) {
+      const positiveNames = ['Happy', 'Calm', 'Excited', 'Grateful'];
+      const sorted = [...weekEntries].sort((a, b) => a.timestamp - b.timestamp);
+      const midpoint = Math.floor(sorted.length / 2);
+
+      const firstHalfPositive = sorted.slice(0, midpoint).filter(e => positiveNames.includes(e.mood_name)).length;
+      const secondHalfPositive = sorted.slice(midpoint).filter(e => positiveNames.includes(e.mood_name)).length;
+
+      const firstRatio = firstHalfPositive / midpoint;
+      const secondRatio = secondHalfPositive / (sorted.length - midpoint);
+
+      if (secondRatio > firstRatio + 0.2) {
+        trend = 'Improving';
+      } else if (secondRatio < firstRatio - 0.2) {
+        trend = 'Declining';
+      }
+    }
+
+    container.innerHTML = `
+      <div class="space-y-2 sm:space-y-3">
+        <div class="flex items-baseline justify-between">
+          <span class="ink-light text-[13px] sm:text-sm">Most common mood</span>
+          <span class="ink-text text-[13px] sm:text-sm">${mostCommon[0]} ${mostCommon[1]}</span>
+        </div>
+        <div class="flex items-baseline justify-between">
+          <span class="ink-light text-[13px] sm:text-sm">Mood trend</span>
+          <span class="ink-text text-[13px] sm:text-sm italic">${trend}</span>
+        </div>
+        <div class="flex items-baseline justify-between">
+          <span class="ink-light text-[13px] sm:text-sm">Entries this week</span>
+          <span class="ink-text text-[13px] sm:text-sm">${weekEntries.length}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function onDataChanged(data) {
+    allEntries = data || [];
+    document.getElementById('save-btn').textContent = 'Save Mood';
+    renderEntries(allEntries);
+    renderWeeklySummary(allEntries);
+  }
+
+  async function onConfigChange(cfg) {
+    config = { ...defaultConfig, ...cfg };
+
+    document.getElementById('page-title').textContent = config.page_title || defaultConfig.page_title;
+    document.getElementById('page-subtitle').textContent = config.page_subtitle || defaultConfig.page_subtitle;
+    document.getElementById('reflection-label').textContent = config.reflection_label || defaultConfig.reflection_label;
+
+    document.documentElement.style.setProperty('--bg-color', config.background_color || defaultConfig.background_color);
+    document.documentElement.style.setProperty('--text-color', config.text_color || defaultConfig.text_color);
+
+    const fontFamily = config.font_family || defaultConfig.font_family;
+    document.querySelectorAll('.font-body').forEach(el => {
+      el.style.fontFamily = `${fontFamily}, Georgia, serif`;
+    });
+
+    const baseSize = config.font_size || defaultConfig.font_size;
+    document.body.style.fontSize = `${baseSize}px`;
+  }
+
+  function mapToCapabilities(cfg) {
+    return {
+      recolorables: [
+        {
+          get: () => cfg.background_color || defaultConfig.background_color,
+          set: (v) => { cfg.background_color = v; window.elementSdk.setConfig({ background_color: v }); }
+        },
+        {
+          get: () => cfg.surface_color || defaultConfig.surface_color,
+          set: (v) => { cfg.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); }
+        },
+        {
+          get: () => cfg.text_color || defaultConfig.text_color,
+          set: (v) => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
+        },
+        {
+          get: () => cfg.accent_color || defaultConfig.accent_color,
+          set: (v) => { cfg.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }
+        },
+        {
+          get: () => cfg.border_color || defaultConfig.border_color,
+          set: (v) => { cfg.border_color = v; window.elementSdk.setConfig({ border_color: v }); }
+        }
+      ],
+      borderables: [],
+      fontEditable: {
+        get: () => cfg.font_family || defaultConfig.font_family,
+        set: (v) => { cfg.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+      },
+      fontSizeable: {
+        get: () => cfg.font_size || defaultConfig.font_size,
+        set: (v) => { cfg.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+      }
+    };
+  }
+
+  function mapToEditPanelValues(cfg) {
+    return new Map([
+      ['page_title', cfg.page_title || defaultConfig.page_title],
+      ['page_subtitle', cfg.page_subtitle || defaultConfig.page_subtitle],
+      ['reflection_label', cfg.reflection_label || defaultConfig.reflection_label]
+    ]);
+  }
+
+  async function init() {
+    document.getElementById('date-display').textContent = formatDisplayDate(new Date());
+    document.getElementById('daily-reflection').textContent = getRandomReflection();
+    initMoodGrid();
+    document.getElementById('save-btn').addEventListener('click', saveMood);
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+
+    if (window.dataSdk) {
+      const result = await window.dataSdk.init({
+        onDataChanged
+      });
+      if (!result.isOk) {
+        console.error('Failed to initialize Data SDK');
+      }
+    }
+  }
+
+  init();
+
+  // ----- CHATBOT: richer, mood-aware -----
+  const chatToggle = document.getElementById('chat-toggle');
+  const chatWindow = document.getElementById('chat-window');
+  const chatInput = document.getElementById('chat-input');
+  const chatMessages = document.getElementById('chat-messages');
+  const sendBtn = document.getElementById('send-btn');
+
+  const patternResponses = {
+    'positive-streak': [
+      "You’ve been feeling consistently lighter lately 🌤️",
+      "There’s a gentle upward pattern in your moods.",
+      "Your recent check-ins carry a softer tone."
+    ],
+    'negative-streak': [
+      "You’ve been holding a lot for a few days now.",
+      "Your check-ins look heavy lately—I’m glad you’re still here.",
+      "This pattern tells me you might be tired in more than one way."
+    ],
+    'repeating': [
+      "This feeling seems to be visiting more than once.",
+      "Your mood has been sitting in a similar place recently.",
+      "Maybe this emotion is asking for a bit more attention."
+    ],
+    'improving': [
+      "Your mood seems to be slowly lifting compared to before.",
+      "There’s a subtle softening in how your last entries feel.",
+      "Tiny shifts upward still count as real change."
+    ],
+    'declining': [
+      "Your recent moods look a little heavier than before.",
+      "It seems like something might be pulling you down lately.",
+      "Your entries hint at some emotional fatigue."
+    ],
+    'mixed': [
+      "Your feelings have been quite mixed lately.",
+      "There’s a lot of variety in your moods—life might be full right now.",
+      "It looks like you’re moving through many emotional spaces."
+    ]
+  };
+
+  const smallTalk = {
+    hello: [
+      "Hey, I’m glad you opened this.",
+      "Hi there. How does your heart feel today?",
+      "Hello — I’m here with you for a bit."
+    ],
+    thanks: [
+      "You’re welcome 🤍",
+      "I’m glad I could be here with you.",
+      "Anytime. You don’t have to hold things alone."
+    ]
+  };
+
+  function analyzeLastThreeMoods() {
+    if (!allEntries || allEntries.length < 2) return null;
+
+    const recent = [...allEntries]
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 3);
+
+    const names = recent.map(e => e.mood_name);
+
+    const positive = ['Happy', 'Calm', 'Excited', 'Grateful'];
+    const negative = ['Sad', 'Anxious', 'Stressed', 'Frustrated', 'Tired'];
+
+    const posCount = names.filter(n => positive.includes(n)).length;
+    const negCount = names.filter(n => negative.includes(n)).length;
+
+    if (posCount === recent.length) return 'positive-streak';
+    if (negCount === recent.length) return 'negative-streak';
+    if (names[0] === names[1]) return 'repeating';
+    if (posCount > negCount) return 'improving';
+    if (negCount > posCount) return 'declining';
+
+    return 'mixed';
+  }
+
+  function addChatMessage(text, from = 'bot') {
+    const div = document.createElement('div');
+    div.className = from === 'bot'
+      ? 'chat-message flex justify-start'
+      : 'chat-message flex justify-end';
+    div.innerHTML = `
+      <div class="${
+        from === 'bot'
+          ? 'bg-white/80 border border-[#e8e5dc]'
+          : 'bg-[#2d2d2d] text-white'
+      } rounded-3xl px-4 py-3 max-w-[230px] text-[13px] leading-relaxed shadow-sm">
+        <p>${text}</p>
+      </div>
+    `;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function detectEmotion(text) {
+    const t = text.toLowerCase();
+    if (t.includes('happy') || t.includes('light') || t.includes('okay') || t.includes('good')) return 'positive';
+    if (t.includes('sad') || t.includes('low') || t.includes('down') || t.includes('empty')) return 'sad';
+    if (t.includes('anxious') || t.includes('anxiety') || t.includes('panic') || t.includes('worried')) return 'anxious';
+    if (t.includes('tired') || t.includes('exhausted') || t.includes('drained')) return 'tired';
+    if (t.includes('stressed') || t.includes('pressure') || t.includes('overwhelmed')) return 'stressed';
+    return null;
+  }
+
+  function detectIntent(text) {
+    const t = text.toLowerCase();
+
+    if (/(^|\s)(hi|hello|hey|good morning|good night|good evening)(\W|$)/.test(t)) {
+      return 'greeting';
+    }
+    if (t.includes('thank you') || t.includes('thanks') || t.includes('thx')) {
+      return 'thanks';
+    }
+    if (t.includes('bye') || t.includes('goodnight') || t.includes('good night') || t.includes('see you')) {
+      return 'goodbye';
+    }
+    if (t.includes('who are you') || t.includes('what are you') || t.includes('what can you do')) {
+      return 'about_bot';
+    }
+    if ((t.includes('how are you') || t.includes('hru')) && !t.includes('how am i')) {
+      return 'bot_feeling';
+    }
+    if (t.includes('talk to me') || t.includes('bored') || t.includes('lonely')) {
+      return 'small_talk';
+    }
+    if (t.includes('panic') || t.includes("can't breathe") || t.includes('freaking out')) {
+      return 'grounding';
+    }
+    return 'generic';
+  }
+
+  const intentResponses = {
+    about_bot: [
+      "I’m here to notice patterns in your moods and offer gentle reflections.",
+      "Think of me as a quiet companion for emotional check-ins."
+    ],
+    bot_feeling: [
+      "I don’t feel things like humans do, but I’m present with you right now.",
+      "I’m focused on holding space for whatever you’re feeling."
+    ],
+    grounding: [
+      "Let’s pause: feel your feet on the ground, take one slow breath in and out.",
+      "Look around and name three calm or neutral things you can see."
+    ],
+    small_talk: [
+      "We can talk about anything that’s on your mind, big or small.",
+      "If your day were a page in a journal, how would you title it?"
+    ],
+    goodbye: [
+      "Thank you for sharing a bit of yourself today. Take gentle care.",
+      "I’m glad we could sit together for a while. You can always come back."
+    ]
+  };
+
+  function chooseRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  async function generateReplyFromFreeText(message) {
+    const emotion = detectEmotion(message);
+    const intent = detectIntent(message);
+
+    if (intent === 'greeting') return chooseRandom(smallTalk.hello);
+    if (intent === 'thanks') return chooseRandom(smallTalk.thanks);
+    if (intent === 'about_bot') return chooseRandom(intentResponses.about_bot);
+    if (intent === 'bot_feeling') return chooseRandom(intentResponses.bot_feeling);
+    if (intent === 'grounding') return chooseRandom(intentResponses.grounding);
+    if (intent === 'small_talk') return chooseRandom(intentResponses.small_talk);
+    if (intent === 'goodbye') return chooseRandom(intentResponses.goodbye);
+
+    if (emotion) {
+      if (emotion === 'sad') return chooseRandom(moodResponses.Sad);
+      if (emotion === 'anxious') return chooseRandom(moodResponses.Anxious);
+      if (emotion === 'tired') return chooseRandom(moodResponses.Tired);
+      if (emotion === 'stressed') return chooseRandom(moodResponses.Stressed);
+      if (emotion === 'positive') return chooseRandom(moodResponses.Happy);
+    }
+
+    const mood = selectedMood?.name;
+    if (mood && moodResponses[mood]) {
+      return chooseRandom(moodResponses[mood]);
+    }
+    return chooseRandom(genericResponses);
+  }
+
+  chatToggle.addEventListener('click', () => {
+    chatWindow.classList.toggle('hidden');
+  });
+
+  sendBtn.addEventListener('click', async () => {
+    const userText = chatInput.value.trim();
+    if (!userText) return;
+    chatInput.value = '';
+    addChatMessage(userText, 'user');
+
+    setTimeout(async () => {
+      const reply = await generateReplyFromFreeText(userText);
+      addChatMessage(reply, 'bot');
+    }, 700);
+  });
+
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendBtn.click();
+    }
+  });
+
+  function triggerMoodResponse(entry) {
+    const moodName = entry.mood_name;
+    const reflection = entry.reflection?.toLowerCase();
+
+    let responses = moodResponses[moodName] || genericResponses;
+
+    if (reflection) {
+      if (reflection.includes('tired') || reflection.includes('exhaust')) {
+        responses = moodResponses.Tired || responses;
+      }
+      if (reflection.includes('stress') || reflection.includes('pressure')) {
+        responses = moodResponses.Stressed || responses;
+      }
+      if (reflection.includes('happy') || reflection.includes('good')) {
+        responses = moodResponses.Happy || responses;
+      }
+    }
+
+    const reply = responses[Math.floor(Math.random() * responses.length)];
+
+    chatWindow.classList.remove('hidden');
+
+    setTimeout(() => {
+      addChatMessage(reply, 'bot');
+    }, 500);
+
+    const pattern = analyzeLastThreeMoods();
+
+    if (pattern && patternResponses[pattern]) {
+      const patternReply =
+        patternResponses[pattern][
+          Math.floor(Math.random() * patternResponses[pattern].length)
+        ];
 
       setTimeout(() => {
-        addChatMessage(reply, 'bot');
-      }, 500);
+        addChatMessage(patternReply, 'bot');
+      }, 1600);
+    }
+  }
+</script>
 
-      const pattern = analyzeLastThreeMoods();
-
-      if (pattern && patternResponses[pattern]) {
-        const patternReply =
-          patternResponses[pattern][
-            Math.floor(Math.random() * patternResponses[pattern].length)
-          ];
-
-        setTimeout(() => {
-          addChatMessage(patternReply, 'bot');
-        }, 1600);
+<script>
+  (function(){
+    function c(){
+      var b=a.contentDocument||a.contentWindow.document;
+      if(b){
+        var d=b.createElement('script');
+        d.innerHTML="window.__CF$cv$params={r:'9c8991761655b2b3',t:'MTc3MDIwMTgxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+        b.getElementsByTagName('head')[0].appendChild(d)
       }
     }
-
-    function analyzeLastThreeMoods() {
-      if (!allEntries || allEntries.length < 2) return null;
-
-      const recent = [...allEntries]
-        .sort((a, b) => b.timestamp - a.timestamp)
-        .slice(0, 3);
-
-      const names = recent.map(e => e.mood_name);
-
-      const positive = ['Happy', 'Calm', 'Excited', 'Grateful'];
-      const negative = ['Sad', 'Anxious', 'Stressed', 'Frustrated', 'Tired'];
-
-      const posCount = names.filter(n => positive.includes(n)).length;
-      const negCount = names.filter(n => negative.includes(n)).length;
-
-      if (posCount === recent.length) return 'positive-streak';
-      if (negCount === recent.length) return 'negative-streak';
-      if (names[0] === names[1]) return 'repeating';
-      if (posCount > negCount) return 'improving';
-      if (negCount > posCount) return 'declining';
-
-      return 'mixed';
+    if(document.body){
+      var a=document.createElement('iframe');
+      a.height=1;
+      a.width=1;
+      a.style.position='absolute';
+      a.style.top=0;
+      a.style.left=0;
+      a.style.border='none';
+      a.style.visibility='hidden';
+      document.body.appendChild(a);
+      if('loading'!==document.readyState)c();
+      else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);
+      else{
+        var e=document.onreadystatechange||function(){};
+        document.onreadystatechange=function(b){
+          e(b);
+          'loading'!==document.readyState&&(document.onreadystatechange=e,c())
+        }
+      }
     }
-
-    const patternResponses = {
-      'positive-streak': [
-        "You've been feeling consistently lighter lately 🌤️",
-        "There's a steady calm in your check-ins. That's nice to see.",
-        "Your mood pattern looks gentle and balanced."
-      ],
-      'negative-streak': [
-        "You've been carrying this for a few days now.",
-        "It looks like things have felt heavy recently.",
-        "I'm really glad you're still checking in."
-      ],
-      'repeating': [
-        "That feeling seems to be sticking around.",
-        "You've felt this more than once recently.",
-        "Maybe this mood wants a little attention."
-      ],
-      'improving': [
-        "Your mood seems to be lifting compared to earlier.",
-        "There’s a subtle shift upward happening.",
-        "Things look a bit lighter than before."
-      ],
-      'declining': [
-        "Your recent moods seem to be dipping.",
-        "It looks like stress has been creeping in.",
-        "Something might be draining you lately."
-      ],
-      'mixed': [
-        "Your feelings have been a mix lately.",
-        "There’s been some emotional variety recently.",
-        "Looks like a lot has been going on."
-      ]
-    };
-
-    const smallTalk = {
-      hello: [
-        "Hey 🌸",
-        "Hi there.",
-        "Hello — how are you feeling?"
-      ],
-      thanks: [
-        "You're welcome 🤍",
-        "Anytime.",
-        "I'm glad I could help."
-      ]
-    };
-
-    chatInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && chatInput.value.trim()) {
-        const userText = chatInput.value.trim();
-        chatInput.value = '';
-        addChatMessage(userText, 'user');
-
-        const mood = selectedMood?.name;
-        let reply;
-        const lower = userText.toLowerCase();
-
-        if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
-          reply = smallTalk.hello[Math.floor(Math.random() * smallTalk.hello.length)];
-        } else if (lower.includes('thank')) {
-          reply = smallTalk.thanks[Math.floor(Math.random() * smallTalk.thanks.length)];
-        }
-
-        if (!reply) {
-          if (mood && moodResponses[mood]) {
-            const arr = moodResponses[mood];
-            reply = arr[Math.floor(Math.random() * arr.length)];
-          } else {
-            reply = genericResponses[Math.floor(Math.random() * genericResponses.length)];
-          }
-        }
-
-        setTimeout(() => addChatMessage(reply), 600);
-      }
-    });
-  </script>
-
-  <script>
-    (function(){
-      function c(){
-        var b=a.contentDocument||a.contentWindow.document;
-        if(b){
-          var d=b.createElement('script');
-          d.innerHTML="window.__CF$cv$params={r:'9c8991761655b2b3',t:'MTc3MDIwMTgxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
-          b.getElementsByTagName('head')[0].appendChild(d)
-        }
-      }
-      if(document.body){
-        var a=document.createElement('iframe');
-        a.height=1;
-        a.width=1;
-        a.style.position='absolute';
-        a.style.top=0;
-        a.style.left=0;
-        a.style.border='none';
-        a.style.visibility='hidden';
-        document.body.appendChild(a);
-        if('loading'!==document.readyState)c();
-        else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);
-        else{
-          var e=document.onreadystatechange||function(){};
-          document.onreadystatechange=function(b){
-            e(b);
-            'loading'!==document.readyState&&(document.onreadystatechange=e,c())
-          }
-        }
-      }
-    })();
-  </script>
+  })();
+</script>
 </body>
 </html>
