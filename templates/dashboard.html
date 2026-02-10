@@ -156,6 +156,16 @@
     pointer-events: none;
     z-index: 3;
   }
+
+      .section-card {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.section-card:hover {
+  transform: translateY(-2px);
+}
+
 </style>
 
     <style>
@@ -348,7 +358,10 @@
                     id="todo-list"
                     class="space-y-3 mb-4 sm:mb-5 min-h-[140px] sm:min-h-[160px]"
                   >
-                    <!-- Tasks will be rendered here -->
+                    <p class="text-[11px] text-center text-[#9b9b9b] mt-3 italic">
+  tap to open →
+</p>
+
                   </div>
                   
                 </div>
@@ -367,7 +380,10 @@
                     id="habit-list"
                     class="space-y-3 min-h-[140px] sm:min-h-[160px]"
                   >
-                    <!-- Habits will be rendered here -->
+                    <p class="text-[11px] text-center text-[#9b9b9b] mt-3 italic">
+  tap to open →
+</p>
+
                   </div>
                 </div>
 
@@ -1228,25 +1244,28 @@
     }
   });
 
-  // ----- DOUBLE-CLICK NAVIGATION -----
-  document
-    .getElementById('todo-list')
-    .parentElement.addEventListener(
-      'dblclick',
-      () => (window.location = '/todo')
-    );
-  document
-    .getElementById('habit-list')
-    .parentElement.addEventListener(
-      'dblclick',
-      () => (window.location = '/habit')
-    );
-  document
-    .getElementById('mood-selector')
-    .parentElement.addEventListener(
-      'dblclick',
-      () => (window.location = '/mood')
-    );
+ // ----- SINGLE-CLICK NAVIGATION -----
+document
+  .getElementById('todo-list')
+  .parentElement.addEventListener(
+    'click',
+    () => (window.location = '/todo')
+  );
+
+document
+  .getElementById('habit-list')
+  .parentElement.addEventListener(
+    'click',
+    () => (window.location = '/habit')
+  );
+
+document
+  .getElementById('mood-selector')
+  .parentElement.addEventListener(
+    'click',
+    () => (window.location = '/mood')
+  );
+
 
   // ----- INIT APP -----
   renderTodos();
@@ -1294,4 +1313,5 @@
     </script>
   </body>
 </html>
+
 
