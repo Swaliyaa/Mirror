@@ -565,6 +565,7 @@
       priority: prioritySelect.value || null,
       dueDate: dueDateInput.value || null,
       createdAt: new Date().toISOString()
+      // completed intentionally undefined at creation
     };
 
     try {
@@ -743,7 +744,7 @@
     const csv = [
       ["Task", "Completed"],
       ...tasks.map(t => [t.text, t.completed ? "Yes" : "No"])
-    ].map(r => r.join(",")).join("\n");
+    ].map(r => r.join(",")).join("\\n");
 
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
@@ -907,7 +908,7 @@
   function detectIntent(text) {
     const t = text.toLowerCase();
 
-    if (/(^|\s)(hi|hello|hey|good morning|good night|good evening)(\W|$)/.test(t)) {
+    if (/(^|\\s)(hi|hello|hey|good morning|good night|good evening)(\\W|$)/.test(t)) {
       return 'greeting';
     }
 
@@ -958,9 +959,126 @@
     chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
   }
 
+  // ---------- NEW: todo-aware summaries for chat ----------
+
+  function summarizeTodayTasks() {
+    const total = tasks.length;
+    if (!total) {
+      return "You don’t have anything on your list yet. You can add even one tiny task and we’ll keep track of it together.";
+    }
+
+    const completed = tasks.filter(t => t.completed).length;
+    const pending = total - completed;
+
+    if (!pending) {
+      return `You’ve completed all ${total} tasks on your list today. That’s a fully cleared page.`;
+    }
+
+    if (!completed) {
+      return `You’ve written down ${total} tasks, but none are checked off yet. You could start with the easiest one and see how that feels.`;
+    }
+
+    return `You’ve finished ${completed} out of ${total} tasks so far, with ${pending} still open. That’s a real amount of movement.`;
+  }
+
+  function summarizeFocusTasks() {
+    if (!tasks.length) {
+      return "Once you add a few tasks, I can help you figure out what might matter most right now.";
+    }
+
+    const highPriority = tasks.filter(t => !t.completed && t.priority === "high");
+    const dueToday = (() => {
+      const today = new Date().toDateString();
+      return tasks.filter(t => t.dueDate && new Date(t.dueDate).toDateString() === today && !t.completed);
+    })();
+    const overdue = tasks.filter(t => t.dueDate && new Date(t.dueDate) < new Date() && !t.completed);
+
+    if (!highPriority.length && !dueToday.length && !overdue.length) {
+      return "Nothing looks urgent on your list right now. You can choose one small task that feels kind to future you.";
+    }
+
+    const parts = [];
+
+    if (highPriority.length) {
+      parts.push(`${highPriority.length} high‑priority task${highPriority.length > 1 ? "s" : ""}`);
+    }
+    if (dueToday.length) {
+      parts.push(`${dueToday.length} due today`);
+    }
+    if (overdue.length) {
+      parts.push(`${overdue.length} overdue`);
+    }
+
+    return `Right now, you have ${parts.join(", ")}. It might help to start with just one of them, not all at once.`;
+  }
+
+  function summarizeOverwhelmSupport() {
+    const pending = tasks.filter(t => !t.completed).length;
+    if (!pending) {
+      return "There’s nothing pending on your list right now. If your mind still feels busy, that’s valid—sometimes it’s not about tasks at all.";
+    }
+    if (pending <= 3) {
+      return `You have ${pending} open task${pending > 1 ? "s" : ""}. You don’t have to rush them; you can move through them one by one.`;
+    }
+    return `You have ${pending} open tasks. That’s a lot for one person. What’s the smallest, least-intimidating one you could do next?`;
+  }
+
+  function isTaskProgressQuestion(text) {
+    const t = text.toLowerCase();
+    return (
+      t.includes("how are my tasks") ||
+      t.includes("how is my to-do") ||
+      t.includes("how is my todo") ||
+      t.includes("how is my list") ||
+      t.includes("tasks going") ||
+      t.includes("to-do going") ||
+      t.includes("todo going") ||
+      t.includes("what is my progress") ||
+      t.includes("task progress") ||
+      t.includes("today's progress") ||
+      t.includes("today progress")
+    );
+  }
+
+  function isWhatToFocusQuestion(text) {
+    const t = text.toLowerCase();
+    return (
+      t.includes("what should i do first") ||
+      t.includes("what should i do now") ||
+      t.includes("what to do now") ||
+      t.includes("where do i start") ||
+      t.includes("what to focus on") ||
+      t.includes("help me choose a task") ||
+      t.includes("which task is important")
+    );
+  }
+
+  function isOverwhelmAroundTasks(text) {
+    const t = text.toLowerCase();
+    return (
+      (t.includes("overwhelmed") || t.includes("too much") || t.includes("so many tasks") || t.includes("so many things")) &&
+      (t.includes("tasks") || t.includes("todo") || t.includes("to-do") || t.includes("list"))
+    );
+  }
+
+  // --------------------------------------------------------
+
   async function generateReply(message) {
     const emotion = detectEmotion(message);
     const intent = detectIntent(message);
+
+    // task-aware branches first
+    if (isTaskProgressQuestion(message)) {
+      return summarizeTodayTasks();
+    }
+
+    if (isWhatToFocusQuestion(message)) {
+      return summarizeFocusTasks();
+    }
+
+    if (isOverwhelmAroundTasks(message)) {
+      return summarizeOverwhelmSupport();
+    }
 
     if (intent === 'grounding') {
       return chooseRandom(groundingResponses);
