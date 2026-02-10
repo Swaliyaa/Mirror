@@ -4,7 +4,7 @@ from psycopg2.extras import RealDictCursor
 from psycopg2 import IntegrityError
 import json
 from flask import Flask, request, session, redirect, render_template, jsonify, send_from_directory
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -776,3 +776,88 @@ def summary_recent_moods():
         "counts": mood_counts
     })
 
+@app.route("/api/reminders", methods=["GET"])
+@login_required
+def api_reminders():
+    user_id = session["user_id"]
+    now = datetime.now()
+    today = now.date()
+    tomorrow = today + timedelta(days=1)
+
+    # time windows
+    ten_pm = time(22, 0)
+    six_am = time(6, 0)
+    now_t = now.time()
+
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    # --- To‑do data ---
+    cursor.execute("""
+        SELECT id, text, completed,
+               COALESCE(due_date::date, created_at::date) AS effective_date
+        FROM todo
+        WHERE user_id = %s
+        ORDER BY created_at DESC
+    """, (user_id,))
+    todos = cursor.fetchall()
+
+    # tasks due today/tomorrow
+    due_today = [t for t in todos if t["effective_date"] == today]
+    due_tomorrow = [t for t in todos if t["effective_date"] == tomorrow]
+
+    pending_today = [t for t in due_today if not t["completed"]]
+
+    # --- Habit data ---
+    cursor.execute("SELECT id, name, completion_history FROM habit WHERE user_id = %s", (user_id,))
+    habits = cursor.fetchall()
+
+    today_str = today.strftime("%Y-%m-%d")
+    habits_not_done_today = []
+    for h in habits:
+        try:
+            history = json.loads(h["completion_history"] or "{}")
+            if not isinstance(history, dict):
+                history = {}
+        except (json.JSONDecodeError, TypeError):
+            history = {}
+        if not history.get(today_str, False):
+            habits_not_done_today.append(h["name"])
+
+    # --- Mood data ---
+    cursor.execute("""
+        SELECT date
+        FROM mood
+        WHERE user_id = %s
+        ORDER BY date DESC
+        LIMIT 1
+    """, (user_id,))
+    last_mood = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    mood_logged_today = last_mood is not None and last_mood["date"] == today
+
+    reminders = {
+        "todo_due_today": [],
+        "todo_pending_today": [],
+        "todo_tomorrow": [],
+        "habits_not_done": [],
+        "show_mood_missing": False
+    }
+
+    # 6 a.m. – 10 p.m.: show tasks that are due today
+    if six_am <= now_t < ten_pm:
+        reminders["todo_due_today"] = [t["text"] for t in due_today]
+
+    # From 10 p.m. to 6 a.m.: show pending today and tomorrow + habit/mood reminders
+    if now_t >= ten_pm or now_t < six_am:
+        reminders["todo_pending_today"] = [t["text"] for t in pending_today]
+        reminders["todo_tomorrow"] = [t["text"] for t in due_tomorrow]
+
+        if not mood_logged_today:
+            reminders["show_mood_missing"] = True
+
+        reminders["habits_not_done"] = habits_not_done_today
+
+    return jsonify({"isOk": True, "reminders": reminders, "serverTime": now.isoformat()})
