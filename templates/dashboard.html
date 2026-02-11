@@ -354,19 +354,33 @@
                     To-Do List
                   </h3>
                   <div
-                    id="todo-list"
-                    class="space-y-3 mb-4 sm:mb-5 min-h-[140px] sm:min-h-[160px]"
-                  >
-                    <!-- Tasks will be rendered here -->
-                  </div>
-                  <div class="flex justify-end">
-                    <span class="inline-flex items-center gap-1 text-[11px] text-[#9b9b9b]">
-                      open
-                      <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2d2d2d] text-[#f5f1e8] text-xs">
-                        ➜
-                      </span>
-                    </span>
-                  </div>
+  id="todo-list"
+  class="space-y-3 min-h-[140px] sm:min-h-[160px]"
+>
+  <!-- Tasks will be rendered here -->
+</div>
+<div class="mt-4 flex">
+  <div class="ml-auto">
+    <!-- glassy open button -->
+    <button
+      type="button"
+      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
+             bg-white/25 border border-white/50 backdrop-blur-sm
+             text-[11px] text-[#4b463f] shadow-sm
+             hover:bg-white/40 hover:border-white/70 hover:shadow
+             transition-colors transition-shadow duration-200"
+    >
+      <span class="tracking-[0.14em] uppercase text-[10px]">open</span>
+      <span
+        class="inline-flex items-center justify-center w-5 h-5 rounded-full
+               bg-[#2d2d2d] text-[#f5f1e8] text-xs shadow-sm"
+      >
+        ➜
+      </span>
+    </button>
+  </div>
+</div>
+
                 </div>
 
                 <!-- Habit Tracker -->
@@ -380,19 +394,33 @@
                     Habit Tracker
                   </h3>
                   <div
-                    id="habit-list"
-                    class="space-y-3 min-h-[140px] sm:min-h-[160px]"
-                  >
-                    <!-- Habits will be rendered here -->
-                  </div>
-                 <div class="flex justify-end mt-4">
-                    <span class="inline-flex items-center gap-1 text-[11px] text-[#9b9b9b]">
-                      open
-                      <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2d2d2d] text-[#f5f1e8] text-xs">
-                        ➜
-                      </span>
-                    </span>
-                  </div>
+  id="habit-list"
+  class="space-y-3 min-h-[140px] sm:min-h-[160px]"
+>
+  <!-- Habits will be rendered here -->
+</div>
+<div class="mt-4 flex">
+  <div class="ml-auto">
+    <!-- same glassy open button as above -->
+    <button
+      type="button"
+      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
+             bg-white/25 border border-white/50 backdrop-blur-sm
+             text-[11px] text-[#4b463f] shadow-sm
+             hover:bg-white/40 hover:border-white/70 hover:shadow
+             transition-colors transition-shadow duration-200"
+    >
+      <span class="tracking-[0.14em] uppercase text-[10px]">open</span>
+      <span
+        class="inline-flex items-center justify-center w-5 h-5 rounded-full
+               bg-[#2d2d2d] text-[#f5f1e8] text-xs shadow-sm"
+      >
+        ➜
+      </span>
+    </button>
+  </div>
+</div>
+
                 </div>
 
                 <!-- Mood Tracker + side quote -->
@@ -478,14 +506,25 @@
                     >
                       Select how you're feeling
                     </div>
-                   <div class="flex justify-end mt-4">
-                      <span class="inline-flex items-center gap-1 text-[11px] text-[#9b9b9b]">
-                        open
-                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2d2d2d] text-[#f5f1e8] text-xs">
-                          ➜
-                        </span>
-                      </span>
-                    </div>
+                   <div class="flex justify-end">
+  <button
+    class="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-full
+           bg-white/30 border border-white/40 text-[#4b463f]
+           backdrop-blur-sm shadow-sm
+           hover:bg-white/45 hover:border-white/60 hover:shadow
+           transition-colors transition-shadow duration-200"
+    type="button"
+  >
+    <span class="tracking-[0.08em] uppercase text-[10px]">open</span>
+    <span
+      class="inline-flex items-center justify-center w-5 h-5 rounded-full
+             bg-[#2d2d2d] text-[#f5f1e8] text-xs shadow-sm"
+    >
+      ↗
+    </span>
+  </button>
+</div>
+
                   </div>
 
                   
@@ -1373,6 +1412,7 @@ document
     </script>
   </body>
 </html>
+
 
 
 
