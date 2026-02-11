@@ -895,11 +895,11 @@ def api_reminders():
     due_tomorrow_names = [t["text"] for t in due_tomorrow]
 
     reminders = {
-        "todo_due_today": due_today_names,
-        "todo_pending_today": [],
-        "todo_tomorrow": [],
-        "habits_not_done": [],
-        "show_mood_missing": False,
+     "todo_due_today": due_today_names + past_due_names,
+     "todo_pending_today": [] if not in_night_window else pending_today_names,
+     "todo_tomorrow": [] if not in_night_window else due_tomorrow_names,
+     "habits_not_done": [] if not in_night_window else habits_not_done_today,
+     "show_mood_missing": False if not in_night_window else not mood_logged_today,
     }
 
     if in_night_window:
@@ -922,5 +922,6 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
