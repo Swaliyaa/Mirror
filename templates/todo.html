@@ -960,6 +960,64 @@
   }
 
   // ---------- NEW: todo-aware summaries for chat ----------
+function summarizeAllTodosTodoPage() {
+  if (!tasks.length) {
+    return "Your to-do list is currently empty.";
+  }
+
+  const names = tasks.map(t => 
+    `${t.text} (${t.completed ? "Completed" : "Pending"})`
+  );
+
+  return `Here’s everything on your to-do list: ${names.join(", ")}.`;
+}
+  function summarizeAllTodoProgressTodoPage() {
+  if (!tasks.length) {
+    return "You haven’t added any tasks yet.";
+  }
+
+  const completed = tasks.filter(t => t.completed).length;
+  const pending = tasks.length - completed;
+
+  return `You’ve completed ${completed} out of ${tasks.length} total tasks. ${pending} are still pending.`;
+}
+function getTodayISO() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function getTomorrowISO() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split('T')[0];
+}
+
+function summarizeTodosDueTodayTomorrowTodoPage() {
+  const today = getTodayISO();
+  const tomorrow = getTomorrowISO();
+
+  const todayTasks = tasks.filter(
+    t => t.dueDate && t.dueDate === today && !t.completed
+  );
+
+  const tomorrowTasks = tasks.filter(
+    t => t.dueDate && t.dueDate === tomorrow && !t.completed
+  );
+
+  if (!todayTasks.length && !tomorrowTasks.length) {
+    return "You don’t have anything due today or tomorrow.";
+  }
+
+  if (todayTasks.length && tomorrowTasks.length) {
+    return `Due today: ${todayTasks.map(t => t.text).join(", ")}. Due tomorrow: ${tomorrowTasks.map(t => t.text).join(", ")}.`;
+  }
+
+  if (todayTasks.length) {
+    return `You have these due today: ${todayTasks.map(t => t.text).join(", ")}.`;
+  }
+
+  return `Tomorrow you have: ${tomorrowTasks.map(t => t.text).join(", ")}.`;
+}
+
 
   function summarizeTodayTasks() {
     const total = tasks.length;
@@ -1023,6 +1081,40 @@
     return `You have ${pending} open tasks. That’s a lot for one person. What’s the smallest, least-intimidating one you could do next?`;
   }
 
+  function isTodoStatusQuestion(text) {
+  const t = text.toLowerCase();
+  return (
+    t.includes("what are my to do") ||
+    t.includes("what are my to-do") ||
+    t.includes("what do i have to do today") ||
+    t.includes("my tasks today") ||
+    t.includes("how is my to do") ||
+    t.includes("how is my to-do")
+  );
+}
+
+function isTodoProgressQuestion(text) {
+  const t = text.toLowerCase();
+  return (
+    t.includes("what is my progress") ||
+    t.includes("progress of to-do") ||
+    t.includes("progress of to do") ||
+    t.includes("how much have i done")
+  );
+}
+
+function isDueQuestion(text) {
+  const t = text.toLowerCase();
+  return (
+    t.includes("due today") ||
+    t.includes("due tomorrow") ||
+    t.includes("anything due today") ||
+    t.includes("anything due tomorrow") ||
+    t.includes("what is due today") ||
+    t.includes("what is due tomorrow")
+  );
+}
+
   function isTaskProgressQuestion(text) {
     const t = text.toLowerCase();
     return (
@@ -1068,6 +1160,19 @@
     const intent = detectIntent(message);
 
     // task-aware branches first
+if (isTodoStatusQuestion(message)) {
+  return summarizeAllTodosTodoPage();
+}
+
+if (isTodoProgressQuestion(message)) {
+  return summarizeAllTodoProgressTodoPage();
+}
+
+if (isDueQuestion(message)) {
+  return summarizeTodosDueTodayTomorrowTodoPage();
+}
+
+    
     if (isTaskProgressQuestion(message)) {
       return summarizeTodayTasks();
     }
@@ -1139,3 +1244,4 @@
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c88e72cc66ab2b3',t:'MTc3MDE5NDg0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
+
