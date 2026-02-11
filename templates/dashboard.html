@@ -592,7 +592,7 @@
       </div>
     </div>
 
-  <script>
+ <script>
   let currentData = {{ initial_data | tojson }};
 
   // ----- RENDER FUNCTIONS -----
@@ -1221,69 +1221,74 @@
       .join(', ')}.`;
   }
 
-  function summarizeMoodRecent(range) {
-    const moods = currentData.filter(d => d.type === 'mood');
-    if (!moods.length) {
-      return 'You haven’t logged any moods yet.';
-    }
+  // ---- NEW: shared sameDay + API-based mood summary ----
+  function sameDay(d1, d2) {
+    const a = new Date(d1);
+    const b = new Date(d2);
+    return (
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+    );
+  }
 
-    const now = new Date();
-    const cutoff = new Date();
-    if (range === 'today') {
-      const iso = now.toISOString().split('T')[0];
-      const todayEntries = moods.filter(m => m.date === iso);
-      if (!todayEntries.length) {
-        return 'You haven’t logged a mood today.';
+  async function summarizeMoodRecent(range) {
+    const rangeMap = {
+      today: 1,
+      yesterday: 2,
+      '3days': 3,
+      week: 7,
+      few: 5
+    };
+
+    const days = rangeMap[range] || 5;
+
+    try {
+      const resp = await fetch(`/api/summary/recent-moods?days=${days}`);
+      if (!resp.ok) {
+        return 'I couldn’t load your mood history just now.';
       }
-      const labels = todayEntries.map(m => m.content);
-      return `Today you logged: ${labels.join(', ')}.`;
-    }
+      const data = await resp.json();
 
-    if (range === 'yesterday') {
-      const target = new Date();
-      target.setDate(target.getDate() - 1);
-      const iso = target.toISOString().split('T')[0];
-      const y = moods.filter(m => m.date === iso);
-      if (!y.length) {
-        return 'You didn’t log a mood yesterday.';
+      if (!data.entries || !data.entries.length) {
+        return 'There aren’t any mood entries in that period yet.';
       }
-      const labels = y.map(m => m.content);
-      return `Yesterday you logged: ${labels.join(', ')}.`;
+
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      const yesterdayStr = new Date(now.getTime() - 86400000)
+        .toISOString()
+        .split('T')[0];
+
+      let filtered = data.entries;
+
+      if (range === 'today') {
+        filtered = filtered.filter(e => sameDay(e.date, todayStr));
+      } else if (range === 'yesterday') {
+        filtered = filtered.filter(e => sameDay(e.date, yesterdayStr));
+      }
+
+      const counts = {};
+      filtered.forEach(e => {
+        counts[e.mood_name] = (counts[e.mood_name] || 0) + 1;
+      });
+
+      const summary = Object.entries(counts)
+        .map(([name, count]) => `${name} (${count})`)
+        .join(', ');
+
+      if (!summary) {
+        return 'No moods logged for this period yet.';
+      }
+
+      if (range === 'today') return `Today you logged: ${summary}.`;
+      if (range === 'yesterday') return `Yesterday you logged: ${summary}.`;
+      if (range === '3days') return `In the last 3 days, your moods have been: ${summary}.`;
+      if (range === 'week') return `In the last week, your moods have been: ${summary}.`;
+      return `In the last few days, your moods have been: ${summary}.`;
+    } catch (e) {
+      return 'I couldn’t load your mood history just now.';
     }
-
-    if (range === '3days') {
-      cutoff.setDate(now.getDate() - 3);
-    } else if (range === 'week') {
-      cutoff.setDate(now.getDate() - 7);
-    } else {
-      cutoff.setDate(now.getDate() - 5);
-    }
-
-    const filtered = moods.filter(m => {
-      const d = new Date(m.date);
-      return d >= cutoff && d <= now;
-    });
-
-    if (!filtered.length) {
-      return 'There aren’t any mood entries in that period yet.';
-    }
-
-    const counts = {};
-    filtered.forEach(m => {
-      counts[m.content] = (counts[m.content] || 0) + 1;
-    });
-
-    const summary = Object.entries(counts)
-      .map(([name, count]) => `${name} (${count})`)
-      .join(', ');
-
-    if (range === '3days') {
-      return `In the last 3 days, your moods have been: ${summary}.`;
-    }
-    if (range === 'week') {
-      return `In the last week, your moods have been: ${summary}.`;
-    }
-    return `In the last few days, your moods have been: ${summary}.`;
   }
 
   function isTodoStatusQuestion(text) {
@@ -1478,18 +1483,18 @@
 
     if (isMoodHistoryQuestion(message)) {
       const range = resolveMoodRange(message);
-      return 'Looking at your moods: ' + summarizeMoodRecent(range);
+      return 'Looking at your moods: ' + (await summarizeMoodRecent(range));
     }
 
     // mood summary intents
     if (intent === 'mood_today') {
-      return summarizeMoodRecent('today');
+      return await summarizeMoodRecent('today');
     }
     if (intent === 'mood_yesterday') {
-      return summarizeMoodRecent('yesterday');
+      return await summarizeMoodRecent('yesterday');
     }
     if (intent === 'mood_week' || intent === 'mood_summary') {
-      return summarizeMoodRecent('week');
+      return await summarizeMoodRecent('week');
     }
 
     // intent-based
@@ -1575,6 +1580,7 @@
 
 
 
+
     <script>
       (function () {
         function c() {
@@ -1612,6 +1618,7 @@
     </script>
   </body>
 </html>
+
 
 
 
