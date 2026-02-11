@@ -11,7 +11,7 @@ from functools import wraps
 
 # NEW: imports for email + tokens
 import smtplib
-from email.mime.text import MIMEText
+from email.mime_text import MIMEText
 import secrets
 from urllib.parse import urlencode
 from zoneinfo import ZoneInfo  # timezone support
@@ -104,7 +104,6 @@ def init_db():
         );
     """)
 
-    # NEW: table for password reset tokens
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS password_reset_tokens (
             id SERIAL PRIMARY KEY,
@@ -119,7 +118,6 @@ def init_db():
     conn.close()
 
 
-# Run init on startup (Render-safe)
 with app.app_context():
     init_db()
 
@@ -158,7 +156,6 @@ If you did not request this, you can safely ignore this email.
         server.sendmail(GMAIL_USER, [to_email], msg.as_string())
         server.quit()
         print("Reset email sent successfully", flush=True)
-
     except Exception as e:
         print("SMTP ERROR:", e, flush=True)
 
@@ -263,10 +260,8 @@ def logout():
 # ----------------------------
 # FORGOT / RESET PASSWORD
 # ----------------------------
-
 @app.route("/forgot-password", methods=["POST"])
 def forgot_password():
-    # support JSON or form
     email = request.json.get("email") if request.is_json else request.form.get("email")
     if not email:
         return jsonify({"isOk": False, "message": "Email is required."}), 400
@@ -274,11 +269,9 @@ def forgot_password():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    # username is the email in your schema
     cursor.execute("SELECT id FROM users WHERE username=%s", (email,))
     user = cursor.fetchone()
 
-    # Always respond success-like to avoid leaking whether the email exists
     if not user:
         cursor.close()
         conn.close()
@@ -286,11 +279,9 @@ def forgot_password():
 
     user_id = user["id"]
 
-    # Create token valid for 1 hour
     token = secrets.token_urlsafe(32)
     expires_at = datetime.utcnow() + timedelta(hours=1)
 
-    # Remove old tokens for this user
     cursor.execute("DELETE FROM password_reset_tokens WHERE user_id=%s", (user_id,))
 
     cursor.execute(
@@ -301,11 +292,9 @@ def forgot_password():
     cursor.close()
     conn.close()
 
-    # Build reset link
     query = urlencode({"token": token})
     reset_link = f"{BASE_URL}/reset-password?{query}"
 
-    # Send email
     send_reset_email(email, reset_link)
 
     return jsonify({"isOk": True, "message": "If an account exists, a reset link has been sent."})
@@ -320,7 +309,6 @@ def reset_password():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    # Look up token and ensure not expired
     cursor.execute(
         "SELECT pr.user_id FROM password_reset_tokens pr WHERE pr.token=%s AND pr.expires_at > %s",
         (token, datetime.utcnow())
@@ -339,7 +327,6 @@ def reset_password():
         conn.close()
         return render_template("reset_password.html", token=token)
 
-    # POST: update password
     new_password = request.form.get("password")
     confirm = request.form.get("confirm")
 
@@ -371,7 +358,6 @@ def dashboard():
 
     todos_list, habits_list, mood_list = [], [], []
 
-    # --- Fetch todos ---
     cursor.execute("""
         SELECT id, text, completed,
                COALESCE(due_date::date, created_at::date, CURRENT_DATE) AS effective_date
@@ -390,13 +376,11 @@ def dashboard():
             "date": t["effective_date"].isoformat()
         })
 
-    # --- Fetch habits ---
     cursor.execute("SELECT * FROM habit WHERE user_id=%s", (user_id,))
     today_date = datetime.now().date()
     today_str = today_date.strftime("%Y-%m-%d")
 
     for h in cursor.fetchall():
-        # Safe JSON parsing
         try:
             history = json.loads(h["completion_history"] or "{}")
             if not isinstance(history, dict):
@@ -404,7 +388,6 @@ def dashboard():
         except (json.JSONDecodeError, TypeError):
             history = {}
 
-        # compute current streak ending today
         streak = 0
         d = today_date
         while True:
@@ -423,7 +406,6 @@ def dashboard():
             "completed": history.get(today_str, False)
         })
 
-    # --- Fetch moods ---
     cursor.execute(
         "SELECT * FROM mood WHERE user_id=%s ORDER BY id DESC LIMIT 3",
         (user_id,)
@@ -432,7 +414,6 @@ def dashboard():
         mood_list.append({
             "id": m["id"],
             "type": "mood",
-            # keep exact mood_name (e.g. "Happy") to match dashboard buttons
             "content": m["mood_name"],
             "date": m["date"].isoformat()
         })
@@ -456,14 +437,14 @@ def todo_page():
 
 
 @app.route("/habit")
-@app.route("/habit/")
+@app.route("/habit/"))
 @login_required
 def habit_page():
     return render_template("habit.html")
 
 
 @app.route("/mood")
-@app.route("/mood/")
+@app.route("/mood/"))
 @login_required
 def mood_page():
     return render_template("mood.html")
@@ -482,7 +463,6 @@ def api_todos():
     if request.method == "POST":
         data = request.json
 
-        # robust due_date parsing: supports "YYYY-MM-DD" or full ISO
         raw_due = data.get("dueDate")
         if raw_due:
             if len(raw_due) == 10:
@@ -513,10 +493,9 @@ def api_todos():
         conn.close()
         return jsonify({"isOk": True})
 
-    # GET branch
     cursor.execute(
         """
-        SELECT id, text, completed,
+        SELECT id, text, category, priority, completed,
                COALESCE(due_date::date, created_at::date, CURRENT_DATE) AS effective_date
         FROM todo
         WHERE user_id=%s
@@ -532,6 +511,8 @@ def api_todos():
             {
                 "id": t["id"],
                 "text": t["text"],
+                "category": t["category"],
+                "priority": t["priority"],
                 "completed": bool(t["completed"]),
                 "dueDate": t["effective_date"].isoformat(),
             }
@@ -593,7 +574,6 @@ def api_habits():
 
     if request.method == "POST":
         data = request.json
-        # Make sure completion_history is always JSON string
         history = json.dumps(data.get("completion_history", {}))
         cursor.execute("""
             INSERT INTO habit (id, user_id, name, icon, category, frequency, completion_history, created_at)
@@ -626,7 +606,6 @@ def update_habit(id):
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    # 1️⃣ Load existing history
     cursor.execute(
         "SELECT completion_history FROM habit WHERE id=%s AND user_id=%s",
         (id, user_id)
@@ -640,10 +619,8 @@ def update_habit(id):
     except (json.JSONDecodeError, TypeError):
         history = {}
 
-    # 2️⃣ Toggle today
     history[today] = completed
 
-    # 3️⃣ Save back as VALID JSON
     cursor.execute(
         """
         UPDATE habit
@@ -732,7 +709,7 @@ def summary_today_todos():
 
     total = len(rows)
     completed = 0
-    pending = total  # all are pending by filter
+    pending = total
 
     return jsonify({
         "isOk": True,
@@ -746,10 +723,6 @@ def summary_today_todos():
 @app.route("/api/summary/recent-habits", methods=["GET"])
 @login_required
 def summary_recent_habits():
-    """
-    Summarise habit completion over the last N days (default 3).
-    Uses completion_history JSON (date -> bool).
-    """
     user_id = session["user_id"]
     days = int(request.args.get("days", 3))
     today = datetime.now().date()
@@ -806,9 +779,6 @@ def summary_recent_habits():
 @app.route("/api/summary/recent-moods", methods=["GET"])
 @login_required
 def summary_recent_moods():
-    """
-    Get mood entries over the last N days (default 7) and basic counts.
-    """
     user_id = session["user_id"]
     days = int(request.args.get("days", 7))
     today = datetime.now().date()
@@ -826,7 +796,6 @@ def summary_recent_moods():
     """, (user_id, start_date))
     rows = cursor.fetchall()
 
-    # Aggregate counts by mood_name
     mood_counts = {}
     for r in rows:
         name = r["mood_name"]
@@ -854,24 +823,20 @@ def api_reminders():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    # --- Fetch user timezone ---
     cursor.execute("SELECT timezone FROM users WHERE id=%s", (user_id,))
     tz_row = cursor.fetchone()
     user_tz_str = tz_row["timezone"] if tz_row and tz_row["timezone"] else "Asia/Kolkata"
     user_tz = ZoneInfo(user_tz_str)
 
-    # --- Current user time ---
     now = datetime.now(user_tz)
     today = now.date()
     tomorrow = today + timedelta(days=1)
     now_t = now.time()
 
-    # --- Time windows ---
-    night_start = time(21, 0)   # 9 PM
-    night_end = time(0, 0)      # 12:00 AM
+    night_start = time(21, 0)
+    night_end = time(0, 0)
     in_night_window = now_t >= night_start or now_t < night_end
 
-    # --- Fetch todos ---
     cursor.execute("""
         SELECT id, text, completed, due_date, created_at
         FROM todo
@@ -881,26 +846,20 @@ def api_reminders():
     todos = cursor.fetchall()
 
     def todo_effective_date_user(row):
-        """Return the effective date in user's timezone."""
         if row["due_date"]:
-            return row["due_date"]  # already a date
+            return row["due_date"]
         created = row["created_at"]
         if created is None:
             return today
         if created.tzinfo is None:
-            # assume server stores in UTC if naive
             created = created.replace(tzinfo=ZoneInfo("UTC"))
         return created.astimezone(user_tz).date()
 
-    # tasks due today/tomorrow in user time
     due_today = [t for t in todos if todo_effective_date_user(t) == today and not t["completed"]]
     due_tomorrow = [t for t in todos if todo_effective_date_user(t) == tomorrow and not t["completed"]]
-
-    # include past-due incomplete tasks in due_today
     past_due = [t for t in todos if todo_effective_date_user(t) < today and not t["completed"]]
     due_today_all = due_today + past_due
 
-    # --- Habit data ---
     cursor.execute("SELECT id, name, completion_history FROM habit WHERE user_id = %s", (user_id,))
     habits = cursor.fetchall()
 
@@ -916,7 +875,6 @@ def api_reminders():
         if not history.get(today_str, False):
             habits_not_done_today.append(h["name"])
 
-    # --- Mood data ---
     cursor.execute("""
         SELECT date
         FROM mood
@@ -931,17 +889,22 @@ def api_reminders():
 
     mood_logged_today = last_mood is not None and last_mood["date"] == today
 
-    # --- Build reminders ---
+    # names as strings, matching dashboard.js
+    due_today_names = [t["text"] for t in due_today_all]
+    pending_today_names = [t["text"] for t in due_today]   # strictly today
+    due_tomorrow_names = [t["text"] for t in due_tomorrow]
+
     reminders = {
-        "todo_due_today": [t["text"] for t in due_today_all],  # always visible
+        "todo_due_today": due_today_names,
+        "todo_pending_today": [],
         "todo_tomorrow": [],
         "habits_not_done": [],
-        "show_mood_missing": False
+        "show_mood_missing": False,
     }
 
-    # Night window reminders (9 PM – 12:00 AM)
     if in_night_window:
-        reminders["todo_tomorrow"] = [t["text"] for t in due_tomorrow]
+        reminders["todo_pending_today"] = pending_today_names
+        reminders["todo_tomorrow"] = due_tomorrow_names
         reminders["habits_not_done"] = habits_not_done_today
         reminders["show_mood_missing"] = not mood_logged_today
 
@@ -954,7 +917,7 @@ def api_reminders():
 
 
 # ----------------------------
-# WAKE ROUTE (for Render free tier)
+# WAKE ROUTE
 # ----------------------------
 @app.route("/wake")
 def wake():
