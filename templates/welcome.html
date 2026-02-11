@@ -138,7 +138,14 @@
     .sticker.float {
       animation: floatSoft 5s ease-in-out infinite;
     }
-
+    .doodle-heart {
+      position: absolute;
+      font-size: 13px;
+      color: #e19aa5;
+      opacity: 0.95;
+      pointer-events: none;
+      z-index: 2;
+    }
     /* Make stickers less intense on very small screens */
     @media (max-width: 480px) {
       .animated-text {
@@ -173,6 +180,17 @@
   <div class="sticker sticker-side-left small">🕊 soft start</div>
   <div class="sticker sticker-side-right small accent">for your eyes only 🤍</div>
 
+  <div class="doodle-heart" style="top: 8%; left: 14%;">❤</div>
+  <div class="doodle-heart" style="top: 6%; right: 12%;">❤</div>
+
+  <div class="doodle-heart" style="top: 32%; left: 6%;">❤</div>
+  <div class="doodle-heart" style="top: 30%; right: 5%;">❤</div>
+
+  <div class="doodle-heart" style="bottom: 30%; left: 8%;">❤</div>
+  <div class="doodle-heart" style="bottom: 28%; right: 9%;">❤</div>
+
+  <div class="doodle-heart" style="bottom: 10%; left: 12%;">❤</div>
+  <div class="doodle-heart" style="bottom: 8%; right: 14%;">❤</div>
   <div class="container">
     <div class="text-wrapper">
       <div class="animated-text" id="animatedText">
@@ -229,4 +247,5 @@
   </script>
 </body>
 </html>
+
 
