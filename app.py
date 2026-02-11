@@ -14,6 +14,7 @@ import smtplib
 from email.mime.text import MIMEText
 import secrets
 from urllib.parse import urlencode
+from zoneinfo import ZoneInfo  # timezone support
 
 app = Flask(__name__)
 app.secret_key = "mirror_secret_key_change_later"
@@ -29,9 +30,9 @@ BASE_URL = os.environ.get("BASE_URL", "http://localhost:5000")
 # ----------------------------
 def get_db_connection():
     return psycopg2.connect(
-    os.environ["DATABASE_URL"],
-    sslmode="require"
-)
+        os.environ["DATABASE_URL"],
+        sslmode="require"
+    )
 
 
 # ----------------------------
@@ -161,6 +162,7 @@ If you did not request this, you can safely ignore this email.
     except Exception as e:
         print("SMTP ERROR:", e, flush=True)
 
+
 # ----------------------------
 # STATIC ROUTES
 # ----------------------------
@@ -221,8 +223,6 @@ def login():
     cursor.close()
     conn.close()
     return render_template("login.html", active_view="signin", error=message)
-
-
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -373,13 +373,13 @@ def dashboard():
 
     # --- Fetch todos ---
     cursor.execute("""
-    SELECT id, text, completed,
-           COALESCE(due_date::date, created_at::date, CURRENT_DATE) AS effective_date
-    FROM todo
-    WHERE user_id=%s
-    ORDER BY created_at DESC
-    LIMIT 5
-""", (user_id,))
+        SELECT id, text, completed,
+               COALESCE(due_date::date, created_at::date, CURRENT_DATE) AS effective_date
+        FROM todo
+        WHERE user_id=%s
+        ORDER BY created_at DESC
+        LIMIT 5
+    """, (user_id,))
 
     for t in cursor.fetchall():
         todos_list.append({
@@ -390,7 +390,7 @@ def dashboard():
             "date": t["effective_date"].isoformat()
         })
 
-        # --- Fetch habits ---
+    # --- Fetch habits ---
     cursor.execute("SELECT * FROM habit WHERE user_id=%s", (user_id,))
     today_date = datetime.now().date()
     today_str = today_date.strftime("%Y-%m-%d")
@@ -481,6 +481,17 @@ def api_todos():
 
     if request.method == "POST":
         data = request.json
+
+        # robust due_date parsing: supports "YYYY-MM-DD" or full ISO
+        raw_due = data.get("dueDate")
+        if raw_due:
+            if len(raw_due) == 10:
+                due = datetime.strptime(raw_due, "%Y-%m-%d").date()
+            else:
+                due = datetime.fromisoformat(raw_due).date()
+        else:
+            due = None
+
         cursor.execute(
             """
             INSERT INTO todo (id, user_id, text, category, priority, due_date, completed, created_at)
@@ -492,7 +503,7 @@ def api_todos():
                 data["text"],
                 data.get("category", ""),
                 data.get("priority", ""),
-                datetime.strptime(data["dueDate"], "%Y-%m-%d") if data.get("dueDate") else None,
+                due,
                 False,
                 datetime.fromisoformat(data["createdAt"]) if data.get("createdAt") else datetime.now(),
             ),
@@ -699,7 +710,6 @@ def api_moods():
 # ----------------------------
 # API: SUMMARY ENDPOINTS
 # ----------------------------
-
 @app.route("/api/summary/today-todos", methods=["GET"])
 @login_required
 def summary_today_todos():
@@ -707,8 +717,6 @@ def summary_today_todos():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    # Treat "today" as: all not-completed todos, newest first.
-    # If you want, you can also LIMIT 10.
     cursor.execute("""
         SELECT id, text, completed,
                COALESCE(due_date::date, created_at::date) AS effective_date
@@ -835,8 +843,10 @@ def summary_recent_moods():
         "counts": mood_counts
     })
 
-from zoneinfo import ZoneInfo
 
+# ----------------------------
+# API: REMINDERS (timezone-aware)
+# ----------------------------
 @app.route("/api/reminders", methods=["GET"])
 @login_required
 def api_reminders():
@@ -858,25 +868,36 @@ def api_reminders():
 
     # --- Time windows ---
     night_start = time(21, 0)   # 9 PM
-    night_end = time(0, 0)     # 12:30 AM
+    night_end = time(0, 0)      # 12:00 AM
     in_night_window = now_t >= night_start or now_t < night_end
 
     # --- Fetch todos ---
     cursor.execute("""
-        SELECT id, text, completed,
-               COALESCE(due_date::date, created_at::date) AS effective_date
+        SELECT id, text, completed, due_date, created_at
         FROM todo
         WHERE user_id = %s
         ORDER BY created_at DESC
     """, (user_id,))
     todos = cursor.fetchall()
 
-    # tasks due today/tomorrow
-    due_today = [t for t in todos if t["effective_date"] == today and not t["completed"]]
-    due_tomorrow = [t for t in todos if t["effective_date"] == tomorrow and not t["completed"]]
+    def todo_effective_date_user(row):
+        """Return the effective date in user's timezone."""
+        if row["due_date"]:
+            return row["due_date"]  # already a date
+        created = row["created_at"]
+        if created is None:
+            return today
+        if created.tzinfo is None:
+            # assume server stores in UTC if naive
+            created = created.replace(tzinfo=ZoneInfo("UTC"))
+        return created.astimezone(user_tz).date()
+
+    # tasks due today/tomorrow in user time
+    due_today = [t for t in todos if todo_effective_date_user(t) == today and not t["completed"]]
+    due_tomorrow = [t for t in todos if todo_effective_date_user(t) == tomorrow and not t["completed"]]
 
     # include past-due incomplete tasks in due_today
-    past_due = [t for t in todos if t["effective_date"] < today and not t["completed"]]
+    past_due = [t for t in todos if todo_effective_date_user(t) < today and not t["completed"]]
     due_today_all = due_today + past_due
 
     # --- Habit data ---
@@ -918,7 +939,7 @@ def api_reminders():
         "show_mood_missing": False
     }
 
-    # Night window reminders (9 PM – 12:30 AM)
+    # Night window reminders (9 PM – 12:00 AM)
     if in_night_window:
         reminders["todo_tomorrow"] = [t["text"] for t in due_tomorrow]
         reminders["habits_not_done"] = habits_not_done_today
@@ -930,13 +951,11 @@ def api_reminders():
         "serverTime": datetime.utcnow().isoformat(),
         "userTime": now.isoformat()
     })
+
+
 # ----------------------------
 # WAKE ROUTE (for Render free tier)
 # ----------------------------
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
-
-
-
-
