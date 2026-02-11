@@ -186,27 +186,42 @@ def login():
     message = ""
 
     if request.method == "POST":
-    username = request.form["username"]
-    password = request.form["password"]
-    cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
-    user = cursor.fetchone()
+        username = request.form["username"]
+        password = request.form["password"]
 
-    if user:
-        if check_password_hash(user["password"], password):
-            session["user_id"] = user["id"]
+        cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
+        user = cursor.fetchone()
+
+        if user:
+            if check_password_hash(user["password"], password):
+                session["user_id"] = user["id"]
+                cursor.close()
+                conn.close()
+                return redirect("/dashboard")
+            else:
+                message = "Incorrect password. Try again."
+                cursor.close()
+                conn.close()
+                return render_template(
+                    "login.html",
+                    active_view="signin",
+                    error=message
+                )
+        else:
+            message = "No account found. Please sign up first."
             cursor.close()
             conn.close()
-            return redirect("/dashboard")
-        else:
-            message = "Incorrect password. Try again."
-            return render_template("login.html", active_view="signin", error=message)
-    else:
-        message = "No account found. Please sign up first."
-        return render_template("login.html", active_view="signup", error=message)
+            return render_template(
+                "login.html",
+                active_view="signup",
+                error=message
+            )
 
     cursor.close()
     conn.close()
     return render_template("login.html", active_view="signin", error=message)
+
+
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -886,4 +901,5 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
