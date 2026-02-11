@@ -437,14 +437,14 @@ def todo_page():
 
 
 @app.route("/habit")
-@app.route("/habit/"))
+@app.route("/habit/")
 @login_required
 def habit_page():
     return render_template("habit.html")
 
 
 @app.route("/mood")
-@app.route("/mood/"))
+@app.route("/mood/")
 @login_required
 def mood_page():
     return render_template("mood.html")
@@ -922,3 +922,4 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
