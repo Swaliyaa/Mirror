@@ -370,875 +370,829 @@
     </div>
   </div>
 <script>
-  // Configuration
-  const defaultConfig = {
-    page_title: 'Mood Tracker',
-    page_subtitle: 'How are you feeling today?',
-    reflection_label: "What's on your mind? (optional)",
-    background_color: '#faf8f5',
-    text_color: '#3d3a37',
-    accent_color: '#6b6560',
-    surface_color: '#ffffff',
-    border_color: '#d4d0cb',
-    font_family: 'Source Serif 4',
-    font_size: 16
-  };
+// Configuration
+const defaultConfig = {
+page_title: 'Mood Tracker',
+page_subtitle: 'How are you feeling today?',
+reflection_label: "What's on your mind? (optional)",
+background_color: '#faf8f5',
+text_color: '#3d3a37',
+accent_color: '#6b6560',
+surface_color: '#ffffff',
+border_color: '#d4d0cb',
+font_family: 'Source Serif 4',
+font_size: 16
+};
 
-  let config = { ...defaultConfig };
+let config = { ...defaultConfig };
 
-  // Mood definitions
-  const moods = [
-    { emoji: '😊', name: 'Happy' },
-    { emoji: '😌', name: 'Calm' },
-    { emoji: '😐', name: 'Neutral' },
-    { emoji: '😴', name: 'Tired' },
-    { emoji: '😰', name: 'Anxious' },
-    { emoji: '😔', name: 'Sad' },
-    { emoji: '😤', name: 'Frustrated' },
-    { emoji: '🤗', name: 'Excited' },
-    { emoji: '🙏', name: 'Grateful' },
-    { emoji: '😢', name: 'Stressed' }
-  ];
+// Mood definitions
+const moods = [
+{ emoji: '😊', name: 'Happy' },
+{ emoji: '😌', name: 'Calm' },
+{ emoji: '😐', name: 'Neutral' },
+{ emoji: '😴', name: 'Tired' },
+{ emoji: '😰', name: 'Anxious' },
+{ emoji: '😔', name: 'Sad' },
+{ emoji: '😤', name: 'Frustrated' },
+{ emoji: '🤗', name: 'Excited' },
+{ emoji: '🙏', name: 'Grateful' },
+{ emoji: '😢', name: 'Stressed' }
+];
 
-  // Daily reflections
-  const reflections = [
-    "🌿 Notice what you're feeling without trying to change it.",
-    "🌙 Some days are heavier than others. That's okay.",
-    "☁️ Emotions are visitors. They come and go.",
-    "🍃 What would feel gentle right now?",
-    "🌸 You don't have to have it all figured out today.",
-    "💧 Sometimes rest is the most productive thing.",
-    "🌾 Small moments of peace still count.",
-    "🕊️ It's enough to simply notice how you feel.",
-    "🌿 Be patient with yourself. Growth takes time.",
-    "☀️ Even cloudy days have their own quiet beauty.",
-    "🌊 Let your feelings be what they are.",
-    "🍂 Not every day needs to be remarkable."
-  ];
+// Daily reflections
+const reflections = [
+"🌿 Notice what you're feeling without trying to change it.",
+"🌙 Some days are heavier than others. That's okay.",
+"☁️ Emotions are visitors. They come and go.",
+"🍃 What would feel gentle right now?",
+"🌸 You don't have to have it all figured out today.",
+"💧 Sometimes rest is the most productive thing.",
+"🌾 Small moments of peace still count.",
+"🕊️ It's enough to simply notice how you feel.",
+"🌿 Be patient with yourself. Growth takes time.",
+"☀️ Even cloudy days have their own quiet beauty.",
+"🌊 Let your feelings be what they are.",
+"🍂 Not every day needs to be remarkable."
+];
 
-  // State
-  let selectedMood = null;
-  let allEntries = [];
-  let isLoading = false;
+// State
+let selectedMood = null;
+let allEntries = [];
+let isLoading = false;
 
-  const moodResponses = {
-    Happy: [
-      "That lightness really shows on you today.",
-      "Hold onto this feeling—let it remind you of what supports you.",
-      "Maybe note one small moment from today that you’d like to remember."
-    ],
-    Calm: [
-      "Peaceful moments like this are worth noticing.",
-      "You don’t have to rush out of this calm. You’re allowed to enjoy it.",
-      "Stillness is its own kind of progress."
-    ],
-    Sad: [
-      "I’m really glad you checked in while feeling this way.",
-      "You don’t have to fix everything today; feeling is already an effort.",
-      "It’s okay if today feels heavy. You’re allowed to move slowly."
-    ],
-    Anxious: [
-      "Pause for a second—take one slow breath in, and one slow breath out.",
-      "Your thoughts are busy, but you are not your thoughts.",
-      "You don’t need to solve everything right now. One small step is enough."
-    ],
-    Stressed: [
-      "It sounds like you’ve been carrying a lot.",
-      "Try unclenching your jaw and relaxing your shoulders for a moment.",
-      "It’s okay to take a short break, even in the middle of a busy day."
-    ],
-    Frustrated: [
-      "That feeling of frustration makes sense when things matter to you.",
-      "You’re allowed to be upset and still be a good person.",
-      "Maybe step back for a moment before you respond to whatever’s bothering you."
-    ],
-    Tired: [
-      "Needing rest doesn’t make you weak.",
-      "Your body and mind might be asking for a softer pace.",
-      "Even small pauses count as real rest."
-    ],
-    Grateful: [
-      "Noticing gratitude is a powerful habit.",
-      "Savor this—tiny good moments add up over time.",
-      "You can come back to this feeling on harder days."
-    ],
-    Excited: [
-      "That spark you’re feeling is important—pay attention to it.",
-      "It’s nice to see this energy in your check‑in.",
-      "Maybe write down what you’re excited about so you can revisit it later."
-    ],
-    Neutral: [
-      "Not every day needs a big emotion, and that’s completely okay.",
-      "Neutral days can be quiet breathing spaces between the louder ones.",
-      "You can still be curious about what you need, even on neutral days."
-    ]
-  };
+const moodResponses = {
+Happy: [
+"That lightness really shows on you today.",
+"Hold onto this feeling—let it remind you of what supports you.",
+"Maybe note one small moment from today that you’d like to remember."
+],
+Calm: [
+"Peaceful moments like this are worth noticing.",
+"You don’t have to rush out of this calm. You’re allowed to enjoy it.",
+"Stillness is its own kind of progress."
+],
+Sad: [
+"I’m really glad you checked in while feeling this way.",
+"You don’t have to fix everything today; feeling is already an effort.",
+"It’s okay if today feels heavy. You’re allowed to move slowly."
+],
+Anxious: [
+"Pause for a second—take one slow breath in, and one slow breath out.",
+"Your thoughts are busy, but you are not your thoughts.",
+"You don’t need to solve everything right now. One small step is enough."
+],
+Stressed: [
+"It sounds like you’ve been carrying a lot.",
+"Try unclenching your jaw and relaxing your shoulders for a moment.",
+"It’s okay to take a short break, even in the middle of a busy day."
+],
+Frustrated: [
+"That feeling of frustration makes sense when things matter to you.",
+"You’re allowed to be upset and still be a good person.",
+"Maybe step back for a moment before you respond to whatever’s bothering you."
+],
+Tired: [
+"Needing rest doesn’t make you weak.",
+"Your body and mind might be asking for a softer pace.",
+"Even small pauses count as real rest."
+],
+Grateful: [
+"Noticing gratitude is a powerful habit.",
+"Savor this—tiny good moments add up over time.",
+"You can come back to this feeling on harder days."
+],
+Excited: [
+"That spark you’re feeling is important—pay attention to it.",
+"It’s nice to see this energy in your check‑in.",
+"Maybe write down what you’re excited about so you can revisit it later."
+],
+Neutral: [
+"Not every day needs a big emotion, and that’s completely okay.",
+"Neutral days can be quiet breathing spaces between the louder ones.",
+"You can still be curious about what you need, even on neutral days."
+]
+};
 
-  const genericResponses = [
-    "I’m here with you 🤍",
-    "Thank you for checking in.",
-    "Your feelings make sense.",
-    "Be gentle with yourself today."
-  ];
+const genericResponses = [
+"I’m here with you 🤍",
+"Thank you for checking in.",
+"Your feelings make sense.",
+"Be gentle with yourself today."
+];
 
-  function getTodayDateString() {
-    const now = new Date();
-    return now.toISOString().split('T')[0];
+function getTodayDateString() {
+const now = new Date();
+return now.toISOString().split('T')[0];
+}
+
+function formatDisplayDate(date) {
+const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+return date.toLocaleDateString('en-GB', options);
+}
+
+function formatEntryDate(dateString) {
+const date = new Date(dateString);
+const options = { weekday: 'short', day: 'numeric', month: 'short' };
+return date.toLocaleDateString('en-GB', options);
+}
+
+function getRandomReflection() {
+return reflections[Math.floor(Math.random() * reflections.length)];
+}
+
+function getWeekStart() {
+const now = new Date();
+const dayOfWeek = now.getDay();
+const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+const weekStart = new Date(now.setDate(diff));
+weekStart.setHours(0, 0, 0, 0);
+return weekStart;
+}
+
+function initMoodGrid() {
+const grid = document.getElementById('mood-grid');
+grid.innerHTML = '';
+
+moods.forEach(mood => {
+const btn = document.createElement('button');
+btn.className = 'mood-btn flex flex-col items-center justify-center gap-1 p-2 sm:p-3 border border-ink rounded text-center w-14 sm:w-16';
+btn.setAttribute('data-mood', mood.name);
+btn.setAttribute('aria-label', mood.name);
+btn.innerHTML = `
+<span class="text-xl sm:text-2xl leading-none block">${mood.emoji}</span>
+<span class="ink-faint text-[10px] sm:text-xs leading-tight break-words">${mood.name}</span>
+`;
+btn.addEventListener('click', () => selectMood(mood));
+grid.appendChild(btn);
+});
+}
+
+function selectMood(mood) {
+selectedMood = mood;
+
+document.querySelectorAll('.mood-btn').forEach(btn => {
+btn.classList.toggle('selected', btn.dataset.mood === mood.name);
+});
+
+const display = document.getElementById('selected-mood-display');
+display.classList.remove('hidden');
+display.querySelector('p').textContent = `${mood.emoji} Feeling ${mood.name.toLowerCase()}`;
+
+document.getElementById('save-btn').disabled = false;
+}
+
+async function saveMood() {
+if (!selectedMood || isLoading) return;
+
+isLoading = true;
+const saveBtn = document.getElementById('save-btn');
+saveBtn.textContent = 'Saving...';
+saveBtn.disabled = true;
+
+const reflection = document.getElementById('reflection-input').value.trim();
+const today = getTodayDateString();
+
+try {
+const newEntry = {
+mood_emoji: selectedMood.emoji,
+mood_name: selectedMood.name,
+reflection: reflection,
+date: today,
+timestamp: Date.now()
+};
+
+const result = await window.dataSdk.create(newEntry);
+
+if (!result.isOk) {
+throw new Error('Failed to save mood');
+}
+
+showMessage('Mood saved');
+document.getElementById('reflection-input').value = '';
+triggerMoodResponse(newEntry);
+} catch (error) {
+console.error(error);
+showMessage('Could not save. Please try again.');
+} finally {
+isLoading = false;
+saveBtn.textContent = 'Save Mood';
+saveBtn.disabled = !selectedMood;
+}
+}
+
+function showMessage(text) {
+const msgEl = document.getElementById('success-message');
+msgEl.textContent = text;
+msgEl.classList.remove('hidden');
+msgEl.classList.add('success-msg');
+
+setTimeout(() => {
+msgEl.classList.add('hidden');
+msgEl.classList.remove('success-msg');
+}, 2000);
+}
+
+function renderEntries(entries) {
+const container = document.getElementById('entries-container');
+const countEl = document.getElementById('entry-count');
+
+if (entries.length === 0) {
+container.innerHTML = `
+<p class="ink-faint text-[13px] sm:text-sm italic p-4 sm:p-5 text-center">No moods recorded yet.</p>
+`;
+countEl.textContent = '';
+return;
+}
+
+const sorted = [...entries].sort((a, b) => b.timestamp - a.timestamp).slice(0, 3);
+countEl.textContent = `${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}`;
+
+container.innerHTML = sorted.map(entry => `
+<div class="entry-card p-3 sm:p-4">
+<div class="flex items-start gap-2 sm:gap-3">
+<span class="text-lg sm:text-xl">${entry.mood_emoji}</span>
+<div class="flex-1 min-w-0">
+<div class="flex items-baseline justify-between gap-2 mb-0.5 sm:mb-1">
+<span class="ink-text text-[13px] sm:text-sm">${entry.mood_name}</span>
+<span class="ink-faint text-[11px] sm:text-xs">${formatEntryDate(entry.date)}</span>
+</div>
+${entry.reflection ? `<p class="ink-light text-[12px] sm:text-sm italic truncate">${entry.reflection}</p>` : ''}
+</div>
+</div>
+</div>
+`).join('');
+}
+
+  function analyzeMood(timeframe) {
+  const now = new Date();
+  let filtered = [];
+
+  if (timeframe === 'today') {
+    const todayStr = now.toISOString().split('T')[0];
+    filtered = allEntries.filter(e => e.date === todayStr);
+  } else if (timeframe === 'yesterday') {
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const yStr = yesterday.toISOString().split('T')[0];
+    filtered = allEntries.filter(e => e.date === yStr);
+  } else if (timeframe === 'week') {
+    const weekStart = getWeekStart().getTime();
+    filtered = allEntries.filter(e => e.timestamp >= weekStart);
+  } else if (timeframe === 'last3') {
+    filtered = [...allEntries].sort((a,b)=>b.timestamp - a.timestamp).slice(0,3);
   }
 
-  function formatDisplayDate(date) {
-    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-    return date.toLocaleDateString('en-GB', options);
-  }
-
-  function formatEntryDate(dateString) {
-    const date = new Date(dateString);
-    const options = { weekday: 'short', day: 'numeric', month: 'short' };
-    return date.toLocaleDateString('en-GB', options);
-  }
-
-  function getRandomReflection() {
-    return reflections[Math.floor(Math.random() * reflections.length)];
-  }
-
-  function getWeekStart() {
-    const now = new Date();
-    const dayOfWeek = now.getDay();
-    const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-    const weekStart = new Date(now.setDate(diff));
-    weekStart.setHours(0, 0, 0, 0);
-    return weekStart;
-  }
-
-  function initMoodGrid() {
-    const grid = document.getElementById('mood-grid');
-    grid.innerHTML = '';
-
-    moods.forEach(mood => {
-      const btn = document.createElement('button');
-      btn.className = 'mood-btn flex flex-col items-center justify-center gap-1 p-2 sm:p-3 border border-ink rounded text-center w-14 sm:w-16';
-      btn.setAttribute('data-mood', mood.name);
-      btn.setAttribute('aria-label', mood.name);
-      btn.innerHTML = `
-        <span class="text-xl sm:text-2xl leading-none block">${mood.emoji}</span>
-        <span class="ink-faint text-[10px] sm:text-xs leading-tight break-words">${mood.name}</span>
-      `;
-      btn.addEventListener('click', () => selectMood(mood));
-      grid.appendChild(btn);
-    });
-  }
-
-  function selectMood(mood) {
-    selectedMood = mood;
-
-    document.querySelectorAll('.mood-btn').forEach(btn => {
-      btn.classList.toggle('selected', btn.dataset.mood === mood.name);
-    });
-
-    const display = document.getElementById('selected-mood-display');
-    display.classList.remove('hidden');
-    display.querySelector('p').textContent = `${mood.emoji} Feeling ${mood.name.toLowerCase()}`;
-
-    document.getElementById('save-btn').disabled = false;
-  }
-
-  async function saveMood() {
-    if (!selectedMood || isLoading) return;
-
-    isLoading = true;
-    const saveBtn = document.getElementById('save-btn');
-    saveBtn.textContent = 'Saving...';
-    saveBtn.disabled = true;
-
-    const reflection = document.getElementById('reflection-input').value.trim();
-    const today = getTodayDateString();
-
-    try {
-      const newEntry = {
-        mood_emoji: selectedMood.emoji,
-        mood_name: selectedMood.name,
-        reflection: reflection,
-        date: today,
-        timestamp: Date.now()
-      };
-
-      const result = await window.dataSdk.create(newEntry);
-
-      if (!result.isOk) {
-        throw new Error('Failed to save mood');
-      }
-
-      showMessage('Mood saved');
-      document.getElementById('reflection-input').value = '';
-      triggerMoodResponse(newEntry);
-    } catch (error) {
-      console.error(error);
-      showMessage('Could not save. Please try again.');
-    } finally {
-      isLoading = false;
-      saveBtn.textContent = 'Save Mood';
-      saveBtn.disabled = !selectedMood;
-    }
-  }
-
-  function showMessage(text) {
-    const msgEl = document.getElementById('success-message');
-    msgEl.textContent = text;
-    msgEl.classList.remove('hidden');
-    msgEl.classList.add('success-msg');
-
-    setTimeout(() => {
-      msgEl.classList.add('hidden');
-      msgEl.classList.remove('success-msg');
-    }, 2000);
-  }
-
-  function renderEntries(entries) {
-    const container = document.getElementById('entries-container');
-    const countEl = document.getElementById('entry-count');
-
-    if (entries.length === 0) {
-      container.innerHTML = `
-        <p class="ink-faint text-[13px] sm:text-sm italic p-4 sm:p-5 text-center">No moods recorded yet.</p>
-      `;
-      countEl.textContent = '';
-      return;
-    }
-
-    const sorted = [...entries].sort((a, b) => b.timestamp - a.timestamp).slice(0, 3);
-    countEl.textContent = `${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}`;
-
-    container.innerHTML = sorted.map(entry => `
-      <div class="entry-card p-3 sm:p-4">
-        <div class="flex items-start gap-2 sm:gap-3">
-          <span class="text-lg sm:text-xl">${entry.mood_emoji}</span>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-baseline justify-between gap-2 mb-0.5 sm:mb-1">
-              <span class="ink-text text-[13px] sm:text-sm">${entry.mood_name}</span>
-              <span class="ink-faint text-[11px] sm:text-xs">${formatEntryDate(entry.date)}</span>
-            </div>
-            ${entry.reflection ? `<p class="ink-light text-[12px] sm:text-sm italic truncate">${entry.reflection}</p>` : ''}
-          </div>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function renderWeeklySummary(entries) {
-    const container = document.getElementById('weekly-summary');
-    const weekStart = getWeekStart();
-
-    const weekEntries = entries.filter(e => e.timestamp >= weekStart.getTime());
-
-    if (weekEntries.length === 0) {
-      container.innerHTML = `
-        <p class="ink-faint text-[13px] sm:text-sm italic">No moods recorded this week yet.</p>
-      `;
-      return;
-    }
-
-    const moodCounts = {};
-    weekEntries.forEach(e => {
-      const key = `${e.mood_emoji}|${e.mood_name}`;
-      moodCounts[key] = (moodCounts[key] || 0) + 1;
-    });
-
-    const mostCommon = Object.entries(moodCounts)
-      .sort((a, b) => b[1] - a[1])[0][0]
-      .split('|');
-
-    let trend = 'Stable';
-    if (weekEntries.length >= 3) {
-      const positiveNames = ['Happy', 'Calm', 'Excited', 'Grateful'];
-      const sorted = [...weekEntries].sort((a, b) => a.timestamp - b.timestamp);
-      const midpoint = Math.floor(sorted.length / 2);
-
-      const firstHalfPositive = sorted.slice(0, midpoint).filter(e => positiveNames.includes(e.mood_name)).length;
-      const secondHalfPositive = sorted.slice(midpoint).filter(e => positiveNames.includes(e.mood_name)).length;
-
-      const firstRatio = firstHalfPositive / midpoint;
-      const secondRatio = secondHalfPositive / (sorted.length - midpoint);
-
-      if (secondRatio > firstRatio + 0.2) {
-        trend = 'Improving';
-      } else if (secondRatio < firstRatio - 0.2) {
-        trend = 'Declining';
-      }
-    }
-
-    container.innerHTML = `
-      <div class="space-y-2 sm:space-y-3">
-        <div class="flex items-baseline justify-between">
-          <span class="ink-light text-[13px] sm:text-sm">Most common mood</span>
-          <span class="ink-text text-[13px] sm:text-sm">${mostCommon[0]} ${mostCommon[1]}</span>
-        </div>
-        <div class="flex items-baseline justify-between">
-          <span class="ink-light text-[13px] sm:text-sm">Mood trend</span>
-          <span class="ink-text text-[13px] sm:text-sm italic">${trend}</span>
-        </div>
-        <div class="flex items-baseline justify-between">
-          <span class="ink-light text-[13px] sm:text-sm">Entries this week</span>
-          <span class="ink-text text-[13px] sm:text-sm">${weekEntries.length}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  function onDataChanged(data) {
-    allEntries = data || [];
-    document.getElementById('save-btn').textContent = 'Save Mood';
-    renderEntries(allEntries);
-    renderWeeklySummary(allEntries);
-  }
-
-  async function onConfigChange(cfg) {
-    config = { ...defaultConfig, ...cfg };
-
-    document.getElementById('page-title').textContent = config.page_title || defaultConfig.page_title;
-    document.getElementById('page-subtitle').textContent = config.page_subtitle || defaultConfig.page_subtitle;
-    document.getElementById('reflection-label').textContent = config.reflection_label || defaultConfig.reflection_label;
-
-    document.documentElement.style.setProperty('--bg-color', config.background_color || defaultConfig.background_color);
-    document.documentElement.style.setProperty('--text-color', config.text_color || defaultConfig.text_color);
-
-    const fontFamily = config.font_family || defaultConfig.font_family;
-    document.querySelectorAll('.font-body').forEach(el => {
-      el.style.fontFamily = `${fontFamily}, Georgia, serif`;
-    });
-
-    const baseSize = config.font_size || defaultConfig.font_size;
-    document.body.style.fontSize = `${baseSize}px`;
-  }
-
-  function mapToCapabilities(cfg) {
-    return {
-      recolorables: [
-        {
-          get: () => cfg.background_color || defaultConfig.background_color,
-          set: (v) => { cfg.background_color = v; window.elementSdk.setConfig({ background_color: v }); }
-        },
-        {
-          get: () => cfg.surface_color || defaultConfig.surface_color,
-          set: (v) => { cfg.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); }
-        },
-        {
-          get: () => cfg.text_color || defaultConfig.text_color,
-          set: (v) => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
-        },
-        {
-          get: () => cfg.accent_color || defaultConfig.accent_color,
-          set: (v) => { cfg.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }
-        },
-        {
-          get: () => cfg.border_color || defaultConfig.border_color,
-          set: (v) => { cfg.border_color = v; window.elementSdk.setConfig({ border_color: v }); }
-        }
-      ],
-      borderables: [],
-      fontEditable: {
-        get: () => cfg.font_family || defaultConfig.font_family,
-        set: (v) => { cfg.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
-      },
-      fontSizeable: {
-        get: () => cfg.font_size || defaultConfig.font_size,
-        set: (v) => { cfg.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
-      }
-    };
-  }
-
-  function mapToEditPanelValues(cfg) {
-    return new Map([
-      ['page_title', cfg.page_title || defaultConfig.page_title],
-      ['page_subtitle', cfg.page_subtitle || defaultConfig.page_subtitle],
-      ['reflection_label', cfg.reflection_label || defaultConfig.reflection_label]
-    ]);
-  }
-
-  async function init() {
-    document.getElementById('date-display').textContent = formatDisplayDate(new Date());
-    document.getElementById('daily-reflection').textContent = getRandomReflection();
-    initMoodGrid();
-    document.getElementById('save-btn').addEventListener('click', saveMood);
-
-    if (window.elementSdk) {
-      window.elementSdk.init({
-        defaultConfig,
-        onConfigChange,
-        mapToCapabilities,
-        mapToEditPanelValues
-      });
-    }
-
-    if (window.dataSdk) {
-      const result = await window.dataSdk.init({
-        onDataChanged
-      });
-      if (!result.isOk) {
-        console.error('Failed to initialize Data SDK');
-      }
-    }
-  }
-
-  init();
-
-  // ----- CHATBOT: richer, mood-aware -----
-  const chatToggle = document.getElementById('chat-toggle');
-  const chatWindow = document.getElementById('chat-window');
-  const chatInput = document.getElementById('chat-input');
-  const chatMessages = document.getElementById('chat-messages');
-  const sendBtn = document.getElementById('send-btn');
-
-  const patternResponses = {
-    'positive-streak': [
-      "You’ve been feeling consistently lighter lately 🌤️",
-      "There’s a gentle upward pattern in your moods.",
-      "Your recent check-ins carry a softer tone."
-    ],
-    'negative-streak': [
-      "You’ve been holding a lot for a few days now.",
-      "Your check-ins look heavy lately—I’m glad you’re still here.",
-      "This pattern tells me you might be tired in more than one way."
-    ],
-    'repeating': [
-      "This feeling seems to be visiting more than once.",
-      "Your mood has been sitting in a similar place recently.",
-      "Maybe this emotion is asking for a bit more attention."
-    ],
-    'improving': [
-      "Your mood seems to be slowly lifting compared to before.",
-      "There’s a subtle softening in how your last entries feel.",
-      "Tiny shifts upward still count as real change."
-    ],
-    'declining': [
-      "Your recent moods look a little heavier than before.",
-      "It seems like something might be pulling you down lately.",
-      "Your entries hint at some emotional fatigue."
-    ],
-    'mixed': [
-      "Your feelings have been quite mixed lately.",
-      "There’s a lot of variety in your moods—life might be full right now.",
-      "It looks like you’re moving through many emotional spaces."
-    ]
-  };
-
-  const smallTalk = {
-    hello: [
-      "Hey, I’m glad you opened this.",
-      "Hi there. How does your heart feel today?",
-      "Hello — I’m here with you for a bit."
-    ],
-    thanks: [
-      "You’re welcome 🤍",
-      "I’m glad I could be here with you.",
-      "Anytime. You don’t have to hold things alone."
-    ]
-  };
-
-  function analyzeLastThreeMoods() {
-    if (!allEntries || allEntries.length < 2) return null;
-
-    const recent = [...allEntries]
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .slice(0, 3);
-
-    const names = recent.map(e => e.mood_name);
-
-    const positive = ['Happy', 'Calm', 'Excited', 'Grateful'];
-    const negative = ['Sad', 'Anxious', 'Stressed', 'Frustrated', 'Tired'];
-
-    const posCount = names.filter(n => positive.includes(n)).length;
-    const negCount = names.filter(n => negative.includes(n)).length;
-
-    if (posCount === recent.length) return 'positive-streak';
-    if (negCount === recent.length) return 'negative-streak';
-    if (names[0] === names[1]) return 'repeating';
-    if (posCount > negCount) return 'improving';
-    if (negCount > posCount) return 'declining';
-
-    return 'mixed';
-  }
-
-  function addChatMessage(text, from = 'bot') {
-    const div = document.createElement('div');
-    div.className = from === 'bot'
-      ? 'chat-message flex justify-start'
-      : 'chat-message flex justify-end';
-    div.innerHTML = `
-      <div class="${from === 'bot'
-        ? 'bg-white/80 border border-[#e8e5dc]'
-        : 'bg-[#2d2d2d] text-white'
-      } rounded-3xl px-4 py-3 max-w-[230px] text-[13px] leading-relaxed shadow-sm">
-        <p>${text}</p>
-      </div>
-    `;
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  function detectEmotion(text) {
-    const t = text.toLowerCase();
-    if (t.includes('happy') || t.includes('light') || t.includes('okay') || t.includes('good')) return 'positive';
-    if (t.includes('sad') || t.includes('low') || t.includes('down') || t.includes('empty')) return 'sad';
-    if (t.includes('anxious') || t.includes('anxiety') || t.includes('panic') || t.includes('worried')) return 'anxious';
-    if (t.includes('tired') || t.includes('exhausted') || t.includes('drained')) return 'tired';
-    if (t.includes('stressed') || t.includes('pressure') || t.includes('overwhelmed')) return 'stressed';
-    return null;
-  }
-
-  function detectIntent(text) {
-    const t = text.toLowerCase();
-
-    if (/(^|\s)(hi|hello|hey|good morning|good night|good evening)(\W|$)/.test(t)) {
-      return 'greeting';
-    }
-    if (t.includes('thank you') || t.includes('thanks') || t.includes('thx')) {
-      return 'thanks';
-    }
-    if (t.includes('bye') || t.includes('goodnight') || t.includes('good night') || t.includes('see you')) {
-      return 'goodbye';
-    }
-    if (t.includes('who are you') || t.includes('what are you') || t.includes('what can you do')) {
-      return 'about_bot';
-    }
-    if ((t.includes('how are you') || t.includes('hru')) && !t.includes('how am i')) {
-      return 'bot_feeling';
-    }
-    if (t.includes('talk to me') || t.includes('bored') || t.includes('lonely')) {
-      return 'small_talk';
-    }
-    if (t.includes('panic') || t.includes("can't breathe") || t.includes('freaking out')) {
-      return 'grounding';
-    }
-    return 'generic';
-  }
-
-  const intentResponses = {
-    about_bot: [
-      "I’m here to notice patterns in your moods and offer gentle reflections.",
-      "Think of me as a quiet companion for emotional check-ins."
-    ],
-    bot_feeling: [
-      "I don’t feel things like humans do, but I’m present with you right now.",
-      "I’m focused on holding space for whatever you’re feeling."
-    ],
-    grounding: [
-      "Let’s pause: feel your feet on the ground, take one slow breath in and out.",
-      "Look around and name three calm or neutral things you can see."
-    ],
-    small_talk: [
-      "We can talk about anything that’s on your mind, big or small.",
-      "If your day were a page in a journal, how would you title it?"
-    ],
-    goodbye: [
-      "Thank you for sharing a bit of yourself today. Take gentle care.",
-      "I’m glad we could sit together for a while. You can always come back."
-    ]
-  };
-
-  function chooseRandom(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-
-  // Core: ensure mock responses always fire in a predictable order
-  async function generateReplyFromFreeText(message) {
-    const emotion = detectEmotion(message);
-    const intent = detectIntent(message);
-
-    // 1) Intent-based (greeting, thanks, etc.) first
-    if (intent === 'greeting') return chooseRandom(smallTalk.hello);
-    if (intent === 'thanks') return chooseRandom(smallTalk.thanks);
-    if (intent === 'about_bot') return chooseRandom(intentResponses.about_bot);
-    if (intent === 'bot_feeling') return chooseRandom(intentResponses.bot_feeling);
-    if (intent === 'grounding') return chooseRandom(intentResponses.grounding);
-    if (intent === 'small_talk') return chooseRandom(intentResponses.smallTalk);
-    if (intent === 'goodbye') return chooseRandom(intentResponses.goodbye);
-
-    // 2) Emotion-based
-    if (emotion) {
-      if (emotion === 'sad') return chooseRandom(moodResponses.Sad);
-      if (emotion === 'anxious') return chooseRandom(moodResponses.Anxious);
-      if (emotion === 'tired') return chooseRandom(moodResponses.Tired);
-      if (emotion === 'stressed') return chooseRandom(moodResponses.Stressed);
-      if (emotion === 'positive') return chooseRandom(moodResponses.Happy);
-    }
-
-    // 3) Latest selected mood (if user clicked a mood)
-    const mood = selectedMood?.name;
-    if (mood && moodResponses[mood]) {
-      return chooseRandom(moodResponses[mood]);
-    }
-
-    // 4) Fallback generic
-    return chooseRandom(genericResponses);
-  }
-
-  chatToggle.addEventListener('click', () => {
-    chatWindow.classList.toggle('hidden');
-  });
-
-  // 1️⃣ Mood-based advice mapping
-  const moodAdvices = {
-    Happy: [
-      "Celebrate your wins: write down 3 things that made you happy today.",
-      "Share your joy with someone you care about.",
-      "Keep this energy by doing a small act of kindness."
-    ],
-    Calm: [
-      "Spend 10 minutes in mindful breathing or meditation.",
-      "Write down what is giving you peace to reinforce it.",
-      "Take a slow walk outside to stay grounded."
-    ],
-    Sad: [
-      "Allow yourself to feel it, but also try journaling one thing you’re grateful for.",
-      "Reach out to a trusted friend or family member and talk.",
-      "Do a small self-care activity: shower, music, or tea."
-    ],
-    Anxious: [
-      "Try 4-7-8 breathing: inhale 4s, hold 7s, exhale 8s.",
-      "Write down what's on your mind to release it.",
-      "Break tasks into tiny steps—focus on one small thing first."
-    ],
-    Stressed: [
-      "Stretch or move your body for 5–10 minutes.",
-      "Make a tiny to-do list and prioritize 1–2 things.",
-      "Listen to calming music or a guided meditation."
-    ],
-    Frustrated: [
-      "Take a short break and walk away from the trigger.",
-      "Write down what’s bothering you to release tension.",
-      "Do a physical release: punch a pillow or do push-ups."
-    ],
-    Tired: [
-      "Allow yourself a nap or rest without guilt.",
-      "Hydrate and eat a light snack to restore energy.",
-      "Do a 5-minute gentle stretch to wake up body and mind."
-    ],
-    Grateful: [
-      "Write a thank-you note or message to someone you appreciate.",
-      "Reflect on the things you’re grateful for before sleep.",
-      "Share your gratitude with someone—it multiplies the feeling."
-    ],
-    Excited: [
-      "Channel energy into a small productive task.",
-      "Plan the next step for whatever excites you.",
-      "Write down what you’re looking forward to so you can track it."
-    ],
-    Neutral: [
-      "Take a mindful pause and notice your surroundings.",
-      "Check in with your body—maybe a stretch or walk.",
-      "Use this calm state to plan or organize small tasks."
-    ]
-  };
-
-  function isAskingForAdvice(input) {
-    const phrases = [
-      "what do i do",
-      "how to handle",
-      "advice for this",
-      "how to deal"
-    ];
-    const lower = input.toLowerCase();
-    return phrases.some(p => lower.includes(p));
-  }
-
-  function giveMoodAdvice() {
-    if (!allEntries || allEntries.length === 0) {
-      return "I need to know your mood first!";
-    }
-
-    const latest = allEntries
-      .slice()
-      .sort((a, b) => b.timestamp - a.timestamp)[0];
-
-    const latestMood = latest.mood_name;
-    const advices = moodAdvices[latestMood];
-
-    if (!advices) {
-      return "Hmm, I don't have specific advice for this mood yet.";
-    }
-
-    return advices[Math.floor(Math.random() * advices.length)];
-  }
-
-  // ---------- Detect multiple moods ----------
-  function detectMultipleEmotions(text) {
-    const t = text.toLowerCase();
-    const emotions = [];
-    if (t.includes('happy')) emotions.push('Happy');
-    if (t.includes('calm')) emotions.push('Calm');
-    if (t.includes('neutral')) emotions.push('Neutral');
-    if (t.includes('tired') || t.includes('exhausted') || t.includes('drained')) emotions.push('Tired');
-    if (t.includes('anxious') || t.includes('anxiety') || t.includes('panic') || t.includes('worried')) emotions.push('Anxious');
-    if (t.includes('sad') || t.includes('low') || t.includes('down') || t.includes('empty')) emotions.push('Sad');
-    if (t.includes('stressed') || t.includes('pressure') || t.includes('overwhelmed')) emotions.push('Stressed');
-    if (t.includes('frustrated')) emotions.push('Frustrated');
-    if (t.includes('excited')) emotions.push('Excited');
-    if (t.includes('grateful')) emotions.push('Grateful');
-    return emotions.length ? emotions : null;
-  }
-
-  // ---------- Mood streak calculation ----------
-  function calculateMoodStreak(allEntries) {
-    if (!allEntries || allEntries.length === 0) return { positive: 0, negative: 0 };
-
-    let posStreak = 0, negStreak = 0;
-    const positive = ['Happy', 'Calm', 'Excited', 'Grateful'];
-    const negative = ['Sad', 'Anxious', 'Stressed', 'Frustrated', 'Tired'];
-
-    const sorted = [...allEntries].sort((a,b) => b.timestamp - a.timestamp);
-    for (const e of sorted) {
-      if (positive.includes(e.mood_name)) {
-        if (negStreak > 0) break;
-        posStreak++;
-      } else if (negative.includes(e.mood_name)) {
-        if (posStreak > 0) break;
-        negStreak++;
-      } else break; // neutral breaks streak
-    }
-    return { positive: posStreak, negative: negStreak };
-  }
-
-  // ---------- Fallback messages ----------
-  function fallbackMoodResponse() {
-    const messages = [
-      "I don’t have your mood data yet, but you can check in to start tracking.",
-      "Once you record your mood, I can give you insights and reflections.",
-      "No moods recorded yet! How are you feeling today?"
-    ];
-    return messages[Math.floor(Math.random()*messages.length)];
-  }
-
-  // ---------- Main chatbot mood handler ----------
-  function handleMoodQuestions(input) {
-    const text = input.toLowerCase();
-    const streaks = calculateMoodStreak(allEntries);
-    const emotionsDetected = detectMultipleEmotions(text);
-    const weekStart = getWeekStart();
-    const weekEntries = allEntries.filter(e => e.timestamp >= weekStart.getTime());
-
-    // No mood data
-    if (!allEntries || allEntries.length === 0) return fallbackMoodResponse();
-
-    // ---------- A) Current/latest mood ----------
-    if (text.includes("how am i feeling") || text.includes("today's mood") || text.includes("my mood right now")) {
-      const latest = allEntries.slice().sort((a,b)=>b.timestamp-a.timestamp)[0];
-      if (!latest) return fallbackMoodResponse();
-      let reply = `Today you’re feeling ${latest.mood_emoji} ${latest.mood_name.toLowerCase()}.`;
-      if (streaks.positive > 1) reply += `\n💛 Positive streak: ${streaks.positive} days`;
-      if (streaks.negative > 1) reply += `\n💔 Negative streak: ${streaks.negative} days`;
-      return reply;
-    }
-
-    // ---------- B) Weekly summary ----------
-    if (text.includes("this week") || text.includes("weekly") || text.includes("trend")) {
-      if (!weekEntries.length) return "No moods recorded yet this week!";
-      const moodCounts = {};
-      weekEntries.forEach(e => moodCounts[e.mood_name] = (moodCounts[e.mood_name] || 0) + 1);
-      const mostCommon = Object.entries(moodCounts).sort((a,b)=>b[1]-a[1])[0];
-      const pattern = analyzeLastThreeMoods() || 'mixed';
-      let reply = `This week, your most common mood is ${mostCommon[0]} (${mostCommon[1]} times). Pattern: ${pattern}.`;
-      if (streaks.positive > 1) reply += `\n💛 Positive streak: ${streaks.positive} days`;
-      if (streaks.negative > 1) reply += `\n💔 Negative streak: ${streaks.negative} days`;
-      return reply;
-    }
-
-    // ---------- C) Specific mood counts ----------
-    if (text.includes("how many") || text.includes("most common")) {
-      const moodCounts = {};
-      allEntries.forEach(e => moodCounts[e.mood_name] = (moodCounts[e.mood_name] || 0) + 1);
-      if (text.includes("most common")) {
-        const mostCommon = Object.entries(moodCounts).sort((a,b)=>b[1]-a[1])[0];
-        return `Your most common mood recently is ${mostCommon[0]} (${mostCommon[1]} times).`;
-      }
-      const moodAsked = ["happy","sad","anxious","calm","excited","grateful","tired","stressed","frustrated"]
-        .find(m => text.includes(m));
-      if (moodAsked) {
-        const key = moodAsked.charAt(0).toUpperCase() + moodAsked.slice(1);
-        return `You had ${moodCounts[key] || 0} ${moodAsked} days.`;
-      }
-    }
-
-    // ---------- D) Advice / coping ----------
-    if (isAskingForAdvice(text)) return giveMoodAdvice();
-
-    // ---------- E) Emotional reflection ----------
-    if (text.includes("repeat") || text.includes("stable") || text.includes("pattern")) {
-      const pattern = analyzeLastThreeMoods();
-      return pattern ? `Your mood pattern seems to be ${pattern}.` : "Your moods are mixed lately.";
-    }
-
-    // ---------- Multiple moods detected ----------
-    if (emotionsDetected && emotionsDetected.length > 0) {
-      let reply = emotionsDetected.map(e => chooseRandom(moodResponses[e])).join(' ');
-      if (streaks.positive > 1) reply += `\n💛 Positive streak: ${streaks.positive} days`;
-      if (streaks.negative > 1) reply += `\n💔 Negative streak: ${streaks.negative} days`;
-      return reply;
-    }
-
-    // ---------- Fallback ----------
-    return fallbackMoodResponse();
-  }
-
-  // ---------- Integrate with send button (new behavior) ----------
-  sendBtn.addEventListener('click', async () => {
-    const userText = chatInput.value.trim();
-    if (!userText) return;
-    chatInput.value = '';
-    addChatMessage(userText, 'user');
-
-    setTimeout(async () => {
-      let reply = handleMoodQuestions(userText);
-      if (!reply) reply = await generateReplyFromFreeText(userText);
-      addChatMessage(reply, 'bot');
-    }, 700);
-  });
-
-  chatInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendBtn.click();
-    }
-  });
-
-  function triggerMoodResponse(entry) {
-    const moodName = entry.mood_name;
-    const reflection = entry.reflection?.toLowerCase();
-
-    let responses = moodResponses[moodName] || genericResponses;
-
-    if (reflection) {
-      if (reflection.includes('tired') || reflection.includes('exhaust')) {
-        responses = moodResponses.Tired || responses;
-      }
-      if (reflection.includes('stress') || reflection.includes('pressure')) {
-        responses = moodResponses.Stressed || responses;
-      }
-      if (reflection.includes('happy') || reflection.includes('good')) {
-        responses = moodResponses.Happy || responses;
-      }
-    }
-
-    const reply = responses[Math.floor(Math.random() * responses.length)];
-
-    chatWindow.classList.remove('hidden');
-
-    setTimeout(() => {
-      addChatMessage(reply, 'bot');
-    }, 500);
-
-    const pattern = analyzeLastThreeMoods();
-
-    if (pattern && patternResponses[pattern]) {
-      const patternReply =
-        patternResponses[pattern][
-          Math.floor(Math.random() * patternResponses[pattern].length)
-        ];
-
-      setTimeout(() => {
-        addChatMessage(patternReply, 'bot');
-      }, 1600);
-    }
-  }
+  if (filtered.length === 0) return "No mood entries found for that period.";
+
+  const moodCounts = {};
+  filtered.forEach(e => { moodCounts[e.mood_name] = (moodCounts[e.mood_name] || 0) + 1; });
+  const mostCommon = Object.entries(moodCounts).sort((a,b)=>b[1]-a[1])[0];
+
+  return `In this period, your most frequent mood was ${mostCommon[0]} (${mostCommon[1]} times).`;
+}
+
+function renderWeeklySummary(entries) {
+const container = document.getElementById('weekly-summary');
+const weekStart = getWeekStart();
+
+const weekEntries = entries.filter(e => e.timestamp >= weekStart.getTime());
+
+if (weekEntries.length === 0) {
+container.innerHTML = `
+<p class="ink-faint text-[13px] sm:text-sm italic">No moods recorded this week yet.</p>
+`;
+return;
+}
+
+const moodCounts = {};
+weekEntries.forEach(e => {
+const key = `${e.mood_emoji}|${e.mood_name}`;
+moodCounts[key] = (moodCounts[key] || 0) + 1;
+});
+
+const mostCommon = Object.entries(moodCounts)
+.sort((a, b) => b[1] - a[1])[0][0]
+.split('|');
+
+let trend = 'Stable';
+if (weekEntries.length >= 3) {
+const positiveNames = ['Happy', 'Calm', 'Excited', 'Grateful'];
+const sorted = [...weekEntries].sort((a, b) => a.timestamp - b.timestamp);
+const midpoint = Math.floor(sorted.length / 2);
+
+const firstHalfPositive = sorted.slice(0, midpoint).filter(e => positiveNames.includes(e.mood_name)).length;
+const secondHalfPositive = sorted.slice(midpoint).filter(e => positiveNames.includes(e.mood_name)).length;
+
+const firstRatio = firstHalfPositive / midpoint;
+const secondRatio = secondHalfPositive / (sorted.length - midpoint);
+
+if (secondRatio > firstRatio + 0.2) {
+trend = 'Improving';
+} else if (secondRatio < firstRatio - 0.2) {
+trend = 'Declining';
+}
+}
+
+container.innerHTML = `
+<div class="space-y-2 sm:space-y-3">
+<div class="flex items-baseline justify-between">
+<span class="ink-light text-[13px] sm:text-sm">Most common mood</span>
+<span class="ink-text text-[13px] sm:text-sm">${mostCommon[0]} ${mostCommon[1]}</span>
+</div>
+<div class="flex items-baseline justify-between">
+<span class="ink-light text-[13px] sm:text-sm">Mood trend</span>
+<span class="ink-text text-[13px] sm:text-sm italic">${trend}</span>
+</div>
+<div class="flex items-baseline justify-between">
+<span class="ink-light text-[13px] sm:text-sm">Entries this week</span>
+<span class="ink-text text-[13px] sm:text-sm">${weekEntries.length}</span>
+</div>
+</div>
+`;
+}
+
+function onDataChanged(data) {
+allEntries = data || [];
+document.getElementById('save-btn').textContent = 'Save Mood';
+renderEntries(allEntries);
+renderWeeklySummary(allEntries);
+}
+
+async function onConfigChange(cfg) {
+config = { ...defaultConfig, ...cfg };
+
+document.getElementById('page-title').textContent = config.page_title || defaultConfig.page_title;
+document.getElementById('page-subtitle').textContent = config.page_subtitle || defaultConfig.page_subtitle;
+document.getElementById('reflection-label').textContent = config.reflection_label || defaultConfig.reflection_label;
+
+document.documentElement.style.setProperty('--bg-color', config.background_color || defaultConfig.background_color);
+document.documentElement.style.setProperty('--text-color', config.text_color || defaultConfig.text_color);
+
+const fontFamily = config.font_family || defaultConfig.font_family;
+document.querySelectorAll('.font-body').forEach(el => {
+el.style.fontFamily = `${fontFamily}, Georgia, serif`;
+});
+
+const baseSize = config.font_size || defaultConfig.font_size;
+document.body.style.fontSize = `${baseSize}px`;
+}
+
+function mapToCapabilities(cfg) {
+return {
+recolorables: [
+{
+get: () => cfg.background_color || defaultConfig.background_color,
+set: (v) => { cfg.background_color = v; window.elementSdk.setConfig({ background_color: v }); }
+},
+{
+get: () => cfg.surface_color || defaultConfig.surface_color,
+set: (v) => { cfg.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); }
+},
+{
+get: () => cfg.text_color || defaultConfig.text_color,
+set: (v) => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
+},
+{
+get: () => cfg.accent_color || defaultConfig.accent_color,
+set: (v) => { cfg.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }
+},
+{
+get: () => cfg.border_color || defaultConfig.border_color,
+set: (v) => { cfg.border_color = v; window.elementSdk.setConfig({ border_color: v }); }
+}
+],
+borderables: [],
+fontEditable: {
+get: () => cfg.font_family || defaultConfig.font_family,
+set: (v) => { cfg.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+},
+fontSizeable: {
+get: () => cfg.font_size || defaultConfig.font_size,
+set: (v) => { cfg.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+}
+};
+}
+
+function mapToEditPanelValues(cfg) {
+return new Map([
+['page_title', cfg.page_title || defaultConfig.page_title],
+['page_subtitle', cfg.page_subtitle || defaultConfig.page_subtitle],
+['reflection_label', cfg.reflection_label || defaultConfig.reflection_label]
+]);
+}
+
+async function init() {
+document.getElementById('date-display').textContent = formatDisplayDate(new Date());
+document.getElementById('daily-reflection').textContent = getRandomReflection();
+initMoodGrid();
+document.getElementById('save-btn').addEventListener('click', saveMood);
+
+if (window.elementSdk) {
+window.elementSdk.init({
+defaultConfig,
+onConfigChange,
+mapToCapabilities,
+mapToEditPanelValues
+});
+}
+
+if (window.dataSdk) {
+const result = await window.dataSdk.init({
+onDataChanged
+});
+if (!result.isOk) {
+console.error('Failed to initialize Data SDK');
+}
+}
+}
+
+init();
+
+// ----- CHATBOT: richer, mood-aware -----
+const chatToggle = document.getElementById('chat-toggle');
+const chatWindow = document.getElementById('chat-window');
+const chatInput = document.getElementById('chat-input');
+const chatMessages = document.getElementById('chat-messages');
+const sendBtn = document.getElementById('send-btn');
+
+const patternResponses = {
+'positive-streak': [
+"You’ve been feeling consistently lighter lately 🌤️",
+"There’s a gentle upward pattern in your moods.",
+"Your recent check-ins carry a softer tone."
+],
+'negative-streak': [
+"You’ve been holding a lot for a few days now.",
+"Your check-ins look heavy lately—I’m glad you’re still here.",
+"This pattern tells me you might be tired in more than one way."
+],
+'repeating': [
+"This feeling seems to be visiting more than once.",
+"Your mood has been sitting in a similar place recently.",
+"Maybe this emotion is asking for a bit more attention."
+],
+'improving': [
+"Your mood seems to be slowly lifting compared to before.",
+"There’s a subtle softening in how your last entries feel.",
+"Tiny shifts upward still count as real change."
+],
+'declining': [
+"Your recent moods look a little heavier than before.",
+"It seems like something might be pulling you down lately.",
+"Your entries hint at some emotional fatigue."
+],
+'mixed': [
+"Your feelings have been quite mixed lately.",
+"There’s a lot of variety in your moods—life might be full right now.",
+"It looks like you’re moving through many emotional spaces."
+]
+};
+
+const smallTalk = {
+hello: [
+"Hey, I’m glad you opened this.",
+"Hi there. How does your heart feel today?",
+"Hello — I’m here with you for a bit."
+],
+thanks: [
+"You’re welcome 🤍",
+"I’m glad I could be here with you.",
+"Anytime. You don’t have to hold things alone."
+]
+};
+
+function analyzeLastThreeMoods() {
+if (!allEntries || allEntries.length < 2) return null;
+
+const recent = [...allEntries]
+.sort((a, b) => b.timestamp - a.timestamp)
+.slice(0, 3);
+
+const names = recent.map(e => e.mood_name);
+
+const positive = ['Happy', 'Calm', 'Excited', 'Grateful'];
+const negative = ['Sad', 'Anxious', 'Stressed', 'Frustrated', 'Tired'];
+
+const posCount = names.filter(n => positive.includes(n)).length;
+const negCount = names.filter(n => negative.includes(n)).length;
+
+if (posCount === recent.length) return 'positive-streak';
+if (negCount === recent.length) return 'negative-streak';
+if (names[0] === names[1]) return 'repeating';
+if (posCount > negCount) return 'improving';
+if (negCount > posCount) return 'declining';
+
+return 'mixed';
+}
+
+function addChatMessage(text, from = 'bot') {
+const div = document.createElement('div');
+div.className = from === 'bot'
+? 'chat-message flex justify-start'
+: 'chat-message flex justify-end';
+div.innerHTML = `
+<div class="${from === 'bot'
+? 'bg-white/80 border border-[#e8e5dc]'
+: 'bg-[#2d2d2d] text-white'
+} rounded-3xl px-4 py-3 max-w-[230px] text-[13px] leading-relaxed shadow-sm">
+<p>${text}</p>
+</div>
+`;
+chatMessages.appendChild(div);
+chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function detectEmotion(text) {
+const t = text.toLowerCase();
+if (t.includes('happy') || t.includes('light') || t.includes('okay') || t.includes('good')) return 'positive';
+if (t.includes('sad') || t.includes('low') || t.includes('down') || t.includes('empty')) return 'sad';
+if (t.includes('anxious') || t.includes('anxiety') || t.includes('panic') || t.includes('worried')) return 'anxious';
+if (t.includes('tired') || t.includes('exhausted') || t.includes('drained')) return 'tired';
+if (t.includes('stressed') || t.includes('pressure') || t.includes('overwhelmed')) return 'stressed';
+return null;
+}
+
+function detectIntent(text) {
+const t = text.toLowerCase();
+
+if (/(^|\\s)(hi|hello|hey|good morning|good night|good evening)(\\W|$)/.test(t)) {
+return 'greeting';
+}
+if (t.includes('thank you') || t.includes('thanks') || t.includes('thx')) {
+return 'thanks';
+}
+if (t.includes('bye') || t.includes('goodnight') || t.includes('good night') || t.includes('see you')) {
+return 'goodbye';
+}
+if (t.includes('who are you') || t.includes('what are you') || t.includes('what can you do')) {
+return 'about_bot';
+}
+if ((t.includes('how are you') || t.includes('hru')) && !t.includes('how am i')) {
+return 'bot_feeling';
+}
+if (t.includes('talk to me') || t.includes('bored') || t.includes('lonely')) {
+return 'small_talk';
+}
+if (t.includes('panic') || t.includes("can't breathe") || t.includes('freaking out')) {
+return 'grounding';
+}
+  if (
+    t.includes('mood this week') ||
+    t.includes('my mood this week') ||
+    t.includes('how has my mood been this week') ||
+    t.includes('mood past week') ||
+    t.includes('my mood past week')
+) return 'mood_week';
+
+if (
+    t.includes('mood today') ||
+    t.includes('my mood today') ||
+    t.includes('how is my mood today') ||
+    t.includes('mood right now')
+) return 'mood_today';
+
+if (
+    t.includes('mood yesterday') ||
+    t.includes('my mood yesterday') ||
+    t.includes('how was my mood yesterday')
+) return 'mood_yesterday';
+
+if (
+    t.includes('last three days') ||
+    t.includes('mood last 3 days') ||
+    t.includes('my mood last 3 days') ||
+    t.includes('past 3 days mood') ||
+    t.includes('mood past 3 days')
+) return 'mood_last3';
+
+if (
+    t.includes('last seven days') ||
+    t.includes('mood last 7 days') ||
+    t.includes('my mood last 7 days') ||
+    t.includes('past 7 days mood') ||
+    t.includes('mood past 7 days')
+) return 'mood_last7';
+
+return 'generic';
+}
+
+const intentResponses = {
+about_bot: [
+"I’m here to notice patterns in your moods and offer gentle reflections.",
+"Think of me as a quiet companion for emotional check-ins."
+],
+bot_feeling: [
+"I don’t feel things like humans do, but I’m present with you right now.",
+"I’m focused on holding space for whatever you’re feeling."
+],
+grounding: [
+"Let’s pause: feel your feet on the ground, take one slow breath in and out.",
+"Look around and name three calm or neutral things you can see."
+],
+small_talk: [
+"We can talk about anything that’s on your mind, big or small.",
+"If your day were a page in a journal, how would you title it?"
+],
+goodbye: [
+"Thank you for sharing a bit of yourself today. Take gentle care.",
+"I’m glad we could sit together for a while. You can always come back."
+]
+};
+
+function chooseRandom(arr) {
+return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// Core: ensure mock responses always fire in a predictable order
+async function generateReplyFromFreeText(message) {
+const emotion = detectEmotion(message);
+const intent = detectIntent(message);
+
+// 1) Intent-based (greeting, thanks, etc.) first
+if (intent === 'greeting') return chooseRandom(smallTalk.hello);
+if (intent === 'thanks') return chooseRandom(smallTalk.thanks);
+if (intent === 'about_bot') return chooseRandom(intentResponses.about_bot);
+if (intent === 'bot_feeling') return chooseRandom(intentResponses.bot_feeling);
+if (intent === 'grounding') return chooseRandom(intentResponses.grounding);
+if (intent === 'small_talk') return chooseRandom(intentResponses.small_talk);
+if (intent === 'goodbye') return chooseRandom(intentResponses.goodbye);
+  if (intent === 'mood_today') return analyzeMood('today');
+    if (intent === 'mood_yesterday') return analyzeMood('yesterday');
+    if (intent === 'mood_week') return analyzeMood('week');
+    if (intent === 'mood_last3') return analyzeMood('last3');
+  if (intent === 'mood_last7') return analyzeMood('last7');
+
+// 2) Emotion-based
+if (emotion) {
+if (emotion === 'sad') return chooseRandom(moodResponses.Sad);
+if (emotion === 'anxious') return chooseRandom(moodResponses.Anxious);
+if (emotion === 'tired') return chooseRandom(moodResponses.Tired);
+if (emotion === 'stressed') return chooseRandom(moodResponses.Stressed);
+if (emotion === 'positive') return chooseRandom(moodResponses.Happy);
+}
+
+// 3) Latest selected mood (if user clicked a mood)
+const mood = selectedMood?.name;
+if (mood && moodResponses[mood]) {
+return chooseRandom(moodResponses[mood]);
+}
+
+// 4) Fallback generic
+return chooseRandom(genericResponses);
+}
+
+chatToggle.addEventListener('click', () => {
+chatWindow.classList.toggle('hidden');
+});
+
+// 1️⃣ Mood-based advice mapping
+const moodAdvices = {
+Happy: [
+"Celebrate your wins: write down 3 things that made you happy today.",
+"Share your joy with someone you care about.",
+"Keep this energy by doing a small act of kindness."
+],
+Calm: [
+"Spend 10 minutes in mindful breathing or meditation.",
+"Write down what is giving you peace to reinforce it.",
+"Take a slow walk outside to stay grounded."
+],
+Sad: [
+"Allow yourself to feel it, but also try journaling one thing you’re grateful for.",
+"Reach out to a trusted friend or family member and talk.",
+"Do a small self-care activity: shower, music, or tea."
+],
+Anxious: [
+"Try 4-7-8 breathing: inhale 4s, hold 7s, exhale 8s.",
+"Write down what's on your mind to release it.",
+"Break tasks into tiny steps—focus on one small thing first."
+],
+Stressed: [
+"Stretch or move your body for 5–10 minutes.",
+"Make a tiny to-do list and prioritize 1–2 things.",
+"Listen to calming music or a guided meditation."
+],
+Frustrated: [
+"Take a short break and walk away from the trigger.",
+"Write down what’s bothering you to release tension.",
+"Do a physical release: punch a pillow or do push-ups."
+],
+Tired: [
+"Allow yourself a nap or rest without guilt.",
+"Hydrate and eat a light snack to restore energy.",
+"Do a 5-minute gentle stretch to wake up body and mind."
+],
+Grateful: [
+"Write a thank-you note or message to someone you appreciate.",
+"Reflect on the things you’re grateful for before sleep.",
+"Share your gratitude with someone—it multiplies the feeling."
+],
+Excited: [
+"Channel energy into a small productive task.",
+"Plan the next step for whatever excites you.",
+"Write down what you’re looking forward to so you can track it."
+],
+Neutral: [
+"Take a mindful pause and notice your surroundings.",
+"Check in with your body—maybe a stretch or walk.",
+"Use this calm state to plan or organize small tasks."
+]
+};
+
+function isAskingForAdvice(input) {
+const phrases = [
+"what do i do",
+"how to handle",
+"advice for this",
+"how to deal"
+];
+const lower = input.toLowerCase();
+return phrases.some(p => lower.includes(p));
+}
+
+function giveMoodAdvice() {
+if (!allEntries || allEntries.length === 0) {
+return "I need to know your mood first!";
+}
+
+const latest = allEntries
+.slice()
+.sort((a, b) => b.timestamp - a.timestamp)[0];
+
+const latestMood = latest.mood_name;
+const advices = moodAdvices[latestMood];
+
+if (!advices) {
+return "Hmm, I don't have specific advice for this mood yet.";
+}
+
+return advices[Math.floor(Math.random() * advices.length)];
+}
+
+sendBtn.addEventListener('click', async () => {
+const userText = chatInput.value.trim();
+if (!userText) return;
+chatInput.value = '';
+addChatMessage(userText, 'user');
+
+setTimeout(async () => {
+let reply;
+if (isAskingForAdvice(userText)) {
+reply = giveMoodAdvice();
+} else {
+reply = await generateReplyFromFreeText(userText);
+}
+addChatMessage(reply, 'bot');
+}, 700);
+});
+
+chatInput.addEventListener('keydown', (e) => {
+if (e.key === 'Enter' && !e.shiftKey) {
+e.preventDefault();
+sendBtn.click();
+}
+});
+
+function triggerMoodResponse(entry) {
+const moodName = entry.mood_name;
+const reflection = entry.reflection?.toLowerCase();
+
+let responses = moodResponses[moodName] || genericResponses;
+
+if (reflection) {
+if (reflection.includes('tired') || reflection.includes('exhaust')) {
+responses = moodResponses.Tired || responses;
+}
+if (reflection.includes('stress') || reflection.includes('pressure')) {
+responses = moodResponses.Stressed || responses;
+}
+if (reflection.includes('happy') || reflection.includes('good')) {
+responses = moodResponses.Happy || responses;
+}
+}
+
+const reply = responses[Math.floor(Math.random() * responses.length)];
+
+chatWindow.classList.remove('hidden');
+
+setTimeout(() => {
+addChatMessage(reply, 'bot');
+}, 500);
+
+const pattern = analyzeLastThreeMoods();
+
+if (pattern && patternResponses[pattern]) {
+const patternReply =
+patternResponses[pattern][
+Math.floor(Math.random() * patternResponses[pattern].length)
+];
+
+setTimeout(() => {
+addChatMessage(patternReply, 'bot');
+}, 1600);
+}
+}
 </script>
 
 
@@ -1276,3 +1230,4 @@
 </script>
 </body>
 </html>
+
