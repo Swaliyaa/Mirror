@@ -943,6 +943,34 @@
     return d.toISOString().split('T')[0];
   }
 
+
+    function summarizeAllTodos() {
+  const todos = currentData.filter(d => d.type === 'todo');
+
+  if (!todos.length) {
+    return "Your to-do list is currently empty.";
+  }
+
+  const names = todos.map(t => {
+    return `${t.content} (${t.completed ? "Completed" : "Pending"})`;
+  });
+
+  return `Here’s everything on your to-do list: ${names.join(', ')}.`;
+}
+    function summarizeAllTodoProgress() {
+  const todos = currentData.filter(d => d.type === 'todo');
+
+  if (!todos.length) {
+    return "You haven’t added any to-dos yet.";
+  }
+
+  const completed = todos.filter(t => t.completed);
+  const pending = todos.filter(t => !t.completed);
+
+  return `You’ve completed ${completed.length} out of ${todos.length} total tasks. ${pending.length} are still pending.`;
+}
+
+
   function summarizeTodosToday() {
     const today = getTodayISO();
     const todos = currentData.filter(d => d.type === 'todo' && d.date === today);
@@ -1168,9 +1196,14 @@
     const intent = detectIntent(message);
 
     // tracker‑specific questions first, so they never get overridden by small talk etc.
-    if (isTodoStatusQuestion(message) || isTodoProgressQuestion(message)) {
-      return summarizeTodosToday();
-    }
+    if (isTodoStatusQuestion(message)) {
+  return summarizeAllTodos();
+}
+
+if (isTodoProgressQuestion(message)) {
+  return summarizeAllTodoProgress();
+}
+
 
     if (isDueQuestion(message)) {
       return summarizeTodosDueTodayTomorrow();
@@ -1306,5 +1339,6 @@ document
     </script>
   </body>
 </html>
+
 
 
