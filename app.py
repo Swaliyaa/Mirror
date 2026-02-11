@@ -823,6 +823,7 @@ def api_reminders():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
+    # --- User timezone ---
     cursor.execute("SELECT timezone FROM users WHERE id=%s", (user_id,))
     tz_row = cursor.fetchone()
     user_tz_str = tz_row["timezone"] if tz_row and tz_row["timezone"] else "Asia/Kolkata"
@@ -833,10 +834,12 @@ def api_reminders():
     tomorrow = today + timedelta(days=1)
     now_t = now.time()
 
-    night_start = time(21, 0)
-    night_end = time(0, 0)
+    # night window for extra reminders
+    night_start = time(21, 0)   # 9 PM
+    night_end = time(0, 0)      # midnight
     in_night_window = now_t >= night_start or now_t < night_end
 
+    # --- Todos ---
     cursor.execute("""
         SELECT id, text, completed, due_date, created_at
         FROM todo
@@ -847,19 +850,23 @@ def api_reminders():
 
     def todo_effective_date_user(row):
         if row["due_date"]:
+            # DATE column -> datetime.date
             return row["due_date"]
         created = row["created_at"]
         if created is None:
             return today
         if created.tzinfo is None:
+            # treat as UTC if naive
             created = created.replace(tzinfo=ZoneInfo("UTC"))
         return created.astimezone(user_tz).date()
 
-    due_today = [t for t in todos if todo_effective_date_user(t) == today and not t["completed"]]
-    due_tomorrow = [t for t in todos if todo_effective_date_user(t) == tomorrow and not t["completed"]]
-    past_due = [t for t in todos if todo_effective_date_user(t) < today and not t["completed"]]
+    # only incomplete todos
+    due_today = [t for t in todos if not t["completed"] and todo_effective_date_user(t) == today]
+    due_tomorrow = [t for t in todos if not t["completed"] and todo_effective_date_user(t) == tomorrow]
+    past_due = [t for t in todos if not t["completed"] and todo_effective_date_user(t) < today]
     due_today_all = due_today + past_due
 
+    # --- Habits ---
     cursor.execute("SELECT id, name, completion_history FROM habit WHERE user_id = %s", (user_id,))
     habits = cursor.fetchall()
 
@@ -875,6 +882,7 @@ def api_reminders():
         if not history.get(today_str, False):
             habits_not_done_today.append(h["name"])
 
+    # --- Moods ---
     cursor.execute("""
         SELECT date
         FROM mood
@@ -890,24 +898,19 @@ def api_reminders():
     mood_logged_today = last_mood is not None and last_mood["date"] == today
 
     # names as strings, matching dashboard.js
-    due_today_all = due_today + past_due
     due_today_names = [t["text"] for t in due_today_all]
-    past_due_names = [t["text"] for t in past_due]  # add this!
+    pending_today_names = [t["text"] for t in due_today]       # strictly today
+    due_tomorrow_names = [t["text"] for t in due_tomorrow]
 
     reminders = {
-     "todo_due_today": due_today_names,         
-     "todo_pending_today": [] if not in_night_window else [t["text"] for t in due_today],
-     "todo_tomorrow": [] if not in_night_window else [t["text"] for t in due_tomorrow],
-     "habits_not_done": [] if not in_night_window else habits_not_done_today,
-     "show_mood_missing": False if not in_night_window else not mood_logged_today,
+        # always show "due today" + past due
+        "todo_due_today": due_today_names,
+        # only fill these at night
+        "todo_pending_today": pending_today_names if in_night_window else [],
+        "todo_tomorrow": due_tomorrow_names if in_night_window else [],
+        "habits_not_done": habits_not_done_today if in_night_window else [],
+        "show_mood_missing": (not mood_logged_today) if in_night_window else False,
     }
-
-
-    if in_night_window:
-        reminders["todo_pending_today"] = pending_today_names
-        reminders["todo_tomorrow"] = due_tomorrow_names
-        reminders["habits_not_done"] = habits_not_done_today
-        reminders["show_mood_missing"] = not mood_logged_today
 
     return jsonify({
         "isOk": True,
@@ -916,13 +919,13 @@ def api_reminders():
         "userTime": now.isoformat()
     })
 
-
 # ----------------------------
 # WAKE ROUTE
 # ----------------------------
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
