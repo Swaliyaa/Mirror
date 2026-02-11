@@ -823,10 +823,8 @@ def api_reminders():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    cursor.execute("SELECT timezone FROM users WHERE id=%s", (user_id,))
-    tz_row = cursor.fetchone()
-    user_tz_str = tz_row["timezone"] if tz_row and tz_row["timezone"] else "Asia/Kolkata"
-    user_tz = ZoneInfo(user_tz_str)
+    # Just use a default timezone; don't query users.timezone
+    user_tz = ZoneInfo("Asia/Kolkata")
 
     now = datetime.now(user_tz)
     today = now.date()
@@ -908,12 +906,14 @@ def api_reminders():
         "userTime": now.isoformat()
     })
 
+
 # ----------------------------
 # WAKE ROUTE
 # ----------------------------
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
