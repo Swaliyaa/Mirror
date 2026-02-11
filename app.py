@@ -816,6 +816,9 @@ def summary_recent_moods():
 # ----------------------------
 # API: REMINDERS (timezone-aware)
 # ----------------------------
+# ----------------------------
+# API: REMINDERS (timezone-aware)
+# ----------------------------
 @app.route("/api/reminders", methods=["GET"])
 @login_required
 def api_reminders():
@@ -853,10 +856,10 @@ def api_reminders():
             created = created.replace(tzinfo=ZoneInfo("UTC"))
         return created.astimezone(user_tz).date()
 
+    # --- split today / tomorrow / overdue ---
     due_today = [t for t in todos if not t["completed"] and todo_effective_date_user(t) == today]
     due_tomorrow = [t for t in todos if not t["completed"] and todo_effective_date_user(t) == tomorrow]
     past_due = [t for t in todos if not t["completed"] and todo_effective_date_user(t) < today]
-    due_today_all = due_today + past_due
 
     cursor.execute("SELECT id, name, completion_history FROM habit WHERE user_id = %s", (user_id,))
     habits = cursor.fetchall()
@@ -887,12 +890,17 @@ def api_reminders():
 
     mood_logged_today = last_mood is not None and last_mood["date"] == today
 
-    due_today_names = [t["text"] for t in due_today_all]
+    # names
+    due_today_names = [t["text"] for t in due_today]          # only today
+    past_due_names = [t["text"] for t in past_due]            # only overdue (use later if you want)
     pending_today_names = [t["text"] for t in due_today]
     due_tomorrow_names = [t["text"] for t in due_tomorrow]
 
     reminders = {
+        # frontend will now see only today's tasks here
         "todo_due_today": due_today_names,
+        # (optionally add overdue list as a new key if you decide to render it)
+        # "todo_overdue": past_due_names,
         "todo_pending_today": pending_today_names if in_night_window else [],
         "todo_tomorrow": due_tomorrow_names if in_night_window else [],
         "habits_not_done": habits_not_done_today if in_night_window else [],
@@ -913,6 +921,7 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
