@@ -823,7 +823,6 @@ def api_reminders():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    # --- User timezone ---
     cursor.execute("SELECT timezone FROM users WHERE id=%s", (user_id,))
     tz_row = cursor.fetchone()
     user_tz_str = tz_row["timezone"] if tz_row and tz_row["timezone"] else "Asia/Kolkata"
@@ -834,12 +833,10 @@ def api_reminders():
     tomorrow = today + timedelta(days=1)
     now_t = now.time()
 
-    # night window for extra reminders
-    night_start = time(21, 0)   # 9 PM
-    night_end = time(0, 0)      # midnight
+    night_start = time(21, 0)
+    night_end = time(0, 0)
     in_night_window = now_t >= night_start or now_t < night_end
 
-    # --- Todos ---
     cursor.execute("""
         SELECT id, text, completed, due_date, created_at
         FROM todo
@@ -850,23 +847,19 @@ def api_reminders():
 
     def todo_effective_date_user(row):
         if row["due_date"]:
-            # DATE column -> datetime.date
             return row["due_date"]
         created = row["created_at"]
         if created is None:
             return today
         if created.tzinfo is None:
-            # treat as UTC if naive
             created = created.replace(tzinfo=ZoneInfo("UTC"))
         return created.astimezone(user_tz).date()
 
-    # only incomplete todos
     due_today = [t for t in todos if not t["completed"] and todo_effective_date_user(t) == today]
     due_tomorrow = [t for t in todos if not t["completed"] and todo_effective_date_user(t) == tomorrow]
     past_due = [t for t in todos if not t["completed"] and todo_effective_date_user(t) < today]
     due_today_all = due_today + past_due
 
-    # --- Habits ---
     cursor.execute("SELECT id, name, completion_history FROM habit WHERE user_id = %s", (user_id,))
     habits = cursor.fetchall()
 
@@ -882,7 +875,6 @@ def api_reminders():
         if not history.get(today_str, False):
             habits_not_done_today.append(h["name"])
 
-    # --- Moods ---
     cursor.execute("""
         SELECT date
         FROM mood
@@ -897,15 +889,12 @@ def api_reminders():
 
     mood_logged_today = last_mood is not None and last_mood["date"] == today
 
-    # names as strings, matching dashboard.js
     due_today_names = [t["text"] for t in due_today_all]
-    pending_today_names = [t["text"] for t in due_today]       # strictly today
+    pending_today_names = [t["text"] for t in due_today]
     due_tomorrow_names = [t["text"] for t in due_tomorrow]
 
     reminders = {
-        # always show "due today" + past due
         "todo_due_today": due_today_names,
-        # only fill these at night
         "todo_pending_today": pending_today_names if in_night_window else [],
         "todo_tomorrow": due_tomorrow_names if in_night_window else [],
         "habits_not_done": habits_not_done_today if in_night_window else [],
@@ -925,6 +914,7 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
