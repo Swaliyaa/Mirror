@@ -11,7 +11,7 @@ from functools import wraps
 
 # NEW: imports for email + tokens
 import smtplib
-from email.mime_text import MIMEText
+from email.mime.text import MIMEText
 import secrets
 from urllib.parse import urlencode
 from zoneinfo import ZoneInfo  # timezone support
@@ -922,4 +922,5 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
