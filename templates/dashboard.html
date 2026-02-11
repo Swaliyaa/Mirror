@@ -982,14 +982,14 @@
   const todosToday = currentData.filter(
     d =>
       d.type === 'todo' &&
-      d.effective_date === today &&
+      d.date === today &&
       !d.completed
   );
 
   const todosTomorrow = currentData.filter(
     d =>
       d.type === 'todo' &&
-      d.effective_date === tomorrow &&
+      d.date === tomorrow &&
       !d.completed
   );
 
@@ -1306,4 +1306,5 @@ document
     </script>
   </body>
 </html>
+
 
