@@ -950,7 +950,7 @@
     if (intent === 'about_bot') return chooseRandom(intentResponses.about_bot);
     if (intent === 'bot_feeling') return chooseRandom(intentResponses.bot_feeling);
     if (intent === 'grounding') return chooseRandom(intentResponses.grounding);
-    if (intent === 'small_talk') return chooseRandom(intentResponses.small_talk);
+    if (intent === 'small_talk') return chooseRandom(intentResponses.smallTalk);
     if (intent === 'goodbye') return chooseRandom(intentResponses.goodbye);
 
     // 2) Emotion-based
@@ -1060,6 +1060,126 @@
     return advices[Math.floor(Math.random() * advices.length)];
   }
 
+  // ---------- Detect multiple moods ----------
+  function detectMultipleEmotions(text) {
+    const t = text.toLowerCase();
+    const emotions = [];
+    if (t.includes('happy')) emotions.push('Happy');
+    if (t.includes('calm')) emotions.push('Calm');
+    if (t.includes('neutral')) emotions.push('Neutral');
+    if (t.includes('tired') || t.includes('exhausted') || t.includes('drained')) emotions.push('Tired');
+    if (t.includes('anxious') || t.includes('anxiety') || t.includes('panic') || t.includes('worried')) emotions.push('Anxious');
+    if (t.includes('sad') || t.includes('low') || t.includes('down') || t.includes('empty')) emotions.push('Sad');
+    if (t.includes('stressed') || t.includes('pressure') || t.includes('overwhelmed')) emotions.push('Stressed');
+    if (t.includes('frustrated')) emotions.push('Frustrated');
+    if (t.includes('excited')) emotions.push('Excited');
+    if (t.includes('grateful')) emotions.push('Grateful');
+    return emotions.length ? emotions : null;
+  }
+
+  // ---------- Mood streak calculation ----------
+  function calculateMoodStreak(allEntries) {
+    if (!allEntries || allEntries.length === 0) return { positive: 0, negative: 0 };
+
+    let posStreak = 0, negStreak = 0;
+    const positive = ['Happy', 'Calm', 'Excited', 'Grateful'];
+    const negative = ['Sad', 'Anxious', 'Stressed', 'Frustrated', 'Tired'];
+
+    const sorted = [...allEntries].sort((a,b) => b.timestamp - a.timestamp);
+    for (const e of sorted) {
+      if (positive.includes(e.mood_name)) {
+        if (negStreak > 0) break;
+        posStreak++;
+      } else if (negative.includes(e.mood_name)) {
+        if (posStreak > 0) break;
+        negStreak++;
+      } else break; // neutral breaks streak
+    }
+    return { positive: posStreak, negative: negStreak };
+  }
+
+  // ---------- Fallback messages ----------
+  function fallbackMoodResponse() {
+    const messages = [
+      "I don’t have your mood data yet, but you can check in to start tracking.",
+      "Once you record your mood, I can give you insights and reflections.",
+      "No moods recorded yet! How are you feeling today?"
+    ];
+    return messages[Math.floor(Math.random()*messages.length)];
+  }
+
+  // ---------- Main chatbot mood handler ----------
+  function handleMoodQuestions(input) {
+    const text = input.toLowerCase();
+    const streaks = calculateMoodStreak(allEntries);
+    const emotionsDetected = detectMultipleEmotions(text);
+    const weekStart = getWeekStart();
+    const weekEntries = allEntries.filter(e => e.timestamp >= weekStart.getTime());
+
+    // No mood data
+    if (!allEntries || allEntries.length === 0) return fallbackMoodResponse();
+
+    // ---------- A) Current/latest mood ----------
+    if (text.includes("how am i feeling") || text.includes("today's mood") || text.includes("my mood right now")) {
+      const latest = allEntries.slice().sort((a,b)=>b.timestamp-a.timestamp)[0];
+      if (!latest) return fallbackMoodResponse();
+      let reply = `Today you’re feeling ${latest.mood_emoji} ${latest.mood_name.toLowerCase()}.`;
+      if (streaks.positive > 1) reply += `\n💛 Positive streak: ${streaks.positive} days`;
+      if (streaks.negative > 1) reply += `\n💔 Negative streak: ${streaks.negative} days`;
+      return reply;
+    }
+
+    // ---------- B) Weekly summary ----------
+    if (text.includes("this week") || text.includes("weekly") || text.includes("trend")) {
+      if (!weekEntries.length) return "No moods recorded yet this week!";
+      const moodCounts = {};
+      weekEntries.forEach(e => moodCounts[e.mood_name] = (moodCounts[e.mood_name] || 0) + 1);
+      const mostCommon = Object.entries(moodCounts).sort((a,b)=>b[1]-a[1])[0];
+      const pattern = analyzeLastThreeMoods() || 'mixed';
+      let reply = `This week, your most common mood is ${mostCommon[0]} (${mostCommon[1]} times). Pattern: ${pattern}.`;
+      if (streaks.positive > 1) reply += `\n💛 Positive streak: ${streaks.positive} days`;
+      if (streaks.negative > 1) reply += `\n💔 Negative streak: ${streaks.negative} days`;
+      return reply;
+    }
+
+    // ---------- C) Specific mood counts ----------
+    if (text.includes("how many") || text.includes("most common")) {
+      const moodCounts = {};
+      allEntries.forEach(e => moodCounts[e.mood_name] = (moodCounts[e.mood_name] || 0) + 1);
+      if (text.includes("most common")) {
+        const mostCommon = Object.entries(moodCounts).sort((a,b)=>b[1]-a[1])[0];
+        return `Your most common mood recently is ${mostCommon[0]} (${mostCommon[1]} times).`;
+      }
+      const moodAsked = ["happy","sad","anxious","calm","excited","grateful","tired","stressed","frustrated"]
+        .find(m => text.includes(m));
+      if (moodAsked) {
+        const key = moodAsked.charAt(0).toUpperCase() + moodAsked.slice(1);
+        return `You had ${moodCounts[key] || 0} ${moodAsked} days.`;
+      }
+    }
+
+    // ---------- D) Advice / coping ----------
+    if (isAskingForAdvice(text)) return giveMoodAdvice();
+
+    // ---------- E) Emotional reflection ----------
+    if (text.includes("repeat") || text.includes("stable") || text.includes("pattern")) {
+      const pattern = analyzeLastThreeMoods();
+      return pattern ? `Your mood pattern seems to be ${pattern}.` : "Your moods are mixed lately.";
+    }
+
+    // ---------- Multiple moods detected ----------
+    if (emotionsDetected && emotionsDetected.length > 0) {
+      let reply = emotionsDetected.map(e => chooseRandom(moodResponses[e])).join(' ');
+      if (streaks.positive > 1) reply += `\n💛 Positive streak: ${streaks.positive} days`;
+      if (streaks.negative > 1) reply += `\n💔 Negative streak: ${streaks.negative} days`;
+      return reply;
+    }
+
+    // ---------- Fallback ----------
+    return fallbackMoodResponse();
+  }
+
+  // ---------- Integrate with send button (new behavior) ----------
   sendBtn.addEventListener('click', async () => {
     const userText = chatInput.value.trim();
     if (!userText) return;
@@ -1067,12 +1187,8 @@
     addChatMessage(userText, 'user');
 
     setTimeout(async () => {
-      let reply;
-      if (isAskingForAdvice(userText)) {
-        reply = giveMoodAdvice();
-      } else {
-        reply = await generateReplyFromFreeText(userText);
-      }
+      let reply = handleMoodQuestions(userText);
+      if (!reply) reply = await generateReplyFromFreeText(userText);
       addChatMessage(reply, 'bot');
     }, 700);
   });
@@ -1125,6 +1241,7 @@
   }
 </script>
 
+
 <script>
   (function(){
     function c(){
@@ -1159,4 +1276,3 @@
 </script>
 </body>
 </html>
-
