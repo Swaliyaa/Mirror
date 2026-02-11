@@ -606,10 +606,14 @@
       return;
     }
 
-    // Read-only, visually appealing preview
     todoList.innerHTML = todos
-      .map(
-        todo => `
+      .map(todo => {
+        const content =
+          todo.content.length > 80
+            ? todo.content.slice(0, 77) + '...'
+            : todo.content;
+
+        return `
       <div class="flex items-start gap-3 group">
         <div class="mt-1 w-2 h-2 rounded-full ${
           todo.completed ? 'bg-[#9b9b9b]' : 'bg-[#2d2d2d]'
@@ -618,15 +622,15 @@
           <p class="text-sm text-[#2d2d2d] leading-snug ${
             todo.completed ? 'opacity-60 line-through' : ''
           }">
-            ${todo.content}
+            ${content}
           </p>
           <p class="text-[11px] text-[#9b9b9b] mt-0.5">
             ${todo.completed ? 'Completed' : 'Not completed yet'}
           </p>
         </div>
       </div>
-    `
-      )
+    `;
+      })
       .join('');
   }
 
@@ -640,7 +644,6 @@
       return;
     }
 
-    // Read-only, compact preview of habits + streak
     habitList.innerHTML = habits
       .map(
         habit => `
@@ -732,10 +735,6 @@
     const r = data.reminders;
     const items = [];
 
-    // Only show tasks that are not checked yet
-    // API already sends text for pending / due; we just render what backend gives.
-
-    // Due today (not completed, per /api/reminders logic)
     if (r.todo_due_today && r.todo_due_today.length) {
       r.todo_due_today.forEach(name => {
         items.push(`
@@ -748,19 +747,20 @@
         `);
       });
     }
+
     if (r.todo_overdue && r.todo_overdue.length) {
-    r.todo_overdue.forEach(name => {
-      items.push(`
-        <div class="flex items-start gap-2">
-          <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#fbe3e3] text-[#8b3a3a]">To‑Do</span>
-          <p class="flex-1">
-            This task is overdue: <span class="font-medium">${name}</span>.
-          </p>
-        </div>
-      `);
-    });
-  }
-    // Pending today (after 10 p.m.)
+      r.todo_overdue.forEach(name => {
+        items.push(`
+          <div class="flex items-start gap-2">
+            <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#fbe3e3] text-[#8b3a3a]">To‑Do</span>
+            <p class="flex-1">
+              This task is overdue: <span class="font-medium">${name}</span>.
+            </p>
+          </div>
+        `);
+      });
+    }
+
     if (r.todo_pending_today && r.todo_pending_today.length) {
       const list = r.todo_pending_today
         .map(n => `<span class="font-medium">${n}</span>`)
@@ -775,7 +775,6 @@
         `);
     }
 
-    // Tomorrow’s tasks (all not completed for tomorrow)
     if (r.todo_tomorrow && r.todo_tomorrow.length) {
       const list = r.todo_tomorrow
         .map(n => `<span class="font-medium">${n}</span>`)
@@ -790,7 +789,6 @@
         `);
     }
 
-    // Habits not done
     if (r.habits_not_done && r.habits_not_done.length) {
       r.habits_not_done.forEach(name => {
         items.push(`
@@ -804,7 +802,6 @@
       });
     }
 
-    // Mood missing
     if (r.show_mood_missing) {
       items.push(`
         <div class="flex items-start gap-2">
@@ -839,7 +836,7 @@
     }
   }
 
-  // ----- EVENT HANDLERS (kept but no longer used by dashboard previews) -----
+  // ----- EVENT HANDLERS (legacy, kept) -----
   function handleTodoToggle(e) {
     const id = e.target.dataset.id;
     const todo = currentData.find(d => d.id === id);
@@ -887,7 +884,7 @@
       "Let’s breathe for a moment. What’s within your control today?"
     ],
     calm: [
-      "That calm feels grounding. What helped you arrive here?",
+      "That calm feels grounding. What helped你 arrive here?",
       "Peace is precious. How does your body feel in this moment?",
       "Notice this stillness — it’s a form of strength."
     ]
@@ -897,8 +894,8 @@
     "That sounds meaningful. What does that bring up for you?",
     "I hear you. How does that make you feel?",
     "Thank you for sharing that. What else is on your mind?",
-    "That’s worth exploring. What would help you feel steadier?",
-    "I’m listening. What feels most important right now?"
+    "That’s worth exploring. What would help you feel a little steadier right now?",
+    "I’m listening. What feels most重要 in this moment?"
   ];
 
   const greetingResponses = [
@@ -954,7 +951,7 @@
   function detectIntent(text) {
     const t = text.toLowerCase();
 
-    if (/(^|\s)(hi|hello|hey|good morning|good night|good evening)(\W|$)/.test(t)) {
+    if (/(^|\\s)(hi|hello|hey|good morning|good night|good evening)(\\W|$)/.test(t)) {
       return 'greeting';
     }
 
@@ -996,13 +993,35 @@
         <div class="${
           isUser
             ? 'bg-[#2d2d2d] text-white'
-            : 'bg-white border border-[#e8e5dc]'
+            : 'bg-white/70 border border-[#e8e5dc] backdrop-blur-sm'
         } rounded-3xl px-4 py-3 sm:px-6 sm:py-4 max-w-md shadow-sm">
           <p class="text-sm leading-relaxed">${text}</p>
         </div>
       `;
     chatMessagesEl.appendChild(div);
     chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+
+  function addTypingIndicator() {
+    const div = document.createElement('div');
+    div.className = 'chat-message flex justify-start';
+    div.id = 'typing-indicator';
+    div.innerHTML = `
+      <div class="bg-white/70 border border-[#e8e5dc] backdrop-blur-sm rounded-3xl px-4 py-2 max-w-[120px] shadow-sm">
+        <span class="inline-flex gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#b8b4aa] animate-pulse"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-[#b8b4aa] animate-pulse delay-150"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-[#b8b4aa] animate-pulse delay-300"></span>
+        </span>
+      </div>
+    `;
+    chatMessagesEl.appendChild(div);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const el = document.getElementById('typing-indicator');
+    if (el) el.remove();
   }
 
   // ---------- TRACKER SUMMARY HELPERS ----------
@@ -1016,39 +1035,40 @@
     return d.toISOString().split('T')[0];
   }
 
+  function summarizeAllTodos() {
+    const todos = currentData.filter(d => d.type === 'todo');
 
-    function summarizeAllTodos() {
-  const todos = currentData.filter(d => d.type === 'todo');
+    if (!todos.length) {
+      return 'Your to-do list is currently empty.';
+    }
 
-  if (!todos.length) {
-    return "Your to-do list is currently empty.";
+    const names = todos.map(t => {
+      const text =
+        t.content.length > 80 ? t.content.slice(0, 77) + '...' : t.content;
+      return `${text} (${t.completed ? 'Completed' : 'Pending'})`;
+    });
+
+    return `Here’s everything on your to-do list: ${names.join(', ')}.`;
   }
 
-  const names = todos.map(t => {
-    return `${t.content} (${t.completed ? "Completed" : "Pending"})`;
-  });
+  function summarizeAllTodoProgress() {
+    const todos = currentData.filter(d => d.type === 'todo');
 
-  return `Here’s everything on your to-do list: ${names.join(', ')}.`;
-}
-    function summarizeAllTodoProgress() {
-  const todos = currentData.filter(d => d.type === 'todo');
+    if (!todos.length) {
+      return 'You haven’t added any to-dos yet.';
+    }
 
-  if (!todos.length) {
-    return "You haven’t added any to-dos yet.";
+    const completed = todos.filter(t => t.completed);
+    const pending = todos.filter(t => !t.completed);
+
+    return `You’ve completed ${completed.length} out of ${todos.length} total tasks. ${pending.length} are still pending.`;
   }
-
-  const completed = todos.filter(t => t.completed);
-  const pending = todos.filter(t => !t.completed);
-
-  return `You’ve completed ${completed.length} out of ${todos.length} total tasks. ${pending.length} are still pending.`;
-}
-
 
   function summarizeTodosToday() {
     const today = getTodayISO();
     const todos = currentData.filter(d => d.type === 'todo' && d.date === today);
     if (!todos.length) {
-      return "You don’t have any to‑dos set for today.";
+      return 'You don’t have any to‑dos set for today.';
     }
 
     const done = todos.filter(t => t.completed);
@@ -1065,11 +1085,6 @@
     return `You’ve finished ${done.length} out of ${todos.length} to‑dos today, with ${pending.length} still open.`;
   }
 
-  function summarizeTodosDue() {
-    const today = getTodayISO();
-    const tomorrow = getRelativeDateISO(-1); // kept for compatibility
-  }
-
   function getTomorrowISO() {
     const d = new Date();
     d.setDate(d.getDate() + 1);
@@ -1077,52 +1092,45 @@
   }
 
   function summarizeTodosDueTodayTomorrow() {
-  const today = getTodayISO();
-  const tomorrow = getTomorrowISO();
+    const today = getTodayISO();
+    const tomorrow = getTomorrowISO();
 
-  const todosToday = currentData.filter(
-    d =>
-      d.type === 'todo' &&
-      d.date === today &&
-      !d.completed
-  );
+    const todosToday = currentData.filter(
+      d => d.type === 'todo' && d.date === today && !d.completed
+    );
 
-  const todosTomorrow = currentData.filter(
-    d =>
-      d.type === 'todo' &&
-      d.date === tomorrow &&
-      !d.completed
-  );
+    const todosTomorrow = currentData.filter(
+      d => d.type === 'todo' && d.date === tomorrow && !d.completed
+    );
 
-  const namesToday = todosToday.map(t => t.content);
-  const namesTomorrow = todosTomorrow.map(t => t.content);
+    const namesToday = todosToday.map(t => t.content);
+    const namesTomorrow = todosTomorrow.map(t => t.content);
 
-  if (!namesToday.length && !namesTomorrow.length) {
-    return "You don’t have anything due today or tomorrow.";
-  }
+    if (!namesToday.length && !namesTomorrow.length) {
+      return 'You don’t have anything due today or tomorrow.';
+    }
 
-  if (namesToday.length && namesTomorrow.length) {
-    return `Due today: ${namesToday.join(
+    if (namesToday.length && namesTomorrow.length) {
+      return `Due today: ${namesToday.join(
+        ', '
+      )}. Due tomorrow: ${namesTomorrow.join(', ')}.`;
+    }
+
+    if (namesToday.length) {
+      return `You have these due today: ${namesToday.join(
+        ', '
+      )}. Nothing is due tomorrow yet.`;
+    }
+
+    return `Nothing is due today. Tomorrow you have: ${namesTomorrow.join(
       ', '
-    )}. Due tomorrow: ${namesTomorrow.join(', ')}.`;
+    )}.`;
   }
-
-  if (namesToday.length) {
-    return `You have these due today: ${namesToday.join(
-      ', '
-    )}. Nothing is due tomorrow yet.`;
-  }
-
-  return `Nothing is due today. Tomorrow you have: ${namesTomorrow.join(
-    ', '
-  )}.`;
-}
-
 
   function summarizeHabitsToday() {
     const habits = currentData.filter(d => d.type === 'habit');
     if (!habits.length) {
-      return "You haven’t added any habits yet.";
+      return 'You haven’t added any habits yet.';
     }
 
     const done = habits.filter(h => h.completed);
@@ -1144,7 +1152,7 @@
   function summarizeMoodRecent(range) {
     const moods = currentData.filter(d => d.type === 'mood');
     if (!moods.length) {
-      return "You haven’t logged any moods yet.";
+      return 'You haven’t logged any moods yet.';
     }
 
     const now = new Date();
@@ -1155,7 +1163,7 @@
       const iso = target.toISOString().split('T')[0];
       const y = moods.filter(m => m.date === iso);
       if (!y.length) {
-        return "You didn’t log a mood yesterday.";
+        return 'You didn’t log a mood yesterday.';
       }
       const labels = y.map(m => m.content);
       return `Yesterday you logged: ${labels.join(', ')}.`;
@@ -1175,7 +1183,7 @@
     });
 
     if (!filtered.length) {
-      return "There aren’t any mood entries in that period yet.";
+      return 'There aren’t any mood entries in that period yet.';
     }
 
     const counts = {};
@@ -1199,68 +1207,70 @@
   function isTodoStatusQuestion(text) {
     const t = text.toLowerCase();
     return (
-      t.includes("what are my to do") ||
-      t.includes("what are my to-do") ||
-      t.includes("what do i have to do today") ||
-      t.includes("my tasks today") ||
-      t.includes("what is going on in my to do") ||
-      t.includes("how is my to do") ||
-      t.includes("how is my to-do")
+      t.includes('what are my to do') ||
+      t.includes('what are my to-do') ||
+      t.includes('what do i have to do today') ||
+      t.includes('my tasks today') ||
+      t.includes('what is going on in my to do') ||
+      t.includes('how is my to do') ||
+      t.includes('how is my to-do')
     );
   }
 
   function isTodoProgressQuestion(text) {
     const t = text.toLowerCase();
     return (
-      t.includes("what is my progress") ||
-      t.includes("progress of to-do") ||
-      t.includes("progress of to do") ||
-      t.includes("how much have i done today")
+      t.includes('what is my progress') ||
+      t.includes('progress of to-do') ||
+      t.includes('progress of to do') ||
+      t.includes('how much have i done today')
     );
   }
 
   function isDueQuestion(text) {
     const t = text.toLowerCase();
     return (
-      t.includes("due today") ||
-      t.includes("due tomorrow") ||
-      t.includes("anything due today") ||
-      t.includes("anything due tomorrow") ||
-      t.includes("what is due today") ||
-      t.includes("what is due tomorrow")
+      t.includes('due today') ||
+      t.includes('due tomorrow') ||
+      t.includes('anything due today') ||
+      t.includes('anything due tomorrow') ||
+      t.includes('what is due today') ||
+      t.includes('what is due tomorrow')
     );
   }
 
   function isHabitQuestion(text) {
     const t = text.toLowerCase();
     return (
-      t.includes("how are my habits") ||
-      t.includes("how is my habit") ||
-      t.includes("habit going") ||
-      t.includes("habits going")
+      t.includes('how are my habits') ||
+      t.includes('how is my habit') ||
+      t.includes('habit going') ||
+      t.includes('habits going')
     );
   }
 
   function isMoodHistoryQuestion(text) {
     const t = text.toLowerCase();
     return (
-      t.includes("how has my mood been") ||
-      t.includes("how has been my mood") ||
-      t.includes("how is my mood going") ||
-      t.includes("my mood these days") ||
-      t.includes("mood last few days") ||
-      t.includes("mood last week") ||
-      t.includes("mood yesterday") ||
+      t.includes('how has my mood been') ||
+      t.includes('how has been my mood') ||
+      t.includes('how is my mood going') ||
+      t.includes('my mood these days') ||
+      t.includes('mood last few days') ||
+      t.includes('mood last week') ||
+      t.includes('mood yesterday') ||
       t.includes("yesterday's mood")
     );
   }
 
   function resolveMoodRange(text) {
     const t = text.toLowerCase();
-    if (t.includes("yesterday")) return "yesterday";
-    if (t.includes("three days") || t.includes("3 days") || t.includes("three days ago")) return "3days";
-    if (t.includes("last week") || t.includes("one week") || t.includes("1 week")) return "week";
-    return "few";
+    if (t.includes('yesterday')) return 'yesterday';
+    if (t.includes('three days') || t.includes('3 days') || t.includes('three days ago'))
+      return '3days';
+    if (t.includes('last week') || t.includes('one week') || t.includes('1 week'))
+      return 'week';
+    return 'few';
   }
 
   // ------- CHATBOT REPLY (NO OVERLAP FOR TRACKER QUERIES) -------
@@ -1268,30 +1278,29 @@
     const emotion = detectEmotion(message);
     const intent = detectIntent(message);
 
-    // tracker‑specific questions first, so they never get overridden by small talk etc.
+    // tracker‑specific questions first
     if (isTodoStatusQuestion(message)) {
-  return summarizeAllTodos();
-}
+      return 'Here’s a quick look at your to‑dos: ' + summarizeAllTodos();
+    }
 
-if (isTodoProgressQuestion(message)) {
-  return summarizeAllTodoProgress();
-}
-
+    if (isTodoProgressQuestion(message)) {
+      return 'On your to‑do progress: ' + summarizeAllTodoProgress();
+    }
 
     if (isDueQuestion(message)) {
-      return summarizeTodosDueTodayTomorrow();
+      return 'About what’s due: ' + summarizeTodosDueTodayTomorrow();
     }
 
     if (isHabitQuestion(message)) {
-      return summarizeHabitsToday();
+      return 'For your habits today: ' + summarizeHabitsToday();
     }
 
     if (isMoodHistoryQuestion(message)) {
       const range = resolveMoodRange(message);
-      return summarizeMoodRecent(range);
+      return 'Looking at your moods: ' + summarizeMoodRecent(range);
     }
 
-    // then intent-based
+    // intent-based
     if (intent === 'grounding') {
       return chooseRandom(groundingResponses);
     }
@@ -1314,7 +1323,7 @@ if (isTodoProgressQuestion(message)) {
       return chooseRandom(smallTalkResponses);
     }
 
-    // then emotion-based
+    // emotion-based
     if (emotion && emotionResponses[emotion]) {
       return chooseRandom(emotionResponses[emotion]);
     }
@@ -1330,8 +1339,11 @@ if (isTodoProgressQuestion(message)) {
     addMessage(message, true);
     chatInput.value = '';
 
+    addTypingIndicator();
+
     setTimeout(async () => {
       const reply = await generateReply(message);
+      removeTypingIndicator();
       addMessage(reply);
     }, 800);
   });
@@ -1344,27 +1356,17 @@ if (isTodoProgressQuestion(message)) {
   });
 
   // ----- SINGLE-CLICK NAVIGATION -----
-document
-  .getElementById('todo-list')
-  .parentElement.addEventListener(
-    'click',
-    () => (window.location = '/todo')
-  );
+  document
+    .getElementById('todo-list')
+    .parentElement.addEventListener('click', () => (window.location = '/todo'));
 
-document
-  .getElementById('habit-list')
-  .parentElement.addEventListener(
-    'click',
-    () => (window.location = '/habit')
-  );
+  document
+    .getElementById('habit-list')
+    .parentElement.addEventListener('click', () => (window.location = '/habit'));
 
-document
-  .getElementById('mood-selector')
-  .parentElement.addEventListener(
-    'click',
-    () => (window.location = '/mood')
-  );
-
+  document
+    .getElementById('mood-selector')
+    .parentElement.addEventListener('click', () => (window.location = '/mood'));
 
   // ----- INIT APP -----
   renderTodos();
@@ -1412,6 +1414,7 @@ document
     </script>
   </body>
 </html>
+
 
 
 
