@@ -474,6 +474,9 @@
       <!-- Sign In View -->
       <div id="signin-view" class="view active">
         <h2 class="form-heading" id="signin-heading">Welcome back</h2>
+        {% if error %}
+         <div class="message error">{{ error }}</div>
+        {% endif %}
         <form id="signin-form" method="POST" action="/login">
           <div id="signin-message" class="message" aria-live="polite"></div>
           <div class="form-group">
