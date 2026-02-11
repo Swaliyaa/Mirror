@@ -651,6 +651,49 @@ ${entry.reflection ? `<p class="ink-light text-[12px] sm:text-sm italic truncate
 
   return `In this period, your most frequent mood was ${mostCommon[0]} (${mostCommon[1]} times).`;
 }
+async function summarizeMoodRecent(range) {
+  const rangeMap = {
+    today: 1,
+    yesterday: 1,
+    "3days": 3,
+    week: 7,
+    few: 5
+  };
+
+  const days = rangeMap[range] || 5;
+
+  // Fetch recent moods from Flask backend
+  const resp = await fetch(`/api/summary/recent-moods?days=${days}`);
+  const data = await resp.json();
+
+  if (!data.entries || !data.entries.length) {
+    return "There aren’t any mood entries in that period yet.";
+  }
+
+  // Filter for "today" specifically if needed
+  let filtered = data.entries;
+  if (range === "today") {
+    const todayStr = new Date().toISOString().split("T")[0];
+    filtered = filtered.filter(e => e.date === todayStr);
+  }
+  if (range === "yesterday") {
+    const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+    filtered = filtered.filter(e => e.date === yesterdayStr);
+  }
+
+  const counts = {};
+  filtered.forEach(e => { counts[e.mood_name] = (counts[e.mood_name] || 0) + 1; });
+
+  const summary = Object.entries(counts).map(([name, count]) => `${name} (${count})`).join(", ");
+
+  if (!summary) return "No moods logged for this period yet.";
+
+  if (range === "today") return `Today you logged: ${summary}.`;
+  if (range === "yesterday") return `Yesterday you logged: ${summary}.`;
+  if (range === "3days") return `In the last 3 days, your moods have been: ${summary}.`;
+  if (range === "week") return `In the last week, your moods have been: ${summary}.`;
+  return `In the last few days, your moods have been: ${summary}.`;
+}
 
 function renderWeeklySummary(entries) {
 const container = document.getElementById('weekly-summary');
@@ -937,42 +980,6 @@ return 'small_talk';
 if (t.includes('panic') || t.includes("can't breathe") || t.includes('freaking out')) {
 return 'grounding';
 }
-  if (
-    t.includes('mood this week') ||
-    t.includes('my mood this week') ||
-    t.includes('how has my mood been this week') ||
-    t.includes('mood past week') ||
-    t.includes('my mood past week')
-) return 'mood_week';
-
-if (
-    t.includes('mood today') ||
-    t.includes('my mood today') ||
-    t.includes('how is my mood today') ||
-    t.includes('mood right now')
-) return 'mood_today';
-
-if (
-    t.includes('mood yesterday') ||
-    t.includes('my mood yesterday') ||
-    t.includes('how was my mood yesterday')
-) return 'mood_yesterday';
-
-if (
-    t.includes('last three days') ||
-    t.includes('mood last 3 days') ||
-    t.includes('my mood last 3 days') ||
-    t.includes('past 3 days mood') ||
-    t.includes('mood past 3 days')
-) return 'mood_last3';
-
-if (
-    t.includes('last seven days') ||
-    t.includes('mood last 7 days') ||
-    t.includes('my mood last 7 days') ||
-    t.includes('past 7 days mood') ||
-    t.includes('mood past 7 days')
-) return 'mood_last7';
 
 return 'generic';
 }
@@ -1017,11 +1024,7 @@ if (intent === 'bot_feeling') return chooseRandom(intentResponses.bot_feeling);
 if (intent === 'grounding') return chooseRandom(intentResponses.grounding);
 if (intent === 'small_talk') return chooseRandom(intentResponses.small_talk);
 if (intent === 'goodbye') return chooseRandom(intentResponses.goodbye);
-  if (intent === 'mood_today') return analyzeMood('today');
-    if (intent === 'mood_yesterday') return analyzeMood('yesterday');
-    if (intent === 'mood_week') return analyzeMood('week');
-    if (intent === 'mood_last3') return analyzeMood('last3');
-  if (intent === 'mood_last7') return analyzeMood('last7');
+  
 
 // 2) Emotion-based
 if (emotion) {
@@ -1230,4 +1233,5 @@ addChatMessage(patternReply, 'bot');
 </script>
 </body>
 </html>
+
 
