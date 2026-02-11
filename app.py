@@ -186,18 +186,23 @@ def login():
     message = ""
 
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
-        user = cursor.fetchone()
+    username = request.form["username"]
+    password = request.form["password"]
+    cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
+    user = cursor.fetchone()
 
-        if user and check_password_hash(user["password"], password):
+    if user:
+        if check_password_hash(user["password"], password):
             session["user_id"] = user["id"]
             cursor.close()
             conn.close()
             return redirect("/dashboard")
         else:
-            message = "Invalid credentials."
+            message = "Incorrect password. Try again."
+            return render_template("login.html", active_view="signin", error=message)
+    else:
+        message = "No account found. Please sign up first."
+        return render_template("login.html", active_view="signup", error=message)
 
     cursor.close()
     conn.close()
@@ -881,3 +886,4 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
