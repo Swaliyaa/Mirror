@@ -369,7 +369,6 @@
     </div>
   </div>
 <script>
-
 const defaultConfig = {
   page_title: 'Mood Tracker',
   page_subtitle: 'How are you feeling today?',
@@ -651,10 +650,20 @@ function analyzeMood(timeframe) {
   return `In this period, your most frequent mood was ${mostCommon[0]} (${mostCommon[1]} times).`;
 }
 
+function sameDay(d1, d2) {
+  const a = new Date(d1);
+  const b = new Date(d2);
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
 async function summarizeMoodRecent(range) {
   const rangeMap = {
     today: 1,
-    yesterday: 1,
+    yesterday: 2,
     "3days": 3,
     week: 7,
     few: 5
@@ -669,14 +678,15 @@ async function summarizeMoodRecent(range) {
     return "There aren’t any mood entries in that period yet.";
   }
 
+  const now = new Date();
+  const todayStr = now.toISOString().split("T")[0];
+  const yesterdayStr = new Date(now.getTime() - 86400000).toISOString().split("T")[0];
+
   let filtered = data.entries;
   if (range === "today") {
-    const todayStr = new Date().toISOString().split("T")[0];
-    filtered = filtered.filter(e => e.date === todayStr);
-  }
-  if (range === "yesterday") {
-    const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-    filtered = filtered.filter(e => e.date === yesterdayStr);
+    filtered = filtered.filter(e => sameDay(e.date, todayStr));
+  } else if (range === "yesterday") {
+    filtered = filtered.filter(e => sameDay(e.date, yesterdayStr));
   }
 
   const counts = {};
@@ -979,6 +989,18 @@ function detectIntent(text) {
     return 'grounding';
   }
 
+  // extra phrasings for mood summary
+  if (
+    t.includes('how has my mood been') ||
+    t.includes("how's my mood") ||
+    t.includes('overall mood') ||
+    t.includes('how have i been feeling') ||
+    t.includes('how has my mood') ||
+    t.includes('how have my moods been')
+  ) {
+    return 'mood_summary';
+  }
+
   // Mood summary style questions
   if (t.includes('this week') || t.includes('last week') || t.includes('recent moods') || t.includes('last few days')) {
     return 'mood_summary';
@@ -1125,7 +1147,6 @@ const moodAdvices = {
 function isAskingForAdvice(input) {
   const lower = input.toLowerCase();
 
-  // direct phrases
   const phrases = [
     "what do i do",
     "how to handle",
@@ -1146,7 +1167,6 @@ function isAskingForAdvice(input) {
     return true;
   }
 
-  // simple pattern: look for "what/ how" + "should/ can" + "i" + "do"
   const pattern = /(what|how)\s+(should|can)\s+i\s+do\b/;
   return pattern.test(lower);
 }
@@ -1271,6 +1291,7 @@ function triggerMoodResponse(entry) {
 </script>
 </body>
 </html>
+
 
 
 
