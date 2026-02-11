@@ -663,14 +663,42 @@
       row.className = `task-row p-4 flex items-start gap-3 ${task.completed ? "completed" : ""}`;
 
       row.innerHTML = `
-        <div class="checkbox">${task.completed ? "✓" : ""}</div>
-        <div class="flex-1 min-w-0">
-          <div class="task-text text-sm mb-2 ${task.completed ? "completed" : ""}">
-            ${task.text}
-          </div>
-        </div>
-        <div class="delete-btn">×</div>
-      `;
+  <div class="checkbox">${task.completed ? "✓" : ""}</div>
+
+  <div class="flex-1 min-w-0">
+    <div class="task-text text-sm ${task.completed ? "completed" : ""}">
+      ${task.text}
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 mt-2 text-xs">
+
+      ${task.priority ? `
+        <span class="flex items-center gap-1">
+          <span class="priority-dot priority-${task.priority}"></span>
+          <span style="color: rgba(0,0,0,0.5);">
+            ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+          </span>
+        </span>
+      ` : ""}
+
+      ${task.category ? `
+        <span class="category-badge">
+          ${task.category.charAt(0).toUpperCase() + task.category.slice(1)}
+        </span>
+      ` : ""}
+
+      ${task.dueDate ? `
+        <span style="color: rgba(0,0,0,0.5);">
+          Due: ${new Date(task.dueDate).toLocaleDateString()}
+        </span>
+      ` : ""}
+
+    </div>
+  </div>
+
+  <div class="delete-btn">×</div>
+`;
+
 
       row.querySelector(".checkbox").onclick = () => toggleTask(task.id);
       row.querySelector(".delete-btn").onclick = () => deleteTask(task.id);
@@ -1244,4 +1272,5 @@ if (isDueQuestion(message)) {
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c88e72cc66ab2b3',t:'MTc3MDE5NDg0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
+
 
