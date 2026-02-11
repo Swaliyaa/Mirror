@@ -899,8 +899,8 @@ def api_reminders():
     reminders = {
         # frontend will now see only today's tasks here
         "todo_due_today": due_today_names,
-        # (optionally add overdue list as a new key if you decide to render it)
-        # "todo_overdue": past_due_names,
+       
+        "todo_overdue": past_due_names,
         "todo_pending_today": pending_today_names if in_night_window else [],
         "todo_tomorrow": due_tomorrow_names if in_night_window else [],
         "habits_not_done": habits_not_done_today if in_night_window else [],
@@ -921,6 +921,7 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
