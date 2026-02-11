@@ -890,17 +890,18 @@ def api_reminders():
     mood_logged_today = last_mood is not None and last_mood["date"] == today
 
     # names as strings, matching dashboard.js
+    due_today_all = due_today + past_due
     due_today_names = [t["text"] for t in due_today_all]
-    pending_today_names = [t["text"] for t in due_today]   # strictly today
-    due_tomorrow_names = [t["text"] for t in due_tomorrow]
+    past_due_names = [t["text"] for t in past_due]  # add this!
 
     reminders = {
-     "todo_due_today": due_today_names + past_due_names,
-     "todo_pending_today": [] if not in_night_window else pending_today_names,
-     "todo_tomorrow": [] if not in_night_window else due_tomorrow_names,
+     "todo_due_today": due_today_names,         
+     "todo_pending_today": [] if not in_night_window else [t["text"] for t in due_today],
+     "todo_tomorrow": [] if not in_night_window else [t["text"] for t in due_tomorrow],
      "habits_not_done": [] if not in_night_window else habits_not_done_today,
      "show_mood_missing": False if not in_night_window else not mood_logged_today,
     }
+
 
     if in_night_window:
         reminders["todo_pending_today"] = pending_today_names
@@ -922,6 +923,7 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
