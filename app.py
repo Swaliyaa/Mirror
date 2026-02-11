@@ -61,7 +61,7 @@ def init_db():
             username VARCHAR(255) UNIQUE NOT NULL,
             fullname VARCHAR(255),
             password VARCHAR(255) NOT NULL,
-            ALTER TABLE users ADD COLUMN timezone VARCHAR(50) DEFAULT 'Asia/Kolkata'
+            timezone VARCHAR(50) DEFAULT 'Asia/Kolkata'
         );
     """)
 
@@ -481,26 +481,54 @@ def api_todos():
 
     if request.method == "POST":
         data = request.json
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO todo (id, user_id, text, category, priority, due_date, completed, created_at)
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-        """, (
-            data["id"], user_id, data["text"],
-            data.get("category", ""), data.get("priority", ""),
-            datetime.strptime(data["dueDate"], "%Y-%m-%d") if data.get("dueDate") else None,
-            False,
-            datetime.fromisoformat(data["createdAt"]) if data.get("createdAt") else datetime.now()
-        ))
+            """,
+            (
+                data["id"],
+                user_id,
+                data["text"],
+                data.get("category", ""),
+                data.get("priority", ""),
+                datetime.strptime(data["dueDate"], "%Y-%m-%d") if data.get("dueDate") else None,
+                False,
+                datetime.fromisoformat(data["createdAt"]) if data.get("createdAt") else datetime.now(),
+            ),
+        )
         conn.commit()
         cursor.close()
         conn.close()
         return jsonify({"isOk": True})
 
-    cursor.execute("SELECT * FROM todo WHERE user_id=%s", (user_id,))
+    # GET branch
+    cursor.execute(
+        """
+        SELECT id, text, completed,
+               COALESCE(due_date::date, created_at::date, CURRENT_DATE) AS effective_date
+        FROM todo
+        WHERE user_id=%s
+        ORDER BY created_at DESC
+        """,
+        (user_id,),
+    )
     rows = cursor.fetchall()
+
+    todos = []
+    for t in rows:
+        todos.append(
+            {
+                "id": t["id"],
+                "text": t["text"],
+                "completed": bool(t["completed"]),
+                "dueDate": t["effective_date"].isoformat(),
+            }
+        )
+
     cursor.close()
     conn.close()
-    return jsonify({"isOk": True, "todos": rows})
+    return jsonify({"isOk": True, "todos": todos})
 
 
 # ----------------------------
@@ -908,6 +936,7 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
