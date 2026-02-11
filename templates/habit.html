@@ -1092,6 +1092,62 @@
       t.includes("how are my streaks")
     );
   }
+function isMoodHistoryQuestion(text) {
+  const t = text.toLowerCase();
+  return (
+    t.includes("how has my mood been") ||
+    t.includes("how is my mood going") ||
+    t.includes("my mood this week") ||
+    t.includes("mood last few days") ||
+    t.includes("mood yesterday") ||
+    t.includes("last week mood")
+  );
+}
+
+function resolveMoodRange(text) {
+  const t = text.toLowerCase();
+  if (t.includes("yesterday")) return "yesterday";
+  if (t.includes("3 days") || t.includes("three days")) return "3days";
+  if (t.includes("week")) return "week";
+  return "few";
+}
+
+async function summarizeMoodRecent(range) {
+  const daysMap = {
+    "yesterday": 1,
+    "3days": 3,
+    "week": 7,
+    "few": 5
+  };
+
+  const days = daysMap[range] || 5;
+
+  const res = await fetch(`/api/summary/recent-moods?days=${days}`);
+  const data = await res.json();
+
+  if (!data.isOk || !data.entries.length) {
+    return "There aren’t any mood entries in that period yet.";
+  }
+
+  const counts = data.counts;
+  const summary = Object.entries(counts)
+    .map(([name, count]) => `${name} (${count})`)
+    .join(", ");
+
+  if (range === "yesterday") {
+    return `Yesterday you logged: ${summary}.`;
+  }
+
+  if (range === "3days") {
+    return `In the last 3 days, your moods have been: ${summary}.`;
+  }
+
+  if (range === "week") {
+    return `In the last week, your moods have been: ${summary}.`;
+  }
+
+  return `In the last few days, your moods have been: ${summary}.`;
+}
 
   // --------------------------------------------------------------
 
@@ -1100,6 +1156,12 @@
     const intent = detectIntent(message);
 
     // tracker-style answers first
+if (isMoodHistoryQuestion(message)) {
+  const range = resolveMoodRange(message);
+  return await summarizeMoodRecent(range);
+}
+
+    
     if (isHabitStatusQuestion(message)) {
       return summarizeHabitsTodayChat();
     }
@@ -1187,4 +1249,5 @@
 </script>
 </body>
 </html>
+
 
