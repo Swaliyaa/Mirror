@@ -686,7 +686,18 @@
         `);
       });
     }
-
+    if (r.todo_overdue && r.todo_overdue.length) {
+    r.todo_overdue.forEach(name => {
+      items.push(`
+        <div class="flex items-start gap-2">
+          <span class="mt-1 text-[10px] px-2 py-0.5 rounded-full bg-[#fbe3e3] text-[#8b3a3a]">To‑Do</span>
+          <p class="flex-1">
+            This task is overdue: <span class="font-medium">${name}</span>.
+          </p>
+        </div>
+      `);
+    });
+  }
     // Pending today (after 10 p.m.)
     if (r.todo_pending_today && r.todo_pending_today.length) {
       const list = r.todo_pending_today
@@ -1339,6 +1350,7 @@ document
     </script>
   </body>
 </html>
+
 
 
 
