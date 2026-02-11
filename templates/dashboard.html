@@ -592,7 +592,7 @@
       </div>
     </div>
 
-   <script>
+  <script>
   let currentData = {{ initial_data | tojson }};
 
   // ----- RENDER FUNCTIONS -----
@@ -884,7 +884,7 @@
       "Let’s breathe for a moment. What’s within your control today?"
     ],
     calm: [
-      "That calm feels grounding. What helped你 arrive here?",
+      "That calm feels grounding. What helped you arrive here?",
       "Peace is precious. How does your body feel in this moment?",
       "Notice this stillness — it’s a form of strength."
     ]
@@ -895,7 +895,7 @@
     "I hear you. How does that make you feel?",
     "Thank you for sharing that. What else is on your mind?",
     "That’s worth exploring. What would help you feel a little steadier right now?",
-    "I’m listening. What feels most重要 in this moment?"
+    "I’m listening. What feels most important in this moment?"
   ];
 
   const greetingResponses = [
@@ -937,13 +937,59 @@
   ];
 
   function detectEmotion(text) {
-    text = text.toLowerCase();
+    const t = text.toLowerCase();
 
-    if (text.includes('happy') || text.includes('excited') || text.includes('good')) return 'happy';
-    if (text.includes('sad') || text.includes('down') || text.includes('low')) return 'sad';
-    if (text.includes('overwhelmed') || text.includes('too much')) return 'overwhelmed';
-    if (text.includes('stressed') || text.includes('anxious') || text.includes('pressure')) return 'stressed';
-    if (text.includes('calm') || text.includes('peaceful') || text.includes('relaxed')) return 'calm';
+    if (
+      t.includes('happy') ||
+      t.includes('light') ||
+      t.includes('okay') ||
+      t.includes('good') ||
+      t.includes('better') ||
+      t.includes('😊')
+    ) return 'happy';
+
+    if (
+      t.includes('sad') ||
+      t.includes('low') ||
+      t.includes('down') ||
+      t.includes('empty') ||
+      t.includes('depressed') ||
+      t.includes('😔') ||
+      t.includes('😢')
+    ) return 'sad';
+
+    if (
+      t.includes('anxious') ||
+      t.includes('anxiety') ||
+      t.includes('panic') ||
+      t.includes('worried') ||
+      t.includes('nervous') ||
+      t.includes('😰') ||
+      t.includes('😵‍💫')
+    ) return 'anxious';
+
+    if (
+      t.includes('tired') ||
+      t.includes('exhausted') ||
+      t.includes('drained') ||
+      t.includes('sleepy') ||
+      t.includes('😴')
+    ) return 'tired';
+
+    if (
+      t.includes('stressed') ||
+      t.includes('pressure') ||
+      t.includes('overwhelmed') ||
+      t.includes('burnt out') ||
+      t.includes('burned out')
+    ) return 'stressed';
+
+    if (
+      t.includes('calm') ||
+      t.includes('peaceful') ||
+      t.includes('relaxed') ||
+      t.includes('😌')
+    ) return 'calm';
 
     return null;
   }
@@ -951,7 +997,7 @@
   function detectIntent(text) {
     const t = text.toLowerCase();
 
-    if (/(^|\\s)(hi|hello|hey|good morning|good night|good evening)(\\W|$)/.test(t)) {
+    if (/(^|\s)(hi|hello|hey|good morning|good night|good evening)(\W|$)/.test(t)) {
       return 'greeting';
     }
 
@@ -977,6 +1023,32 @@
 
     if (t.includes('panic') || t.includes("can't breathe") || t.includes('freaking out')) {
       return 'grounding';
+    }
+
+    // mood-summary style intents
+    if (
+      t.includes('how has my mood been') ||
+      t.includes("how's my mood") ||
+      t.includes('overall mood') ||
+      t.includes('how have i been feeling') ||
+      t.includes('how has my mood') ||
+      t.includes('how have my moods been') ||
+      t.includes('recent moods') ||
+      t.includes('last few days')
+    ) {
+      return 'mood_summary';
+    }
+
+    if (t.includes('this week') && t.includes('mood')) {
+      return 'mood_week';
+    }
+
+    if (t.includes('today') && t.includes('mood')) {
+      return 'mood_today';
+    }
+
+    if (t.includes('yesterday') && t.includes('mood')) {
+      return 'mood_yesterday';
     }
 
     return 'generic';
@@ -1157,6 +1229,16 @@
 
     const now = new Date();
     const cutoff = new Date();
+    if (range === 'today') {
+      const iso = now.toISOString().split('T')[0];
+      const todayEntries = moods.filter(m => m.date === iso);
+      if (!todayEntries.length) {
+        return 'You haven’t logged a mood today.';
+      }
+      const labels = todayEntries.map(m => m.content);
+      return `Today you logged: ${labels.join(', ')}.`;
+    }
+
     if (range === 'yesterday') {
       const target = new Date();
       target.setDate(target.getDate() - 1);
@@ -1268,9 +1350,108 @@
     if (t.includes('yesterday')) return 'yesterday';
     if (t.includes('three days') || t.includes('3 days') || t.includes('three days ago'))
       return '3days';
-    if (t.includes('last week') || t.includes('one week') || t.includes('1 week'))
+    if (t.includes('last week') || t.includes('this week') || t.includes('one week') || t.includes('1 week'))
       return 'week';
     return 'few';
+  }
+
+  // mood-based advice
+  const moodAdvices = {
+    Happy: [
+      'Celebrate your wins: write down 3 things that made you happy today.',
+      'Share your joy with someone you care about.',
+      'Keep this energy by doing a small act of kindness.'
+    ],
+    Calm: [
+      'Spend 10 minutes in mindful breathing or meditation.',
+      'Write down what is giving you peace to reinforce it.',
+      'Take a slow walk outside to stay grounded.'
+    ],
+    Sad: [
+      'Allow yourself to feel it, but also try journaling one thing you’re grateful for.',
+      'Reach out to a trusted friend or family member and talk.',
+      'Do a small self-care activity: shower, music, or tea.'
+    ],
+    Anxious: [
+      'Try 4-7-8 breathing: inhale 4s, hold 7s, exhale 8s.',
+      'Write down what\'s on your mind to release it.',
+      'Break tasks into tiny steps—focus on one small thing first.'
+    ],
+    Stressed: [
+      'Stretch or move your body for 5–10 minutes.',
+      'Make a tiny to-do list and prioritize 1–2 things.',
+      'Listen to calming music or a guided meditation.'
+    ],
+    Frustrated: [
+      'Take a short break and walk away from the trigger.',
+      'Write down what’s bothering you to release tension.',
+      'Do a physical release: punch a pillow or do push-ups.'
+    ],
+    Tired: [
+      'Allow yourself a nap or rest without guilt.',
+      'Hydrate and eat a light snack to restore energy.',
+      'Do a 5-minute gentle stretch to wake up body and mind.'
+    ],
+    Grateful: [
+      'Write a thank-you note or message to someone you appreciate.',
+      'Reflect on the things you’re grateful for before sleep.',
+      'Share your gratitude with someone—it multiplies the feeling.'
+    ],
+    Excited: [
+      'Channel energy into a small productive task.',
+      'Plan the next step for whatever excites you.',
+      'Write down what you’re looking forward to so you can track it.'
+    ],
+    Neutral: [
+      'Take a mindful pause and notice your surroundings.',
+      'Check in with your body—maybe a stretch or walk.',
+      'Use this calm state to plan or organize small tasks.'
+    ]
+  };
+
+  function isAskingForAdvice(input) {
+    const lower = input.toLowerCase();
+
+    const phrases = [
+      'what do i do',
+      'how to handle',
+      'advice for this',
+      'how to deal',
+      'what should i do',
+      'what should i do now',
+      'any advice',
+      'any tips',
+      'help me with this',
+      'what can i do',
+      'what can i do about',
+      'how should i handle',
+      'how can i deal'
+    ];
+
+    if (phrases.some(p => lower.includes(p))) {
+      return true;
+    }
+
+    const pattern = /(what|how)\s+(should|can)\s+i\s+do\b/;
+    return pattern.test(lower);
+  }
+
+  function giveMoodAdviceFromDashboard() {
+    const moods = currentData.filter(d => d.type === 'mood');
+    if (!moods.length) {
+      return 'I need to know your mood from a recent check‑in first.';
+    }
+
+    const latest = moods
+      .slice()
+      .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+    const advices = moodAdvices[latest.content];
+    if (!advices) {
+      return "Hmm, I don't have specific advice for this mood yet.";
+    }
+
+    return advices[Math.floor(Math.random() * advices.length)];
   }
 
   // ------- CHATBOT REPLY (NO OVERLAP FOR TRACKER QUERIES) -------
@@ -1298,6 +1479,17 @@
     if (isMoodHistoryQuestion(message)) {
       const range = resolveMoodRange(message);
       return 'Looking at your moods: ' + summarizeMoodRecent(range);
+    }
+
+    // mood summary intents
+    if (intent === 'mood_today') {
+      return summarizeMoodRecent('today');
+    }
+    if (intent === 'mood_yesterday') {
+      return summarizeMoodRecent('yesterday');
+    }
+    if (intent === 'mood_week' || intent === 'mood_summary') {
+      return summarizeMoodRecent('week');
     }
 
     // intent-based
@@ -1342,7 +1534,12 @@
     addTypingIndicator();
 
     setTimeout(async () => {
-      const reply = await generateReply(message);
+      let reply;
+      if (isAskingForAdvice(message)) {
+        reply = giveMoodAdviceFromDashboard();
+      } else {
+        reply = await generateReply(message);
+      }
       removeTypingIndicator();
       addMessage(reply);
     }, 800);
@@ -1375,6 +1572,7 @@
   fetchReminders();
   setInterval(fetchReminders, 60000);
 </script>
+
 
 
     <script>
@@ -1414,6 +1612,7 @@
     </script>
   </body>
 </html>
+
 
 
 
