@@ -60,7 +60,8 @@ def init_db():
             id SERIAL PRIMARY KEY,
             username VARCHAR(255) UNIQUE NOT NULL,
             fullname VARCHAR(255),
-            password VARCHAR(255) NOT NULL
+            password VARCHAR(255) NOT NULL,
+            ALTER TABLE users ADD COLUMN timezone VARCHAR(50) DEFAULT 'Asia/Kolkata'
         );
     """)
 
@@ -806,23 +807,33 @@ def summary_recent_moods():
         "counts": mood_counts
     })
 
+from zoneinfo import ZoneInfo
+
 @app.route("/api/reminders", methods=["GET"])
 @login_required
 def api_reminders():
     user_id = session["user_id"]
-    now = datetime.now()
-    today = now.date()
-    tomorrow = today + timedelta(days=1)
-
-    # time windows
-    ten_pm = time(22, 0)
-    six_am = time(6, 0)
-    now_t = now.time()
-
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    # --- To‑do data ---
+    # --- Fetch user timezone ---
+    cursor.execute("SELECT timezone FROM users WHERE id=%s", (user_id,))
+    tz_row = cursor.fetchone()
+    user_tz_str = tz_row["timezone"] if tz_row and tz_row["timezone"] else "Asia/Kolkata"
+    user_tz = ZoneInfo(user_tz_str)
+
+    # --- Current user time ---
+    now = datetime.now(user_tz)
+    today = now.date()
+    tomorrow = today + timedelta(days=1)
+    now_t = now.time()
+
+    # --- Time windows ---
+    night_start = time(21, 0)   # 9 PM
+    night_end = time(0, 0)     # 12:30 AM
+    in_night_window = now_t >= night_start or now_t < night_end
+
+    # --- Fetch todos ---
     cursor.execute("""
         SELECT id, text, completed,
                COALESCE(due_date::date, created_at::date) AS effective_date
@@ -836,10 +847,9 @@ def api_reminders():
     due_today = [t for t in todos if t["effective_date"] == today and not t["completed"]]
     due_tomorrow = [t for t in todos if t["effective_date"] == tomorrow and not t["completed"]]
 
-    pending_today = due_today
-
-
-
+    # include past-due incomplete tasks in due_today
+    past_due = [t for t in todos if t["effective_date"] < today and not t["completed"]]
+    due_today_all = due_today + past_due
 
     # --- Habit data ---
     cursor.execute("SELECT id, name, completion_history FROM habit WHERE user_id = %s", (user_id,))
@@ -866,40 +876,38 @@ def api_reminders():
         LIMIT 1
     """, (user_id,))
     last_mood = cursor.fetchone()
+
     cursor.close()
     conn.close()
 
     mood_logged_today = last_mood is not None and last_mood["date"] == today
 
+    # --- Build reminders ---
     reminders = {
-        "todo_due_today": [],
-        "todo_pending_today": [],
+        "todo_due_today": [t["text"] for t in due_today_all],  # always visible
         "todo_tomorrow": [],
         "habits_not_done": [],
         "show_mood_missing": False
     }
 
-    # 6 a.m. – 10 p.m.: show tasks that are due today
-    if six_am <= now_t < ten_pm:
-        reminders["todo_due_today"] = [t["text"] for t in due_today]
-
-    # From 10 p.m. to 6 a.m.: show pending today and tomorrow + habit/mood reminders
-    if now_t >= ten_pm or now_t < six_am:
-        reminders["todo_pending_today"] = [t["text"] for t in pending_today]
+    # Night window reminders (9 PM – 12:30 AM)
+    if in_night_window:
         reminders["todo_tomorrow"] = [t["text"] for t in due_tomorrow]
-
-        if not mood_logged_today:
-            reminders["show_mood_missing"] = True
-
         reminders["habits_not_done"] = habits_not_done_today
+        reminders["show_mood_missing"] = not mood_logged_today
 
-    return jsonify({"isOk": True, "reminders": reminders, "serverTime": now.isoformat()})
-
+    return jsonify({
+        "isOk": True,
+        "reminders": reminders,
+        "serverTime": datetime.utcnow().isoformat(),
+        "userTime": now.isoformat()
+    })
 # ----------------------------
 # WAKE ROUTE (for Render free tier)
 # ----------------------------
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
