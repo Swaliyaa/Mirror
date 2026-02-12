@@ -625,53 +625,52 @@ if (text.length > 300) {
 }
 }
 
-  async function toggleTask(id) {
-    const task = tasks.find(t => t.id === id);
-    if (!task) return;
+ async function toggleTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
 
-    const updatedStatus = !task.completed;
+  const updatedStatus = !task.completed;
 
-    try {
-      const res = await fetch(`/api/todos/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ completed: updatedStatus })
-      });
+  try {
+    const res = await fetch(`/api/todos/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed: updatedStatus })
+    });
 
-      const data = await res.json();
-      if (!data.isOk) throw new Error("Update failed");
+    const data = await res.json();
+    if (!data.isOk) throw new Error("Update failed");
 
-      task.completed = updatedStatus;
-      renderTasks();
-      updateStats();
-      triggerTodoResponse(updatedStatus ? "completed" : "unchecked", task.text);
+    task.completed = updatedStatus;
+    renderTasks();
+    updateStats();
+    triggerTodoResponse(updatedStatus ? "completed" : "unchecked", task.text);
 
-    } } catch (err) {
-  console.error(err);
-  showToast("Failed to update task");
+  } catch (err) {
+    console.error(err);
+    showToast("Failed to update task");
+  }
 }
 
-  }
 
   async function deleteTask(id) {
-    try {
-      const res = await fetch(`/api/todos/${id}`, {
-        method: "DELETE"
-      });
+  try {
+    const res = await fetch(`/api/todos/${id}`, {
+      method: "DELETE"
+    });
 
-      const data = await res.json();
-      if (!data.isOk) throw new Error("Delete failed");
+    const data = await res.json();
+    if (!data.isOk) throw new Error("Delete failed");
 
-      tasks = tasks.filter(t => t.id !== id);
-      renderTasks();
-      updateStats();
+    tasks = tasks.filter(t => t.id !== id);
+    renderTasks();
+    updateStats();
 
-    } } catch (err) {
-  console.error(err);
-  showToast("Failed to delete task");
-}
-
+  } catch (err) {
+    console.error(err);
+    showToast("Failed to delete task");
   }
+}
 
   /* ---------- FILTER ---------- */
   function getFilteredTasks() {
@@ -1321,6 +1320,7 @@ if (text.length > 300) {
 
 </body>
 </html>
+
 
 
 
