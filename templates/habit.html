@@ -1149,6 +1149,31 @@ async function summarizeMoodRecent(range) {
   return `In the last few days, your moods have been: ${summary}.`;
 }
 
+  async function askAiBackend(message) {
+  try {
+    const res = await fetch('/api/ask-ai', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message })
+    });
+
+    if (!res.ok) {
+      return 'I had trouble reaching the AI right now. Please try again in a moment.';
+    }
+
+    const data = await res.json();
+    if (!data.isOk || !data.answer) {
+      return 'I couldn’t get a proper response from the AI just now.';
+    }
+
+    return data.answer;
+  } catch (e) {
+    return 'I had trouble reaching the AI right now. Please try again in a moment.';
+  }
+}
+
   // --------------------------------------------------------------
 
   async function generateReply(message) {
@@ -1194,17 +1219,20 @@ if (isMoodHistoryQuestion(message)) {
   });
 
   sendBtn.addEventListener('click', async () => {
-    const message = chatInputEl.value.trim();
-    if (!message) return;
+  const message = chatInputEl.value.trim();
+  if (!message) return;
 
-    addMessage(message, true);
-    chatInputEl.value = '';
+  // show user message
+  addMessage(message, true);
+  chatInputEl.value = '';
 
-    setTimeout(async () => {
-      const reply = await generateReply(message);
-      addMessage(reply, false);
-    }, 800);
-  });
+  // small delay for UX, then call backend AI
+  setTimeout(async () => {
+    const reply = await askAiBackend(message);
+    addMessage(reply, false);
+  }, 500);
+});
+
 
   chatInputEl.addEventListener('keypress', e => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1249,5 +1277,6 @@ if (isMoodHistoryQuestion(message)) {
 </script>
 </body>
 </html>
+
 
 
