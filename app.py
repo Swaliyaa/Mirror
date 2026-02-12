@@ -751,27 +751,36 @@ def summary_today_todos():
 
     cursor.execute("""
         SELECT id, text, completed,
-               COALESCE(due_date::date, created_at::date) AS effective_date
+               COALESCE(due_date::date, created_at::date, CURRENT_DATE) AS effective_date
         FROM todo
         WHERE user_id = %s
-          AND completed = FALSE
         ORDER BY created_at DESC
     """, (user_id,))
     rows = cursor.fetchall()
-
     cursor.close()
     conn.close()
 
+    today = datetime.now().date()
+    tomorrow = today + timedelta(days=1)
+
+    def as_date(row):
+        return row["effective_date"]
+
     total = len(rows)
-    completed = 0
-    pending = total
+    completed = sum(1 for r in rows if r["completed"])
+    pending = total - completed
+
+    due_today = [r for r in rows if not r["completed"] and as_date(r) == today]
+    due_tomorrow = [r for r in rows if not r["completed"] and as_date(r) == tomorrow]
 
     return jsonify({
         "isOk": True,
         "total": total,
         "completed": completed,
         "pending": pending,
-        "items": rows
+        "all": rows,
+        "due_today": due_today,
+        "due_tomorrow": due_tomorrow
     })
 
 
@@ -779,7 +788,7 @@ def summary_today_todos():
 @login_required
 def summary_recent_habits():
     user_id = session["user_id"]
-    days = int(request.args.get("days", 3))
+    days = int(request.args.get("days", 7))
     today = datetime.now().date()
     start_date = today - timedelta(days=days - 1)
 
@@ -792,8 +801,12 @@ def summary_recent_habits():
         WHERE user_id = %s
     """, (user_id,))
     habits = cursor.fetchall()
+    cursor.close()
+    conn.close()
 
-    summaries = []
+    habits_summary = []
+    today_str = today.strftime("%Y-%m-%d")
+
     for h in habits:
         try:
             history = json.loads(h["completion_history"] or "{}")
@@ -802,33 +815,33 @@ def summary_recent_habits():
         except (json.JSONDecodeError, TypeError):
             history = {}
 
-        streak_count = 0
-        days_logged = 0
+        completed_days = 0
+        total_days = 0
 
-        for i in range(days):
-            d = (start_date + timedelta(days=i)).strftime("%Y-%m-%d")
-            if d in history:
-                days_logged += 1
-                if history.get(d):
-                    streak_count += 1
+        d = start_date
+        while d <= today:
+            key = d.strftime("%Y-%m-%d")
+            if key in history:
+                total_days += 1
+                if history.get(key):
+                    completed_days += 1
+            d += timedelta(days=1)
 
-        summaries.append({
+        habits_summary.append({
             "id": h["id"],
             "name": h["name"],
-            "days_window": days,
-            "days_logged": days_logged,
-            "completed_days": streak_count
+            "completed_today": bool(history.get(today_str, False)),
+            "completed_days": completed_days,
+            "total_days": total_days
         })
-
-    cursor.close()
-    conn.close()
 
     return jsonify({
         "isOk": True,
         "start_date": start_date.isoformat(),
         "end_date": today.isoformat(),
-        "habits": summaries
+        "habits": habits_summary
     })
+
 
 
 @app.route("/api/summary/recent-moods", methods=["GET"])
@@ -968,4 +981,5 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
