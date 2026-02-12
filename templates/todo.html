@@ -399,12 +399,14 @@
           <div class="journal-card p-6">
             <h3 class="text-sm font-normal mb-4" style="color: rgba(0,0,0,0.6);">New Task</h3>
             <textarea
-              id="task-input"
-              placeholder="What would you like to accomplish?"
-              class="w-full px-3 py-2 text-sm mb-4 resize-none"
-              rows="2"
-              style="color: #000;"
-            ></textarea>
+  id="task-input"
+  placeholder="What would you like to accomplish?"
+  class="w-full px-3 py-2 text-sm mb-1 resize-none"
+  rows="2"
+  maxlength="300"
+  style="color: #000;"
+></textarea>
+<p class="text-[11px] text-gray-400">Up to 300 characters.</p>
             <div class="grid grid-cols-2 gap-3 mb-4">
               <div>
                 <label class="block text-xs mb-1" style="color: rgba(0,0,0,0.5);">Category</label>
@@ -531,9 +533,10 @@
       renderTasks();
       updateStats();
     } catch (err) {
-      console.error(err);
-      alert("Error loading tasks");
-    }
+  console.error(err);
+  showToast("Error loading tasks");
+}
+
   }
 
   /* ---------- INIT ---------- */
@@ -552,11 +555,34 @@
         day: "numeric",
       });
   }
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  if (!toast) {
+    alert(message);
+    return;
+  }
+  toast.textContent = message;
+  toast.classList.remove("opacity-0");
+  toast.classList.add("opacity-100");
+
+  setTimeout(() => {
+    toast.classList.remove("opacity-100");
+    toast.classList.add("opacity-0");
+  }, 2500);
+}
 
   /* ---------- TASK CRUD ---------- */
   async function addTask() {
     const text = taskInput.value.trim();
-    if (!text) return;
+    if (!text) {
+  showToast("Please enter a task.");
+  return;
+}
+
+if (text.length > 300) {
+  showToast("Task text is too long (max 300 characters).");
+  return;
+}
 
     const payload = {
       id: Date.now().toString(),
@@ -576,22 +602,28 @@
       });
 
       const data = await res.json();
-      if (!data.isOk) throw new Error("Save failed");
-
-      tasks.unshift(payload);
-      renderTasks();
-      updateStats();
-
-      taskInput.value = "";
-      categorySelect.value = "";
-      prioritySelect.value = "";
-      dueDateInput.value = "";
-
-    } catch (err) {
-      console.error(err);
-      alert("Could not save task");
+      if (!res.ok || !data.isOk) {
+      const msg = data.message || "Could not save task";
+      throw new Error(msg);
     }
-  }
+
+      tasks.unshift({
+      ...payload,
+      completed: false // keep shape consistent with what you render
+    });
+    renderTasks();
+    updateStats();
+
+    taskInput.value = "";
+    categorySelect.value = "";
+    prioritySelect.value = "";
+    dueDateInput.value = "";
+
+  } catch (err) {
+  console.error(err);
+  showToast(err.message || "Could not save task");
+}
+}
 
   async function toggleTask(id) {
     const task = tasks.find(t => t.id === id);
@@ -614,10 +646,11 @@
       updateStats();
       triggerTodoResponse(updatedStatus ? "completed" : "unchecked", task.text);
 
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update task");
-    }
+    } } catch (err) {
+  console.error(err);
+  showToast("Failed to update task");
+}
+
   }
 
   async function deleteTask(id) {
@@ -633,10 +666,11 @@
       renderTasks();
       updateStats();
 
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete task");
-    }
+    } } catch (err) {
+  console.error(err);
+  showToast("Failed to delete task");
+}
+
   }
 
   /* ---------- FILTER ---------- */
@@ -743,8 +777,9 @@
       updateStats();
 
     } catch (err) {
-      alert("Failed to clear completed tasks");
-    }
+  showToast("Failed to clear completed tasks");
+}
+
   }
 
   async function markAllComplete() {
@@ -761,12 +796,17 @@
       updateStats();
 
     } catch (err) {
-      alert("Failed to update tasks");
-    }
+  showToast("Failed to update tasks");
+}
+
   }
 
   function exportTasks() {
-    if (!tasks.length) return alert("No tasks to export");
+    if (!tasks.length) {
+  showToast("No tasks to export");
+  return;
+}
+
 
     const csv = [
       ["Task", "Completed"],
@@ -1273,8 +1313,15 @@
 
 
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c88e72cc66ab2b3',t:'MTc3MDE5NDg0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+<div id="toast"
+     class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full
+            bg-black/90 text-white text-xs shadow-lg opacity-0 pointer-events-none
+            transition-opacity duration-200">
+</div>
+
 </body>
 </html>
+
 
 
 
