@@ -1,5 +1,4 @@
 import psycopg2
-
 from psycopg2.extras import RealDictCursor
 from psycopg2 import IntegrityError
 import json
@@ -11,7 +10,7 @@ from functools import wraps
 
 # NEW: imports for email + tokens
 import smtplib
-from email.mime.text import MIMEText
+from email.mime_text import MIMEText
 import secrets
 from urllib.parse import urlencode
 from zoneinfo import ZoneInfo  # timezone support
@@ -186,36 +185,34 @@ def login():
     message = ""
 
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        if not username or not password:
+            message = "All fields are required."
+            cursor.close()
+            conn.close()
+            return render_template("login.html", active_view="signin", error=message)
 
         cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
         user = cursor.fetchone()
 
-        if user:
-            if check_password_hash(user["password"], password):
-                session["user_id"] = user["id"]
-                cursor.close()
-                conn.close()
-                return redirect("/dashboard")
-            else:
-                message = "Incorrect password. Try again."
-                cursor.close()
-                conn.close()
-                return render_template(
-                    "login.html",
-                    active_view="signin",
-                    error=message
-                )
-        else:
-            message = "No account found. Please sign up first."
+        if user and check_password_hash(user["password"], password):
+            session["user_id"] = user["id"]
             cursor.close()
             conn.close()
-            return render_template(
-                "login.html",
-                active_view="signup",
-                error=message
-            )
+            return redirect("/dashboard")
+
+        if not user:
+            message = "No account found. Please sign up first."
+            active_view = "signup"
+        else:
+            message = "Incorrect password. Try again."
+            active_view = "signin"
+
+        cursor.close()
+        conn.close()
+        return render_template("login.html", active_view=active_view, error=message)
 
     cursor.close()
     conn.close()
@@ -229,9 +226,17 @@ def register():
     message = ""
 
     if request.method == "POST":
-        username = request.form["username"]
-        fullname = request.form.get("fullname", "")
-        password = generate_password_hash(request.form["password"])
+        username = request.form.get("username", "").strip()
+        fullname = request.form.get("fullname", "").strip()
+        password_raw = request.form.get("password", "")
+
+        if not username or not password_raw:
+            message = "All fields are required."
+            cursor.close()
+            conn.close()
+            return render_template("login.html", active_view="signup", error=message)
+
+        password = generate_password_hash(password_raw)
 
         try:
             cursor.execute(
@@ -243,6 +248,7 @@ def register():
             conn.close()
             return redirect("/login")
         except IntegrityError:
+            conn.rollback()
             message = "Username already exists."
 
     cursor.close()
@@ -461,7 +467,22 @@ def api_todos():
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     if request.method == "POST":
-        data = request.json
+        data = request.get_json()
+        if not data:
+            cursor.close()
+            conn.close()
+            return jsonify({"isOk": False, "message": "Invalid JSON"}), 400
+
+        text = data.get("text", "").strip()
+        if not text:
+            cursor.close()
+            conn.close()
+            return jsonify({"isOk": False, "message": "Task text is required."}), 400
+
+        if len(text) > 300:
+            cursor.close()
+            conn.close()
+            return jsonify({"isOk": False, "message": "Task too long."}), 400
 
         raw_due = data.get("dueDate")
         if raw_due:
@@ -480,7 +501,7 @@ def api_todos():
             (
                 data["id"],
                 user_id,
-                data["text"],
+                text,
                 data.get("category", ""),
                 data.get("priority", ""),
                 due,
@@ -536,9 +557,10 @@ def api_todo_item(id):
     if request.method == "DELETE":
         cursor.execute("DELETE FROM todo WHERE id=%s AND user_id=%s", (id, user_id))
     else:
+        data = request.get_json() or {}
         cursor.execute(
             "UPDATE todo SET completed=%s WHERE id=%s AND user_id=%s",
-            (request.json.get("completed", False), id, user_id)
+            (bool(data.get("completed", False)), id, user_id)
         )
 
     conn.commit()
@@ -573,13 +595,24 @@ def api_habits():
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     if request.method == "POST":
-        data = request.json
+        data = request.get_json()
+        if not data:
+            cursor.close()
+            conn.close()
+            return jsonify({"isOk": False, "message": "Invalid JSON"}), 400
+
+        name = data.get("name", "").strip()
+        if not name:
+            cursor.close()
+            conn.close()
+            return jsonify({"isOk": False, "message": "Habit name required."}), 400
+
         history = json.dumps(data.get("completion_history", {}))
         cursor.execute("""
             INSERT INTO habit (id, user_id, name, icon, category, frequency, completion_history, created_at)
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
         """, (
-            data["id"], user_id, data["name"], data.get("icon", ""),
+            data["id"], user_id, name, data.get("icon", ""),
             data.get("category", ""), data.get("frequency", ""), history, datetime.now()
         ))
         conn.commit()
@@ -598,7 +631,7 @@ def api_habits():
 @login_required
 def update_habit(id):
     user_id = session["user_id"]
-    data = request.json
+    data = request.get_json() or {}
 
     today = datetime.now().strftime("%Y-%m-%d")
     completed = bool(data.get("completed"))
@@ -664,13 +697,35 @@ def api_moods():
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     if request.method == "POST":
-        data = request.json
+        data = request.get_json()
+        if not data:
+            cursor.close()
+            conn.close()
+            return jsonify({"isOk": False, "message": "Invalid JSON"}), 400
+
+        mood_name = (data.get("mood_name") or "").strip()
+        reflection = (data.get("reflection") or "").strip()
+
+        if not mood_name:
+            cursor.close()
+            conn.close()
+            return jsonify({"isOk": False, "message": "Mood required."}), 400
+
+        if len(reflection) > 1000:
+            cursor.close()
+            conn.close()
+            return jsonify({"isOk": False, "message": "Reflection too long."}), 400
+
         cursor.execute("""
             INSERT INTO mood (user_id, mood_emoji, mood_name, reflection, date, timestamp)
             VALUES (%s,%s,%s,%s,%s,%s)
         """, (
-            user_id, data["mood_emoji"], data["mood_name"],
-            data["reflection"], data["date"], data["timestamp"]
+            user_id,
+            data.get("mood_emoji", ""),
+            mood_name,
+            reflection,
+            data["date"],
+            data["timestamp"]
         ))
         conn.commit()
 
@@ -816,9 +871,6 @@ def summary_recent_moods():
 # ----------------------------
 # API: REMINDERS (timezone-aware)
 # ----------------------------
-# ----------------------------
-# API: REMINDERS (timezone-aware)
-# ----------------------------
 @app.route("/api/reminders", methods=["GET"])
 @login_required
 def api_reminders():
@@ -826,7 +878,6 @@ def api_reminders():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    # Just use a default timezone; don't query users.timezone
     user_tz = ZoneInfo("Asia/Kolkata")
 
     now = datetime.now(user_tz)
@@ -856,7 +907,6 @@ def api_reminders():
             created = created.replace(tzinfo=ZoneInfo("UTC"))
         return created.astimezone(user_tz).date()
 
-    # --- split today / tomorrow / overdue ---
     due_today = [t for t in todos if not t["completed"] and todo_effective_date_user(t) == today]
     due_tomorrow = [t for t in todos if not t["completed"] and todo_effective_date_user(t) == tomorrow]
     past_due = [t for t in todos if not t["completed"] and todo_effective_date_user(t) < today]
@@ -890,16 +940,13 @@ def api_reminders():
 
     mood_logged_today = last_mood is not None and last_mood["date"] == today
 
-    # names
-    due_today_names = [t["text"] for t in due_today]          # only today
-    past_due_names = [t["text"] for t in past_due]            # only overdue (use later if you want)
+    due_today_names = [t["text"] for t in due_today]
+    past_due_names = [t["text"] for t in past_due]
     pending_today_names = [t["text"] for t in due_today]
     due_tomorrow_names = [t["text"] for t in due_tomorrow]
 
     reminders = {
-        # frontend will now see only today's tasks here
         "todo_due_today": due_today_names,
-       
         "todo_overdue": past_due_names,
         "todo_pending_today": pending_today_names if in_night_window else [],
         "todo_tomorrow": due_tomorrow_names if in_night_window else [],
@@ -921,12 +968,3 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
-
-
-
-
-
-
-
-
-
