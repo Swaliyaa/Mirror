@@ -1028,7 +1028,8 @@ Recent moods: {moods}
 Answer concisely and helpfully in 2–4 sentences.
 """
 
-        if not DEEPSEEK_API_KEY:
+    # >>> THIS MUST BE INDENTED TO THE SAME LEVEL AS 'prompt = ...'
+    if not DEEPSEEK_API_KEY:
         return jsonify({"isOk": False, "error": "DEEPSEEK_API_KEY not configured"}), 500
 
     try:
@@ -1055,9 +1056,9 @@ Answer concisely and helpfully in 2–4 sentences.
 
         resp = requests.post(DEEPSEEK_URL, headers=headers, json=payload, timeout=60)
 
-        # TEMP LOGGING (optional)
-        print("DeepSeek status:", resp.status_code, flush=True)
-        print("DeepSeek raw:", resp.text, flush=True)
+        # TEMP LOGGING IF YOU WANT
+        # print("DeepSeek status:", resp.status_code, flush=True)
+        # print("DeepSeek raw:", resp.text, flush=True)
 
         data = resp.json()
 
@@ -1071,7 +1072,7 @@ Answer concisely and helpfully in 2–4 sentences.
 
         answer = choices[0]["message"]["content"].strip()
     except Exception as e:
-        print("DeepSeek exception:", e, flush=True)
+        # print("DeepSeek exception:", e, flush=True)
         return jsonify({"isOk": False, "error": str(e)}), 500
 
     return jsonify({"isOk": True, "answer": answer})
@@ -1083,6 +1084,7 @@ Answer concisely and helpfully in 2–4 sentences.
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
