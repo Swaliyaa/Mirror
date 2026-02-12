@@ -2,3 +2,6 @@ Flask
 gunicorn
 psycopg2-binary
 Werkzeug
+transformers
+accelerate
+torch
