@@ -4,6 +4,7 @@ from psycopg2 import IntegrityError
 import json
 from flask import Flask, request, session, redirect, render_template, jsonify, send_from_directory
 from datetime import datetime, timedelta, time
+import requests
 
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -1073,6 +1074,7 @@ Answer concisely and helpfully in 2–4 sentences.
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
