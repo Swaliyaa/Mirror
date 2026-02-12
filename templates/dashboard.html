@@ -520,7 +520,7 @@
       class="inline-flex items-center justify-center w-5 h-5 rounded-full
              bg-[#2d2d2d] text-[#f5f1e8] text-xs shadow-sm"
     >
-      ↗
+      ➜
     </span>
   </button>
 </div>
@@ -1096,117 +1096,113 @@
     if (el) el.remove();
   }
 
-  // ---------- TRACKER SUMMARY HELPERS ----------
-  function getTodayISO() {
-    return new Date().toISOString().split('T')[0];
-  }
+// ---------- TRACKER SUMMARY HELPERS (LIVE DB) ----------
+function getTodayISO() {
+  return new Date().toISOString().split('T')[0];
+}
 
-  function getRelativeDateISO(daysAgo) {
-    const d = new Date();
-    d.setDate(d.getDate() - daysAgo);
-    return d.toISOString().split('T')[0];
-  }
+function getTomorrowISO() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split('T')[0];
+}
 
-  function summarizeAllTodos() {
-    const todos = currentData.filter(d => d.type === 'todo');
+// all todos, with completed/pending
+async function summarizeAllTodos() {
+  try {
+    const resp = await fetch('/api/summary/today-todos');
+    if (!resp.ok) return 'I couldn’t load your to‑dos just now.';
+    const data = await resp.json();
+    if (!data.isOk || !data.all) return 'I couldn’t load your to‑dos just now.';
 
+    const todos = data.all;
     if (!todos.length) {
       return 'Your to-do list is currently empty.';
     }
 
     const names = todos.map(t => {
       const text =
-        t.content.length > 80 ? t.content.slice(0, 77) + '...' : t.content;
+        t.text.length > 80 ? t.text.slice(0, 77) + '...' : t.text;
       return `${text} (${t.completed ? 'Completed' : 'Pending'})`;
     });
 
     return `Here’s everything on your to-do list: ${names.join(', ')}.`;
+  } catch (e) {
+    return 'I couldn’t load your to‑dos just now.';
   }
+}
 
-  function summarizeAllTodoProgress() {
-    const todos = currentData.filter(d => d.type === 'todo');
+async function summarizeAllTodoProgress() {
+  try {
+    const resp = await fetch('/api/summary/today-todos');
+    if (!resp.ok) return 'I couldn’t load your to‑do progress just now.';
+    const data = await resp.json();
+    if (!data.isOk) return 'I couldn’t load your to‑do progress just now.';
 
-    if (!todos.length) {
+    const total = data.total || 0;
+    const completed = data.completed || 0;
+    const pending = data.pending || 0;
+
+    if (!total) {
       return 'You haven’t added any to-dos yet.';
     }
 
-    const completed = todos.filter(t => t.completed);
-    const pending = todos.filter(t => !t.completed);
-
-    return `You’ve completed ${completed.length} out of ${todos.length} total tasks. ${pending.length} are still pending.`;
+    return `You’ve completed ${completed} out of ${total} total tasks. ${pending} are still pending.`;
+  } catch (e) {
+    return 'I couldn’t load your to‑do progress just now.';
   }
+}
 
-  function summarizeTodosToday() {
-    const today = getTodayISO();
-    const todos = currentData.filter(d => d.type === 'todo' && d.date === today);
-    if (!todos.length) {
-      return 'You don’t have any to‑dos set for today.';
-    }
+// today vs tomorrow due
+async function summarizeTodosDueTodayTomorrow() {
+  try {
+    const resp = await fetch('/api/summary/today-todos');
+    if (!resp.ok) return 'I couldn’t check what’s due right now.';
+    const data = await resp.json();
+    if (!data.isOk) return 'I couldn’t check what’s due right now.';
 
-    const done = todos.filter(t => t.completed);
-    const pending = todos.filter(t => !t.completed);
+    const todayNames = (data.due_today || []).map(t => t.text);
+    const tomorrowNames = (data.due_tomorrow || []).map(t => t.text);
 
-    if (!pending.length) {
-      return `You’ve completed all ${todos.length} of your to‑dos for today.`;
-    }
-
-    if (!done.length) {
-      return `You have ${pending.length} to‑dos waiting for you today.`;
-    }
-
-    return `You’ve finished ${done.length} out of ${todos.length} to‑dos today, with ${pending.length} still open.`;
-  }
-
-  function getTomorrowISO() {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    return d.toISOString().split('T')[0];
-  }
-
-  function summarizeTodosDueTodayTomorrow() {
-    const today = getTodayISO();
-    const tomorrow = getTomorrowISO();
-
-    const todosToday = currentData.filter(
-      d => d.type === 'todo' && d.date === today && !d.completed
-    );
-
-    const todosTomorrow = currentData.filter(
-      d => d.type === 'todo' && d.date === tomorrow && !d.completed
-    );
-
-    const namesToday = todosToday.map(t => t.content);
-    const namesTomorrow = todosTomorrow.map(t => t.content);
-
-    if (!namesToday.length && !namesTomorrow.length) {
+    if (!todayNames.length && !tomorrowNames.length) {
       return 'You don’t have anything due today or tomorrow.';
     }
 
-    if (namesToday.length && namesTomorrow.length) {
-      return `Due today: ${namesToday.join(
+    if (todayNames.length && tomorrowNames.length) {
+      return `Due today: ${todayNames.join(
         ', '
-      )}. Due tomorrow: ${namesTomorrow.join(', ')}.`;
+      )}. Due tomorrow: ${tomorrowNames.join(', ')}.`;
     }
 
-    if (namesToday.length) {
-      return `You have these due today: ${namesToday.join(
+    if (todayNames.length) {
+      return `You have these due today: ${todayNames.join(
         ', '
       )}. Nothing is due tomorrow yet.`;
     }
 
-    return `Nothing is due today. Tomorrow you have: ${namesTomorrow.join(
+    return `Nothing is due today. Tomorrow you have: ${tomorrowNames.join(
       ', '
     )}.`;
+  } catch (e) {
+    return 'I couldn’t check what’s due right now.';
   }
+}
 
-  function summarizeHabitsToday() {
-    const habits = currentData.filter(d => d.type === 'habit');
+// habits today
+async function summarizeHabitsToday() {
+  try {
+    const resp = await fetch('/api/summary/recent-habits?days=7');
+    if (!resp.ok) return 'I couldn’t load your habits just now.';
+    const data = await resp.json();
+    if (!data.isOk || !data.habits) return 'I couldn’t load your habits just now.';
+
+    const habits = data.habits;
     if (!habits.length) {
       return 'You haven’t added any habits yet.';
     }
 
-    const done = habits.filter(h => h.completed);
-    const pending = habits.filter(h => !h.completed);
+    const done = habits.filter(h => h.completed_today);
+    const pending = habits.filter(h => !h.completed_today);
 
     if (!pending.length) {
       return `All your habits are checked in for today (${done.length}/${habits.length}).`;
@@ -1217,9 +1213,13 @@
     }
 
     return `You’ve done ${done.length} out of ${habits.length} habits today. Still open: ${pending
-      .map(h => h.content)
+      .map(h => h.name)
       .join(', ')}.`;
+  } catch (e) {
+    return 'I couldn’t load your habits just now.';
   }
+}
+
 
   // ---- NEW: shared sameDay + API-based mood summary ----
   function sameDay(d1, d2) {
@@ -1231,6 +1231,18 @@
       a.getDate() === b.getDate()
     );
   }
+async function getLatestMoodFromApi() {
+  try {
+    const resp = await fetch('/api/summary/recent-moods?days=7');
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (!data.isOk || !data.entries || !data.entries.length) return null;
+    // entries are already ordered by date DESC, timestamp DESC
+    return data.entries[0].mood_name;
+  } catch (e) {
+    return null;
+  }
+}
 
   async function summarizeMoodRecent(range) {
     const rangeMap = {
@@ -1441,45 +1453,72 @@
     return pattern.test(lower);
   }
 
-  function giveMoodAdviceFromDashboard() {
-    const moods = currentData.filter(d => d.type === 'mood');
-    if (!moods.length) {
-      return 'I need to know your mood from a recent check‑in first.';
+  async function giveMoodAdvice(message) {
+  // 1) Try to use emotion from this message
+  const emotionKey = detectEmotion(message); // e.g. 'anxious', 'tired', 'sad'
+  if (emotionKey) {
+    // Map emotionKey (happy/sad/anxious/…) to moodAdvices keys if needed
+    const map = {
+      happy: 'Happy',
+      sad: 'Sad',
+      anxious: 'Anxious',
+      tired: 'Tired',
+      stressed: 'Stressed',
+      calm: 'Calm'
+    };
+    const moodName = map[emotionKey];
+    if (moodName && moodAdvices[moodName]) {
+      const advices = moodAdvices[moodName];
+      return advices[Math.floor(Math.random() * advices.length)];
     }
+  }
 
+  // 2) Fall back to latest mood from live DB
+  const latestMoodName = await getLatestMoodFromApi();
+  if (latestMoodName && moodAdvices[latestMoodName]) {
+    const advices = moodAdvices[latestMoodName];
+    return advices[Math.floor(Math.random() * advices.length)];
+  }
+
+  // 3) Last fallback: snapshot dashboard data
+  const moods = currentData.filter(d => d.type === 'mood');
+  if (moods.length) {
     const latest = moods
       .slice()
       .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
     const advices = moodAdvices[latest.content];
-    if (!advices) {
-      return "Hmm, I don't have specific advice for this mood yet.";
+    if (advices && advices.length) {
+      return advices[Math.floor(Math.random() * advices.length)];
     }
-
-    return advices[Math.floor(Math.random() * advices.length)];
   }
+
+  return "I’m not sure what your current mood is, but taking one small, kind action for yourself is always a good place to start.";
+}
+
 
   // ------- CHATBOT REPLY (NO OVERLAP FOR TRACKER QUERIES) -------
   async function generateReply(message) {
     const emotion = detectEmotion(message);
     const intent = detectIntent(message);
 
-    // tracker‑specific questions first
-    if (isTodoStatusQuestion(message)) {
-      return 'Here’s a quick look at your to‑dos: ' + summarizeAllTodos();
-    }
+   // tracker-specific questions first (LIVE DB)
+if (isTodoStatusQuestion(message)) {
+  return 'Here’s a quick look at your to‑dos: ' + (await summarizeAllTodos());
+}
 
-    if (isTodoProgressQuestion(message)) {
-      return 'On your to‑do progress: ' + summarizeAllTodoProgress();
-    }
+if (isTodoProgressQuestion(message)) {
+  return 'On your to‑do progress: ' + (await summarizeAllTodoProgress());
+}
 
-    if (isDueQuestion(message)) {
-      return 'About what’s due: ' + summarizeTodosDueTodayTomorrow();
-    }
+if (isDueQuestion(message)) {
+  return 'About what’s due: ' + (await summarizeTodosDueTodayTomorrow());
+}
 
-    if (isHabitQuestion(message)) {
-      return 'For your habits today: ' + summarizeHabitsToday();
-    }
+if (isHabitQuestion(message)) {
+  return 'For your habits today: ' + (await summarizeHabitsToday());
+}
+
+
 
     if (isMoodHistoryQuestion(message)) {
       const range = resolveMoodRange(message);
@@ -1541,10 +1580,11 @@
     setTimeout(async () => {
       let reply;
       if (isAskingForAdvice(message)) {
-        reply = giveMoodAdviceFromDashboard();
-      } else {
-        reply = await generateReply(message);
-      }
+  reply = await giveMoodAdvice(message);
+} else {
+  reply = await generateReply(message);
+}
+
       removeTypingIndicator();
       addMessage(reply);
     }, 800);
@@ -1618,6 +1658,7 @@
     </script>
   </body>
 </html>
+
 
 
 
