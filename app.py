@@ -18,10 +18,10 @@ from urllib.parse import urlencode
 from zoneinfo import ZoneInfo  # timezone support
 
 app = Flask(__name__)
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
+DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions"
+DEEPSEEK_MODEL = "deepseek-chat"
 
-HF_API_TOKEN = os.environ.get("HF_API_TOKEN")
-HF_MODEL_ID = "deepseek-ai/DeepSeek-V3.2"  # or another model if you change later
-HF_API_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL_ID}"
 
 
 
@@ -1028,40 +1028,43 @@ Recent moods: {moods}
 Answer concisely and helpfully in 2–4 sentences.
 """
 
-    if not HF_API_TOKEN:
-        return jsonify({"isOk": False, "error": "HF_API_TOKEN not configured"}), 500
+    if not DEEPSEEK_API_KEY:
+        return jsonify({"isOk": False, "error": "DEEPSEEK_API_KEY not configured"}), 500
 
-    # Call Hugging Face Inference API
     try:
         headers = {
-            "Authorization": f"Bearer {HF_API_TOKEN}",
+            "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
             "Content-Type": "application/json",
         }
-        payload = {
-            "inputs": prompt,
-            "parameters": {
-                "max_new_tokens": 150,
-                "temperature": 0.7,
-                "return_full_text": False  # only the completion, if supported
-            }
-        }
-        resp = requests.post(HF_API_URL, headers=headers, json=payload, timeout=60)
-        if resp.status_code != 200:
-            # HF often returns JSON error with 'error' key
-            try:
-                err = resp.json().get("error", resp.text)
-            except Exception:
-                err = resp.text
-            return jsonify({"isOk": False, "error": f"HF API error: {err}"}), 500
 
-        result = resp.json()
-        # Typical Inference API text generation format: list of dicts with 'generated_text'
-        # When return_full_text=False, generated_text is just the completion.
-        if isinstance(result, list) and result and "generated_text" in result[0]:
-            answer = result[0]["generated_text"].strip()
-        else:
-            # Fallback: just stringify the result
-            answer = str(result)
+        payload = {
+            "model": DEEPSEEK_MODEL,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a gentle, concise assistant inside a personal tracker app.",
+                },
+                {
+                    "role": "user",
+                    "content": prompt,
+                },
+            ],
+            "max_tokens": 200,
+            "temperature": 0.7,
+        }
+
+        resp = requests.post(DEEPSEEK_URL, headers=headers, json=payload, timeout=60)
+        data = resp.json()
+
+        if resp.status_code != 200:
+            err = data.get("error") or data.get("message") or resp.text
+            return jsonify({"isOk": False, "error": f"DeepSeek error: {err}"}), 500
+
+        choices = data.get("choices")
+        if not choices:
+            return jsonify({"isOk": False, "error": "No choices returned from DeepSeek"}), 500
+
+        answer = choices[0]["message"]["content"].strip()
     except Exception as e:
         return jsonify({"isOk": False, "error": str(e)}), 500
 
@@ -1074,6 +1077,7 @@ Answer concisely and helpfully in 2–4 sentences.
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
