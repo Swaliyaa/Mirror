@@ -4,7 +4,7 @@ from psycopg2 import IntegrityError
 import json
 from flask import Flask, request, session, redirect, render_template, jsonify, send_from_directory
 from datetime import datetime, timedelta, time
-from transformers import pipeline
+
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -17,15 +17,10 @@ from urllib.parse import urlencode
 from zoneinfo import ZoneInfo  # timezone support
 
 app = Flask(__name__)
-hf_token = os.environ.get("HF_API_TOKEN")
 
-# lightweight pipeline for text generation
-deepseek_pipe = pipeline(
-    "text-generation",
-    model="deepseek-ai/DeepSeek-V3.2",
-    device=-1,   # -1 = CPU, 0 = GPU (Render free = CPU)
-    token=hf_token  # use `token` instead of deprecated use_auth_token
-)
+HF_API_TOKEN = os.environ.get("HF_API_TOKEN")
+HF_MODEL_ID = "deepseek-ai/DeepSeek-V3.2"  # or another model if you change later
+HF_API_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL_ID}"
 
 
 
@@ -992,17 +987,14 @@ def ask_ai():
     user_id = session["user_id"]
     data = request.get_json()
 
-    # Basic validation
     if not data or "message" not in data:
         return jsonify({"isOk": False, "error": "Message required"}), 400
 
     message = (data.get("message") or "").strip()
     if not message:
         return jsonify({"isOk": False, "error": "Message required"}), 400
-    if len(message) > 2000:
-        return jsonify({"isOk": False, "error": "Message too long"}), 400
 
-    # Fetch some user context
+    # fetch some user context (same as before)
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
@@ -1024,32 +1016,51 @@ def ask_ai():
     cursor.close()
     conn.close()
 
-    # Combine into a single prompt
-    prompt = f"""User message: {message}
+    prompt = f"""You are a gentle, concise assistant inside a personal tracker app.
+
+User message: {message}
 
 Recent todos: {todos}
 Habits: {habits}
 Recent moods: {moods}
 
-Answer concisely and helpfully.
+Answer concisely and helpfully in 2–4 sentences.
 """
 
-    # Call DeepSeek
-    try:
-        response = deepseek_pipe(
-            prompt,
-            max_new_tokens=150,
-            do_sample=True,
-            temperature=0.7,
-            pad_token_id=deepseek_pipe.tokenizer.eos_token_id,
-        )
-        full_text = response[0]["generated_text"]
+    if not HF_API_TOKEN:
+        return jsonify({"isOk": False, "error": "HF_API_TOKEN not configured"}), 500
 
-        # Remove the prompt from the start so frontend only gets the answer
-        if full_text.startswith(prompt):
-            answer = full_text[len(prompt):].strip()
+    # Call Hugging Face Inference API
+    try:
+        headers = {
+            "Authorization": f"Bearer {HF_API_TOKEN}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "inputs": prompt,
+            "parameters": {
+                "max_new_tokens": 150,
+                "temperature": 0.7,
+                "return_full_text": False  # only the completion, if supported
+            }
+        }
+        resp = requests.post(HF_API_URL, headers=headers, json=payload, timeout=60)
+        if resp.status_code != 200:
+            # HF often returns JSON error with 'error' key
+            try:
+                err = resp.json().get("error", resp.text)
+            except Exception:
+                err = resp.text
+            return jsonify({"isOk": False, "error": f"HF API error: {err}"}), 500
+
+        result = resp.json()
+        # Typical Inference API text generation format: list of dicts with 'generated_text'
+        # When return_full_text=False, generated_text is just the completion.
+        if isinstance(result, list) and result and "generated_text" in result[0]:
+            answer = result[0]["generated_text"].strip()
         else:
-            answer = full_text.strip()
+            # Fallback: just stringify the result
+            answer = str(result)
     except Exception as e:
         return jsonify({"isOk": False, "error": str(e)}), 500
 
@@ -1062,6 +1073,7 @@ Answer concisely and helpfully.
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
