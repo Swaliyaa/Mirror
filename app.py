@@ -18,12 +18,13 @@ from urllib.parse import urlencode
 from zoneinfo import ZoneInfo  # timezone support
 
 app = Flask(__name__)
+
+# ----------------------------
+# DEEPSEEK CONFIG
+# ----------------------------
 DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
 DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions"
 DEEPSEEK_MODEL = "deepseek-chat"
-
-
-
 
 app.secret_key = "mirror_secret_key_change_later"
 
@@ -603,7 +604,7 @@ def api_habits():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    if request.method == "POST":
+    if request.method == "POST"]:
         data = request.get_json()
         if not data:
             cursor.close()
@@ -852,7 +853,6 @@ def summary_recent_habits():
     })
 
 
-
 @app.route("/api/summary/recent-moods", methods=["GET"])
 @login_required
 def summary_recent_moods():
@@ -982,6 +982,11 @@ def api_reminders():
         "serverTime": datetime.utcnow().isoformat(),
         "userTime": now.isoformat()
     })
+
+
+# ----------------------------
+# API: ASK AI (DEEPSEEK)
+# ----------------------------
 @app.route("/api/ask-ai", methods=["POST"])
 @login_required
 def ask_ai():
@@ -995,7 +1000,7 @@ def ask_ai():
     if not message:
         return jsonify({"isOk": False, "error": "Message required"}), 400
 
-    # fetch some user context (same as before)
+    # fetch some user context
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
@@ -1028,8 +1033,8 @@ Recent moods: {moods}
 Answer concisely and helpfully in 2–4 sentences.
 """
 
-    # >>> THIS MUST BE INDENTED TO THE SAME LEVEL AS 'prompt = ...'
     if not DEEPSEEK_API_KEY:
+        print("DeepSeek API key missing", flush=True)
         return jsonify({"isOk": False, "error": "DEEPSEEK_API_KEY not configured"}), 500
 
     try:
@@ -1056,9 +1061,9 @@ Answer concisely and helpfully in 2–4 sentences.
 
         resp = requests.post(DEEPSEEK_URL, headers=headers, json=payload, timeout=60)
 
-        # TEMP LOGGING IF YOU WANT
-        # print("DeepSeek status:", resp.status_code, flush=True)
-        # print("DeepSeek raw:", resp.text, flush=True)
+        # TEMP LOGGING
+        print("DeepSeek status:", resp.status_code, flush=True)
+        print("DeepSeek raw:", resp.text, flush=True)
 
         data = resp.json()
 
@@ -1072,7 +1077,7 @@ Answer concisely and helpfully in 2–4 sentences.
 
         answer = choices[0]["message"]["content"].strip()
     except Exception as e:
-        # print("DeepSeek exception:", e, flush=True)
+        print("DeepSeek exception:", e, flush=True)
         return jsonify({"isOk": False, "error": str(e)}), 500
 
     return jsonify({"isOk": True, "answer": answer})
@@ -1084,12 +1089,3 @@ Answer concisely and helpfully in 2–4 sentences.
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
-
-
-
-
-
-
-
-
-
