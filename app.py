@@ -4,6 +4,7 @@ from psycopg2 import IntegrityError
 import json
 from flask import Flask, request, session, redirect, render_template, jsonify, send_from_directory
 from datetime import datetime, timedelta, time
+from transformers import pipeline
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -16,6 +17,18 @@ from urllib.parse import urlencode
 from zoneinfo import ZoneInfo  # timezone support
 
 app = Flask(__name__)
+hf_token = os.environ.get("HF_API_TOKEN")
+
+# lightweight pipeline for text generation
+deepseek_pipe = pipeline(
+    "text-generation",
+    model="deepseek-ai/DeepSeek-V3.2",
+    device=-1,   # -1 = CPU, 0 = GPU (Render free = CPU)
+    token=hf_token  # use `token` instead of deprecated use_auth_token
+)
+
+
+
 app.secret_key = "mirror_secret_key_change_later"
 
 # NEW: Gmail + base URL config (via env vars)
@@ -973,6 +986,74 @@ def api_reminders():
         "serverTime": datetime.utcnow().isoformat(),
         "userTime": now.isoformat()
     })
+@app.route("/api/ask-ai", methods=["POST"])
+@login_required
+def ask_ai():
+    user_id = session["user_id"]
+    data = request.get_json()
+
+    # Basic validation
+    if not data or "message" not in data:
+        return jsonify({"isOk": False, "error": "Message required"}), 400
+
+    message = (data.get("message") or "").strip()
+    if not message:
+        return jsonify({"isOk": False, "error": "Message required"}), 400
+    if len(message) > 2000:
+        return jsonify({"isOk": False, "error": "Message too long"}), 400
+
+    # Fetch some user context
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    cursor.execute(
+        "SELECT text FROM todo WHERE user_id=%s ORDER BY created_at DESC LIMIT 5",
+        (user_id,)
+    )
+    todos = [t["text"] for t in cursor.fetchall()]
+
+    cursor.execute("SELECT name FROM habit WHERE user_id=%s", (user_id,))
+    habits = [h["name"] for h in cursor.fetchall()]
+
+    cursor.execute(
+        "SELECT mood_name FROM mood WHERE user_id=%s ORDER BY timestamp DESC LIMIT 3",
+        (user_id,)
+    )
+    moods = [m["mood_name"] for m in cursor.fetchall()]
+
+    cursor.close()
+    conn.close()
+
+    # Combine into a single prompt
+    prompt = f"""User message: {message}
+
+Recent todos: {todos}
+Habits: {habits}
+Recent moods: {moods}
+
+Answer concisely and helpfully.
+"""
+
+    # Call DeepSeek
+    try:
+        response = deepseek_pipe(
+            prompt,
+            max_new_tokens=150,
+            do_sample=True,
+            temperature=0.7,
+            pad_token_id=deepseek_pipe.tokenizer.eos_token_id,
+        )
+        full_text = response[0]["generated_text"]
+
+        # Remove the prompt from the start so frontend only gets the answer
+        if full_text.startswith(prompt):
+            answer = full_text[len(prompt):].strip()
+        else:
+            answer = full_text.strip()
+    except Exception as e:
+        return jsonify({"isOk": False, "error": str(e)}), 500
+
+    return jsonify({"isOk": True, "answer": answer})
 
 
 # ----------------------------
@@ -981,5 +1062,6 @@ def api_reminders():
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
