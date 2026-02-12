@@ -5,6 +5,7 @@ import json
 from flask import Flask, request, session, redirect, render_template, jsonify, send_from_directory
 from datetime import datetime, timedelta, time
 import requests
+from huggingface_hub import InferenceClient
 
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -22,9 +23,10 @@ app = Flask(__name__)
 # ----------------------------
 # DEEPSEEK CONFIG
 # ----------------------------
-DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
-DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions"
-DEEPSEEK_MODEL = "deepseek-chat"
+# NEW: Hugging Face config
+HF_TOKEN = os.environ.get("HF_TOKEN")  # Free token from https://huggingface.co/settings/tokens
+HF_MODEL = "microsoft/DialoGPT-small"
+HF_URL = "https://router.huggingface.co/models/microsoft/DialoGPT-small"
 
 app.secret_key = "mirror_secret_key_change_later"
 
@@ -1000,7 +1002,7 @@ def ask_ai():
     if not message:
         return jsonify({"isOk": False, "error": "Message required"}), 400
 
-    # fetch some user context
+    # fetch some user context (unchanged)
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
@@ -1030,57 +1032,55 @@ Recent todos: {todos}
 Habits: {habits}
 Recent moods: {moods}
 
-Answer concisely and helpfully in 2–4 sentences.
-"""
+Answer concisely and helpfully in 2–4 sentences."""
 
-    if not DEEPSEEK_API_KEY:
-        print("DeepSeek API key missing", flush=True)
-        return jsonify({"isOk": False, "error": "DEEPSEEK_API_KEY not configured"}), 500
+    if HF_TOKEN:
+        # TRY HF FIRST (free, fast for small model)
+        try:
+            client = InferenceClient(token=HF_TOKEN, model=HF_MODEL)
+            answer = client.text_generation(
+                prompt,
+                max_new_tokens=150,
+                temperature=0.7,
+                do_sample=True,
+                repetition_penalty=1.1
+            ).strip()
+            print("HF success", flush=True)
+        except Exception as e:
+            print("HF failed:", e, flush=True)
+            answer = None
+    else:
+        answer = None
 
-    try:
-        headers = {
-            "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-            "Content-Type": "application/json",
-        }
+    # FALLBACK TO DEEPSEEK
+    if not answer and DEEPSEEK_API_KEY:
+        try:
+            headers = {
+                "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+                "Content-Type": "application/json",
+            }
+            payload = {
+                "model": DEEPSEEK_MODEL,
+                "messages": [
+                    {"role": "system", "content": "You are a gentle, concise assistant inside a personal tracker app."},
+                    {"role": "user", "content": prompt},
+                ],
+                "max_tokens": 200,
+                "temperature": 0.7,
+            }
+            resp = requests.post(DEEPSEEK_URL, headers=headers, json=payload, timeout=60)
+            data = resp.json()
+            if resp.status_code == 200:
+                answer = data["choices"][0]["message"]["content"].strip()
+                print("DeepSeek success", flush=True)
+        except Exception as e:
+            print("DeepSeek exception:", e, flush=True)
 
-        payload = {
-            "model": DEEPSEEK_MODEL,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "You are a gentle, concise assistant inside a personal tracker app.",
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                },
-            ],
-            "max_tokens": 200,
-            "temperature": 0.7,
-        }
-
-        resp = requests.post(DEEPSEEK_URL, headers=headers, json=payload, timeout=60)
-
-        # TEMP LOGGING
-        print("DeepSeek status:", resp.status_code, flush=True)
-        print("DeepSeek raw:", resp.text, flush=True)
-
-        data = resp.json()
-
-        if resp.status_code != 200:
-            err = data.get("error") or data.get("message") or resp.text
-            return jsonify({"isOk": False, "error": f"DeepSeek error: {err}"}), 500
-
-        choices = data.get("choices")
-        if not choices:
-            return jsonify({"isOk": False, "error": "No choices returned from DeepSeek"}), 500
-
-        answer = choices[0]["message"]["content"].strip()
-    except Exception as e:
-        print("DeepSeek exception:", e, flush=True)
-        return jsonify({"isOk": False, "error": str(e)}), 500
+    if not answer:
+        return jsonify({"isOk": False, "error": "No AI service available"}), 500
 
     return jsonify({"isOk": True, "answer": answer})
+
 
 
 # ----------------------------
@@ -1089,3 +1089,4 @@ Answer concisely and helpfully in 2–4 sentences.
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
