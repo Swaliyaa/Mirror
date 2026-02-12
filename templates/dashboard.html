@@ -1495,6 +1495,31 @@ async function getLatestMoodFromApi() {
   return "I’m not sure what your current mood is, but taking one small, kind action for yourself is always a good place to start.";
 }
 
+ async function askAiBackend(message) {
+  try {
+    const res = await fetch('/api/ask-ai', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message })
+    });
+
+    if (!res.ok) {
+      return 'I had trouble reaching the AI right now. Please try again in a moment.';
+    }
+
+    const data = await res.json();
+    if (!data.isOk || !data.answer) {
+      return 'I couldn’t get a proper response from the AI just now.';
+    }
+
+    return data.answer;
+  } catch (e) {
+    return 'I had trouble reaching the AI right now. Please try again in a moment.';
+  }
+}
+
 
   // ------- CHATBOT REPLY (NO OVERLAP FOR TRACKER QUERIES) -------
   async function generateReply(message) {
@@ -1569,26 +1594,25 @@ if (isHabitQuestion(message)) {
   }
 
   sendBtn.addEventListener('click', async () => {
-    const message = chatInput.value.trim();
-    if (!message) return;
+  const message = chatInput.value.trim();
+  if (!message) return;
 
-    addMessage(message, true);
-    chatInput.value = '';
+  // Show user message
+  addMessage(message, true);
+  chatInput.value = '';
 
-    addTypingIndicator();
+  // Show typing indicator
+  addTypingIndicator();
 
-    setTimeout(async () => {
-      let reply;
-      if (isAskingForAdvice(message)) {
-  reply = await giveMoodAdvice(message);
-} else {
-  reply = await generateReply(message);
-}
+  // Optional small delay for UX
+  setTimeout(async () => {
+    const reply = await askAiBackend(message);
 
-      removeTypingIndicator();
-      addMessage(reply);
-    }, 800);
-  });
+    removeTypingIndicator();
+    addMessage(reply);
+  }, 500);
+});
+
 
   chatInput.addEventListener('keypress', e => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1658,6 +1682,7 @@ if (isHabitQuestion(message)) {
     </script>
   </body>
 </html>
+
 
 
 
