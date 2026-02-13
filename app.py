@@ -994,37 +994,73 @@ def ask_ai():
     if not message:
         return jsonify({"isOk": False, "error": "Message required"}), 400
 
-    # fetch user context ...
+        # fetch user context ...
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    cursor.execute(
-        "SELECT text FROM todo WHERE user_id=%s ORDER BY created_at DESC LIMIT 5",
-        (user_id,)
-    )
-    todos = [t["text"] for t in cursor.fetchall()]
+    # TODOS: text + completed + effective_date (for dates/overdue)
+    cursor.execute("""
+        SELECT text,
+               completed,
+               COALESCE(due_date::date, created_at::date, CURRENT_DATE) AS effective_date
+        FROM todo
+        WHERE user_id=%s
+        ORDER BY created_at DESC
+        LIMIT 50
+    """, (user_id,))
+    todos = cursor.fetchall()
 
-    cursor.execute("SELECT name FROM habit WHERE user_id=%s", (user_id,))
-    habits = [h["name"] for h in cursor.fetchall()]
+    # HABITS: name + completion_history (per‑day map)
+    cursor.execute("""
+        SELECT name, completion_history
+        FROM habit
+        WHERE user_id=%s
+    """, (user_id,))
+    habit_rows = cursor.fetchall()
 
-    cursor.execute(
-        "SELECT mood_name FROM mood WHERE user_id=%s ORDER BY timestamp DESC LIMIT 3",
-        (user_id,)
-    )
-    moods = [m["mood_name"] for m in cursor.fetchall()]
+    # MOODS: mood_name + date + reflection
+    cursor.execute("""
+        SELECT mood_name, date, reflection
+        FROM mood
+        WHERE user_id=%s
+        ORDER BY date DESC, timestamp DESC
+        LIMIT 50
+    """, (user_id,))
+    moods = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    prompt = f"""You are a gentle, concise assistant inside a personal tracker app.
+    prompt = f"""
+You are a gentle, companion-like assistant inside a personal tracker app called Mirror.
+
+DATA FOR THIS USER:
+- TODOS: {todos}
+  (each item has: text, completed, effective_date as YYYY-MM-DD)
+- HABITS: {habit_rows}
+  (each has a completion_history dict keyed by YYYY-MM-DD -> true/false)
+- MOODS: {moods}
+  (each has mood_name, date, reflection)
+
+DATE & TRACKER RULES:
+- When the user asks about what they did, worked on, or had due on a specific day
+  (e.g. "yesterday", "today", "on 13/02/2026"), or asks about overdue items,
+  or asks how their habits or moods have been:
+  - Use the DATA above, compare dates, and only mention items that actually match.
+  - If there’s no data for that date or topic, say that gently and honestly.
+- If the user is NOT clearly asking about dates, todos, habits, moods, or reminders,
+  ignore the lists and just respond to their feelings or question.
+
+STYLE:
+- Sound like a kind, grounded companion, not a formal coach.
+- Be warm, validating, and conversational; you can use a light emoji sometimes.
+- Keep answers short (2–4 sentences) and specific.
 
 User message: {message}
 
-Recent todos: {todos}
-Habits: {habits}
-Recent moods: {moods}
+Answer now, following the DATE & TRACKER RULES and STYLE.
+"""
 
-Answer concisely and helpfully in 2–4 sentences."""
 
     if not GEMINI_API_KEY:
         return jsonify({"isOk": False, "error": "Gemini API key not set"}), 500
@@ -1054,6 +1090,7 @@ Answer concisely and helpfully in 2–4 sentences."""
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
