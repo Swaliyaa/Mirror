@@ -994,7 +994,7 @@ def ask_ai():
     if not message:
         return jsonify({"isOk": False, "error": "Message required"}), 400
 
-    # fetch some user context (unchanged)
+    # fetch user context ...
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
@@ -1026,14 +1026,12 @@ Recent moods: {moods}
 
 Answer concisely and helpfully in 2–4 sentences."""
 
-    
-
     if not GEMINI_API_KEY:
         return jsonify({"isOk": False, "error": "Gemini API key not set"}), 500
 
     answer = None
     try:
-        client = genai.Client()  # uses GEMINI_API_KEY env var
+        client = genai.Client(api_key=GEMINI_API_KEY)
         response = client.models.generate_content(
             model=GEMINI_MODEL,
             contents=prompt,
@@ -1056,6 +1054,7 @@ Answer concisely and helpfully in 2–4 sentences."""
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
