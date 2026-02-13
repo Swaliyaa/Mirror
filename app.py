@@ -4,9 +4,7 @@ from psycopg2 import IntegrityError
 import json
 from flask import Flask, request, session, redirect, render_template, jsonify, send_from_directory
 from datetime import datetime, timedelta, time
-import requests
-from huggingface_hub import InferenceClient
-
+import google.genai as genai
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -19,14 +17,8 @@ from urllib.parse import urlencode
 from zoneinfo import ZoneInfo  # timezone support
 
 app = Flask(__name__)
-
-# ----------------------------
-# DEEPSEEK CONFIG
-# ----------------------------
-# NEW: Hugging Face config
-HF_TOKEN = os.environ.get("HF_TOKEN")  # Free token from https://huggingface.co/settings/tokens
-HF_MODEL = "microsoft/DialoGPT-small"
-HF_URL = "https://router.huggingface.co/models/microsoft/DialoGPT-small"
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GEMINI_MODEL = "gemini-2.5-flash"
 
 app.secret_key = "mirror_secret_key_change_later"
 
@@ -606,7 +598,7 @@ def api_habits():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    if request.method == "POST"]:
+    if request.method == "POST":
         data = request.get_json()
         if not data:
             cursor.close()
@@ -987,7 +979,7 @@ def api_reminders():
 
 
 # ----------------------------
-# API: ASK AI (DEEPSEEK)
+# API: ASK AI (GEMINI)
 # ----------------------------
 @app.route("/api/ask-ai", methods=["POST"])
 @login_required
@@ -1034,52 +1026,27 @@ Recent moods: {moods}
 
 Answer concisely and helpfully in 2–4 sentences."""
 
-    if HF_TOKEN:
-        # TRY HF FIRST (free, fast for small model)
-        try:
-            client = InferenceClient(token=HF_TOKEN, model=HF_MODEL)
-            answer = client.text_generation(
-                prompt,
-                max_new_tokens=150,
-                temperature=0.7,
-                do_sample=True,
-                repetition_penalty=1.1
-            ).strip()
-            print("HF success", flush=True)
-        except Exception as e:
-            print("HF failed:", e, flush=True)
-            answer = None
-    else:
-        answer = None
+    
 
-    # FALLBACK TO DEEPSEEK
-    if not answer and DEEPSEEK_API_KEY:
-        try:
-            headers = {
-                "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-                "Content-Type": "application/json",
-            }
-            payload = {
-                "model": DEEPSEEK_MODEL,
-                "messages": [
-                    {"role": "system", "content": "You are a gentle, concise assistant inside a personal tracker app."},
-                    {"role": "user", "content": prompt},
-                ],
-                "max_tokens": 200,
-                "temperature": 0.7,
-            }
-            resp = requests.post(DEEPSEEK_URL, headers=headers, json=payload, timeout=60)
-            data = resp.json()
-            if resp.status_code == 200:
-                answer = data["choices"][0]["message"]["content"].strip()
-                print("DeepSeek success", flush=True)
-        except Exception as e:
-            print("DeepSeek exception:", e, flush=True)
+    if not GEMINI_API_KEY:
+        return jsonify({"isOk": False, "error": "Gemini API key not set"}), 500
+
+    answer = None
+    try:
+        client = genai.Client()  # uses GEMINI_API_KEY env var
+        response = client.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=prompt,
+        )
+        answer = (response.text or "").strip()
+    except Exception as e:
+        print(f"Gemini error: {e}", flush=True)
 
     if not answer:
-        return jsonify({"isOk": False, "error": "No AI service available"}), 500
+        return jsonify({"isOk": False, "error": "Gemini call failed"}), 500
 
     return jsonify({"isOk": True, "answer": answer})
+
 
 
 
@@ -1089,4 +1056,5 @@ Answer concisely and helpfully in 2–4 sentences."""
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
