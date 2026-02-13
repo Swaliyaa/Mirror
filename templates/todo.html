@@ -1088,7 +1088,30 @@ if (text.length > 300) {
 
     return `Tomorrow you have: ${tomorrowTasks.map(t => t.text).join(", ")}.`;
   }
+async function askAiBackend(message) {
+  try {
+    const res = await fetch('/api/ask-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
 
+    if (!res.ok) {
+      return 'I had trouble reaching the AI right now. Please try again in a moment.';
+    }
+
+    const data = await res.json();
+    if (!data.isOk || !data.answer) {
+      return 'I couldn’t get a proper response from the AI just now.';
+    }
+
+    return data.answer;
+  } catch (e) {
+    return 'I had trouble reaching the AI right now. Please try again in a moment.';
+  }
+}
+
+  
   function summarizeTodayTasks() {
     const total = tasks.length;
     if (!total) {
@@ -1288,17 +1311,19 @@ if (text.length > 300) {
   });
 
   sendBtn.addEventListener('click', async () => {
-    const message = chatInputEl.value.trim();
-    if (!message) return;
+  const message = chatInputEl.value.trim();
+  if (!message) return;
 
-    addMessage(message, true);
-    chatInputEl.value = '';
+  addMessage(message, true);
+  chatInputEl.value = '';
 
-    setTimeout(async () => {
-      const reply = await generateReply(message);
-      addMessage(reply, false);
-    }, 800);
-  });
+  setTimeout(async () => {
+    // all chatbot replies from backend AI
+    const reply = await askAiBackend(message);
+    addMessage(reply, false);
+  }, 800);
+});
+
 
   chatInputEl.addEventListener('keypress', e => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1320,6 +1345,7 @@ if (text.length > 300) {
 
 </body>
 </html>
+
 
 
 
