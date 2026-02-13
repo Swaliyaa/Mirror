@@ -994,7 +994,7 @@ def ask_ai():
     if not message:
         return jsonify({"isOk": False, "error": "Message required"}), 400
 
-        # fetch user context ...
+    # fetch user context ...
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
@@ -1031,6 +1031,8 @@ def ask_ai():
     cursor.close()
     conn.close()
 
+    today = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%Y-%m-%d")
+
     prompt = f"""
 You are a gentle, companion-like assistant inside a personal tracker app called Mirror.
 
@@ -1050,6 +1052,7 @@ DATE & TRACKER RULES:
   - If there’s no data for that date or topic, say that gently and honestly.
 - If the user is NOT clearly asking about dates, todos, habits, moods, or reminders,
   ignore the lists and just respond to their feelings or question.
+Current date (Asia/Kolkata): {today}
 
 STYLE:
 - Sound like a kind, grounded companion, not a formal coach.
@@ -1060,7 +1063,6 @@ User message: {message}
 
 Answer now, following the DATE & TRACKER RULES and STYLE.
 """
-
 
     if not GEMINI_API_KEY:
         return jsonify({"isOk": False, "error": "Gemini API key not set"}), 500
@@ -1084,12 +1086,14 @@ Answer now, following the DATE & TRACKER RULES and STYLE.
 
 
 
+
 # ----------------------------
 # WAKE ROUTE
 # ----------------------------
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
