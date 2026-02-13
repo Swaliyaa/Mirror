@@ -9,7 +9,7 @@ import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
-# NEW: imports for email + tokens
+
 import smtplib
 from email.mime.text import MIMEText
 import secrets
@@ -1056,5 +1056,6 @@ Answer concisely and helpfully in 2–4 sentences."""
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
