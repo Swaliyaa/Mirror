@@ -1144,6 +1144,29 @@ const moodAdvices = {
   ]
 };
 
+  async function askAiBackend(message) {
+  try {
+    const res = await fetch('/api/ask-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+
+    if (!res.ok) {
+      return 'I had trouble reaching the AI right now. Please try again in a moment.';
+    }
+
+    const data = await res.json();
+    if (!data.isOk || !data.answer) {
+      return 'I couldn’t get a proper response from the AI just now.';
+    }
+
+    return data.answer;
+  } catch (e) {
+    return 'I had trouble reaching the AI right now. Please try again in a moment.';
+  }
+}
+
 function isAskingForAdvice(input) {
   const lower = input.toLowerCase();
 
@@ -1193,19 +1216,17 @@ function giveMoodAdvice() {
 sendBtn.addEventListener('click', async () => {
   const userText = chatInput.value.trim();
   if (!userText) return;
+
   chatInput.value = '';
   addChatMessage(userText, 'user');
 
   setTimeout(async () => {
-    let reply;
-    if (isAskingForAdvice(userText)) {
-      reply = giveMoodAdvice();
-    } else {
-      reply = await generateReplyFromFreeText(userText);
-    }
+    
+    const reply = await askAiBackend(userText);
     addChatMessage(reply, 'bot');
   }, 700);
 });
+
 
 chatInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
@@ -1291,6 +1312,7 @@ function triggerMoodResponse(entry) {
 </script>
 </body>
 </html>
+
 
 
 
