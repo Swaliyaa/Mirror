@@ -1213,19 +1213,44 @@ function giveMoodAdvice() {
   return advices[Math.floor(Math.random() * advices.length)];
 }
 
-sendBtn.addEventListener('click', async () => {
-  const userText = chatInput.value.trim();
-  if (!userText) return;
+function addTypingIndicator() {
+  const div = document.createElement('div');
+  div.className = 'chat-message flex justify-start';
+  div.id = 'typing-indicator';
+  div.innerHTML = `
+    <div class="bg-white/80 border border-[#e8e5dc] rounded-3xl px-4 py-2 max-w-[120px] shadow-sm">
+      <span class="inline-flex gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#b8b4aa] animate-pulse"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-[#b8b4aa] animate-pulse delay-150"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-[#b8b4aa] animate-pulse delay-300"></span>
+      </span>
+    </div>
+  `;
+  chatMessagesEl.appendChild(div);
+  chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+}
 
-  chatInput.value = '';
-  addChatMessage(userText, 'user');
+function removeTypingIndicator() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+sendBtn.addEventListener('click', async () => {
+  const message = chatInputEl.value.trim();
+  if (!message) return;
+
+  addMessage(message, true);
+  chatInputEl.value = '';
+
+  addTypingIndicator();
 
   setTimeout(async () => {
-    
-    const reply = await askAiBackend(userText);
-    addChatMessage(reply, 'bot');
-  }, 700);
+    const reply = await askAiBackend(message); // still every question -> AI
+    removeTypingIndicator();
+    addMessage(reply, false);
+  }, 500);
 });
+
 
 
 chatInput.addEventListener('keydown', (e) => {
@@ -1312,6 +1337,7 @@ function triggerMoodResponse(entry) {
 </script>
 </body>
 </html>
+
 
 
 
