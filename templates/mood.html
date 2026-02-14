@@ -1042,7 +1042,7 @@ function chooseRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// Core: mock responses ordered
+// Core: mock responses (still available but no longer used for send)
 async function generateReplyFromFreeText(message) {
   const emotion = detectEmotion(message);
   const intent = detectIntent(message);
@@ -1144,7 +1144,7 @@ const moodAdvices = {
   ]
 };
 
-  async function askAiBackend(message) {
+async function askAiBackend(message) {
   try {
     const res = await fetch('/api/ask-ai', {
       method: 'POST',
@@ -1226,8 +1226,8 @@ function addTypingIndicator() {
       </span>
     </div>
   `;
-  chatMessagesEl.appendChild(div);
-  chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 function removeTypingIndicator() {
@@ -1236,22 +1236,20 @@ function removeTypingIndicator() {
 }
 
 sendBtn.addEventListener('click', async () => {
-  const message = chatInputEl.value.trim();
+  const message = chatInput.value.trim();
   if (!message) return;
 
-  addMessage(message, true);
-  chatInputEl.value = '';
+  addChatMessage(message, 'user');
+  chatInput.value = '';
 
   addTypingIndicator();
 
   setTimeout(async () => {
-    const reply = await askAiBackend(message); // still every question -> AI
+    const reply = await askAiBackend(message); // every question -> AI
     removeTypingIndicator();
-    addMessage(reply, false);
+    addChatMessage(reply, 'bot');
   }, 500);
 });
-
-
 
 chatInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
@@ -1337,6 +1335,7 @@ function triggerMoodResponse(entry) {
 </script>
 </body>
 </html>
+
 
 
 
