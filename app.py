@@ -994,23 +994,34 @@ def ask_ai():
     if not message:
         return jsonify({"isOk": False, "error": "Message required"}), 400
 
-    # fetch user context ...
+    message_lower = message.lower()
+
+    trend_keywords = [
+        "how am i doing",
+        "trend",
+        "consistent",
+        "performance",
+        "future",
+        "improving",
+        "declining",
+        "progress",
+        "how has my mood"
+    ]
+
+    is_trend_query = any(k in message_lower for k in trend_keywords)
+
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    # TODOS: text + completed + effective_date (for dates/overdue)
     cursor.execute("""
-        SELECT text,
-               completed,
+        SELECT text, completed,
                COALESCE(due_date::date, created_at::date, CURRENT_DATE) AS effective_date
         FROM todo
         WHERE user_id=%s
         ORDER BY created_at DESC
-        LIMIT 50
     """, (user_id,))
     todos = cursor.fetchall()
 
-    # HABITS: name + completion_history (per‑day map)
     cursor.execute("""
         SELECT name, completion_history
         FROM habit
@@ -1018,56 +1029,92 @@ def ask_ai():
     """, (user_id,))
     habit_rows = cursor.fetchall()
 
-    # MOODS: mood_name + date + reflection
     cursor.execute("""
-        SELECT mood_name, date, reflection
+        SELECT mood_name, date
         FROM mood
         WHERE user_id=%s
-        ORDER BY date DESC, timestamp DESC
-        LIMIT 50
+        ORDER BY date DESC
     """, (user_id,))
     moods = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    today = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%Y-%m-%d")
+    predictive_section = ""
 
-    prompt = f"""
-You are a gentle, companion-like assistant inside a personal tracker app called Mirror.
+    if is_trend_query:
+        # Habit consistency (last 30 days)
+        today = datetime.now().date()
+        start = today - timedelta(days=29)
 
-DATA FOR THIS USER:
-- TODOS: {todos}
-  (each item has: text, completed, effective_date as YYYY-MM-DD)
-- HABITS: {habit_rows}
-  (each has a completion_history dict keyed by YYYY-MM-DD -> true/false)
-- MOODS: {moods}
-  (each has mood_name, date, reflection)
+        total_days = 0
+        completed_days = 0
 
-DATE & TRACKER RULES:
-- When the user asks about what they did, worked on, or had due on a specific day
-  (e.g. "yesterday", "today", "on 13/02/2026"), or asks about overdue items,
-  or asks how their habits or moods have been:
-  - Use the DATA above, compare dates, and only mention items that actually match.
-  - If there’s no data for that date or topic, say that gently and honestly.
-- If the user is NOT clearly asking about dates, todos, habits, moods, or reminders,
-  ignore the lists and just respond to their feelings or question.
-Current date (Asia/Kolkata): {today}
+        for h in habit_rows:
+            try:
+                history = json.loads(h["completion_history"] or "{}")
+                if not isinstance(history, dict):
+                    history = {}
+            except:
+                history = {}
 
-STYLE:
-- Sound like a kind, grounded companion, not a formal coach.
-- Be warm, validating, and conversational; you can use a light emoji sometimes.
-- Keep answers short (2–4 sentences) and specific.
+            d = start
+            while d <= today:
+                key = d.strftime("%Y-%m-%d")
+                if key in history:
+                    total_days += 1
+                    if history.get(key):
+                        completed_days += 1
+                d += timedelta(days=1)
 
-User message: {message}
+        habit_score = round((completed_days / total_days) * 100, 2) if total_days else 0
 
-Answer now, following the DATE & TRACKER RULES and STYLE.
+        # Mood trend (simple detection)
+        negative_moods = ["sad", "angry", "stressed", "tired"]
+        negative_count = sum(
+            1 for m in moods[:14]
+            if m["mood_name"] and m["mood_name"].lower() in negative_moods
+        )
+
+        mood_trend = "stable"
+        if negative_count >= 5:
+            mood_trend = "declining"
+
+        # Overdue risk
+        today_date = datetime.now().date()
+        overdue = [t for t in todos if not t["completed"] and t["effective_date"] < today_date]
+        overdue_rate = round((len(overdue) / len(todos)) * 100, 2) if todos else 0
+
+        predictive_section = f"""
+PREDICTIVE METRICS:
+- Habit consistency (last 30 days): {habit_score}%
+- Mood trend (last 2 weeks): {mood_trend}
+- Overdue task rate: {overdue_rate}%
 """
 
-    if not GEMINI_API_KEY:
-        return jsonify({"isOk": False, "error": "Gemini API key not set"}), 500
+    today_str = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%Y-%m-%d")
 
-    answer = None
+    prompt = f"""
+You are a gentle assistant inside a personal tracker app called Mirror.
+
+USER DATA:
+- TODOS: {todos}
+- HABITS: {habit_rows}
+- MOODS: {moods}
+
+{predictive_section}
+
+Current date: {today_str}
+
+If predictive metrics are provided, use them only when relevant to the user's question.
+Otherwise, answer based only on factual data.
+
+Keep response warm, supportive, and short (2–4 sentences).
+
+User message: {message}
+Answer:
+"""
+
     try:
         client = genai.Client(api_key=GEMINI_API_KEY)
         response = client.models.generate_content(
@@ -1075,13 +1122,12 @@ Answer now, following the DATE & TRACKER RULES and STYLE.
             contents=prompt,
         )
         answer = (response.text or "").strip()
+
+        return jsonify({"isOk": True, "answer": answer})
+
     except Exception as e:
         print(f"Gemini error: {e}", flush=True)
-
-    if not answer:
         return jsonify({"isOk": False, "error": "Gemini call failed"}), 500
-
-    return jsonify({"isOk": True, "answer": answer})
 
 
 
@@ -1093,6 +1139,7 @@ Answer now, following the DATE & TRACKER RULES and STYLE.
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
