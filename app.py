@@ -1005,7 +1005,7 @@ def ask_ai():
         "improving",
         "declining",
         "progress",
-        "how has my mood"
+        "how has my mood",
     ]
 
     is_trend_query = any(k in message_lower for k in trend_keywords)
@@ -1013,28 +1013,37 @@ def ask_ai():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT text, completed,
                COALESCE(due_date::date, created_at::date, CURRENT_DATE) AS effective_date
         FROM todo
         WHERE user_id=%s
         ORDER BY created_at DESC
-    """, (user_id,))
+        """,
+        (user_id,),
+    )
     todos = cursor.fetchall()
 
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT name, completion_history
         FROM habit
         WHERE user_id=%s
-    """, (user_id,))
+        """,
+        (user_id,),
+    )
     habit_rows = cursor.fetchall()
 
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT mood_name, date
         FROM mood
         WHERE user_id=%s
         ORDER BY date DESC
-    """, (user_id,))
+        """,
+        (user_id,),
+    )
     moods = cursor.fetchall()
 
     cursor.close()
@@ -1043,7 +1052,9 @@ def ask_ai():
     predictive_section = ""
 
     if is_trend_query:
+        # ----------------------------
         # Habit consistency (last 30 days)
+        # ----------------------------
         today = datetime.now().date()
         start = today - timedelta(days=29)
 
@@ -1055,7 +1066,7 @@ def ask_ai():
                 history = json.loads(h["completion_history"] or "{}")
                 if not isinstance(history, dict):
                     history = {}
-            except:
+            except Exception:
                 history = {}
 
             d = start
@@ -1069,10 +1080,13 @@ def ask_ai():
 
         habit_score = round((completed_days / total_days) * 100, 2) if total_days else 0
 
-        # Mood trend (simple detection)
+        # ----------------------------
+        # Mood trend (last 2 weeks)
+        # ----------------------------
         negative_moods = ["sad", "angry", "stressed", "tired"]
         negative_count = sum(
-            1 for m in moods[:14]
+            1
+            for m in moods[:14]
             if m["mood_name"] and m["mood_name"].lower() in negative_moods
         )
 
@@ -1080,16 +1094,28 @@ def ask_ai():
         if negative_count >= 5:
             mood_trend = "declining"
 
-        # Overdue risk
+        # ----------------------------
+        # To-do metrics
+        # ----------------------------
         today_date = datetime.now().date()
-        overdue = [t for t in todos if not t["completed"] and t["effective_date"] < today_date]
-        overdue_rate = round((len(overdue) / len(todos)) * 100, 2) if todos else 0
+        pending = [t for t in todos if not t["completed"]]
+        completed = [t for t in todos if t["completed"]]
+        overdue = [t for t in pending if t["effective_date"] < today_date]
 
+        pending_count = len(pending)
+        completed_rate = round((len(completed) / len(todos)) * 100, 2) if todos else 0
+        overdue_count = len(overdue)
+
+        # ----------------------------
+        # Build predictive section
+        # ----------------------------
         predictive_section = f"""
 PREDICTIVE METRICS:
 - Habit consistency (last 30 days): {habit_score}%
 - Mood trend (last 2 weeks): {mood_trend}
-- Overdue task rate: {overdue_rate}%
+- Completed tasks rate: {completed_rate}%
+- Pending tasks: {pending_count}
+- Overdue tasks: {overdue_count}
 """
 
     today_str = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%Y-%m-%d")
@@ -1139,6 +1165,7 @@ Answer:
 @app.route("/wake")
 def wake():
     return "Mirror FYP awake! 💫"
+
 
 
 
